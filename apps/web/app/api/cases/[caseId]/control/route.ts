@@ -5,7 +5,7 @@ import { TaskScheduler } from "@actionos/runtime/task-scheduler";
 import { authenticatedOwner, assertSameOrigin } from "../../../../../lib/authz";
 import { handleMissionControl } from "../../../../../lib/control-controller";
 import { firestore } from "../../../../../lib/firebase-admin";
-import { durableCaseScheduler } from "../../../../../lib/durable-case-scheduler";
+import { durableCaseScheduler } from "../../../../../lib/durable-mission-scheduler";
 
 export const runtime = "nodejs";
 type Context = { params: Promise<{ missionId: string }> };

@@ -32,7 +32,9 @@ export interface ConsumerCaseDetail {
 const states: Record<FollowThroughMission["state"], [string, string]> = {
   DRAFT: ["Draft", "Review the extracted outcome"], AWAITING_APPROVAL: ["Approval required", "Approve the exact follow-up"],
   READY: ["Scheduled", "ActionOS will send the approved follow-up"], RUNNING: ["Sending", "The approved channel is processing the follow-up"],
-  WAITING_EXTERNAL: ["Waiting for proof", "ActionOS will check the next company response"], WAITING_RETRY: ["Retrying safely", "A bounded retry is scheduled"],
+  WAITING_EXTERNAL: ["Waiting for proof", "ActionOS will check the next company response"],
+  VERIFYING: ["Verifying evidence", "ActionOS is reviewing the company response"],
+  WAITING_RETRY: ["Retrying safely", "A bounded retry is scheduled"],
   NEEDS_ATTENTION: ["Decision needed", "Review one decision before ActionOS continues"], DONE: ["Company evidence accepted", "Check the result in the underlying account"],
   FAILED: ["Stopped after failure", "Review the recorded failure"], CANCELLED: ["Stopped", "No future external action is authorized"],
   EXPIRED: ["Expired", "Create and approve a new plan to continue"]
@@ -54,7 +56,7 @@ export function projectConsumerMission(input: {
   const lastChannel = input.channelEvents?.at(-1);
   const type = activeCaseChannel(lastChannel?.channelType ?? item.plan.channelType);
   const copy = channelCopy(type);
-  const acknowledgementOnly = evidence.some((record) => record.candidate.level === "ACTION_ATTEMPTED" && !record.verification.accepted);
+  const acknowledgementOnly = evidence.some((record) => record.candidate.status === "ACTION_ATTEMPTED" && !record.verification.accepted);
   const accepted = item.state === "DONE";
   const money = item.plan.evidenceRequirements.some((requirement) => requirement.amountMinor !== undefined);
   return {

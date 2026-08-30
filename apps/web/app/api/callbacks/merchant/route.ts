@@ -3,7 +3,7 @@ import { VerificationService } from "@actionos/runtime/verification-service";
 import { handleMerchantCallback } from "../../../../lib/callback-controller";
 import { firestore } from "../../../../lib/firebase-admin";
 import { notificationDelivery } from "../../../../lib/notification-delivery";
-import { caseScheduler } from "../../../../lib/case-scheduler";
+import { missionScheduler } from "../../../../lib/mission-scheduler";
 
 export const runtime = "nodejs";
 
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       store,
       store,
       notificationDelivery(store),
-      caseScheduler()
+      missionScheduler()
     )
   });
 }

@@ -9,7 +9,7 @@ import { errorCopy } from "../lib/error-copy";
 import { RecoverableIdentity } from "./recoverable-identity";
 import { getReviewCopy } from "../lib/review-copy";
 import { useLocale } from "../lib/use-locale";
-import { ApprovalPanel } from "./boundary.panel";
+import { ApprovalPanel } from "./approval-panel";
 
 type PlanResponse = DraftMission & { error?: string };
 
@@ -243,7 +243,7 @@ export function PlanReview({
   const activeChannelType = draft.plan.channelType ??
     (contactMode === "email" ? "MANAGED_EMAIL" : "CONTROLLED_SANDBOX");
   const activeCapability = capabilities.find((item) => item.channelType === activeChannelType);
-  const boundary.locker: "facts" | "channel" | "contact" | "identity" | null = draft.activationBlocked ? "facts" : activeCapability?.status !== "AVAILABLE" ? "channel" : !legitimateContact ? "contact" : activeChannelType === "MANAGED_EMAIL" && !recoverable ? "identity" : null;
+  const blocker: "facts" | "channel" | "contact" | "identity" | null = draft.activationBlocked ? "facts" : activeCapability?.status !== "AVAILABLE" ? "channel" : !legitimateContact ? "contact" : activeChannelType === "MANAGED_EMAIL" && !recoverable ? "identity" : null;
   const chooseChannel = (channelType: "CONTROLLED_SANDBOX" | "MANAGED_EMAIL") => {
     if (channelType === activeChannelType) return;
     void command({
@@ -264,7 +264,7 @@ export function PlanReview({
         <div className="review-readiness" data-ready={!draft.activationBlocked}>
           <span aria-hidden="true">{draft.activationBlocked ? "!" : "✓"}</span>
           <div>
-            <strong>{draft.activationBlocked ? `${String(draft.blockingFields.length)} ${tr("details need you", "datos necesitan tu confirmación", "dados precisam da sua confirmação")}` : tr("Ready for your boundary., "Listo para tu aprobación", "Pronto para sua aprovação")}</strong>
+            <strong>{draft.activationBlocked ? `${String(draft.blockingFields.length)} ${tr("details need you", "datos necesitan tu confirmación", "dados precisam da sua confirmação")}` : tr("Ready for your approval.", "Listo para tu aprobación", "Pronto para sua aprovação")}</strong>
             <p>{draft.activationBlocked ? tr("Confirm the highlighted information below.", "Confirmá la información resaltada.", "Confirme as informações destacadas.") : tr("Gemini found the critical details. Check them before delegating.", "Gemini encontró los datos críticos. Revisalos antes de delegar.", "O Gemini encontrou os dados críticos. Revise-os antes de delegar.")}</p>
           </div>
         </div>
@@ -302,7 +302,7 @@ export function PlanReview({
             <dt>{tr("Follow-up", "Seguimiento", "Acompanhamento")}</dt>
             <dd>
               {draft.plan.executionMode === "ACCELERATED_DEMO"
-                ? tr("Accelerated after boundary., "Acelerado después de aprobar", "Acelerado após a aprovação")
+                ? tr("Accelerated after approval.", "Acelerado después de aprobar", "Acelerado após a aprovação")
                 : draft.plan.followUpAt
                   ? dateTime(draft.plan.followUpAt)
                 : tr("Choose when ActionOS should follow up", "Elegí cuándo debe hacer el seguimiento", "Escolha quando o ActionOS deve acompanhar")}
@@ -324,7 +324,7 @@ export function PlanReview({
         ) : null}
         <details className="contract-editor" open={draft.activationBlocked}>
           <summary>{draft.activationBlocked ? tr("Fix the details Gemini could not confirm", "Corregí los datos que Gemini no pudo confirmar", "Corrija os dados que o Gemini não conseguiu confirmar") : tr("Edit what Gemini understood", "Editá lo que Gemini entendió", "Edite o que o Gemini entendeu")}</summary>
-          <p>{tr("Correct any detail before delegating. Saving creates a new version and invalidates the previous boundary.hash.", "Corregí cualquier dato antes de delegar. Guardar crea una versión nueva e invalida la aprobación anterior.", "Corrija qualquer dado antes de delegar. Salvar cria uma nova versão e invalida a aprovação anterior.")}</p>
+          <p>{tr("Correct any detail before delegating. Saving creates a new version and invalidates the previous approval.", "Corregí cualquier dato antes de delegar. Guardar crea una versión nueva e invalida la aprobación anterior.", "Corrija qualquer dado antes de delegar. Salvar cria uma nova versão e invalida a aprovação anterior.")}</p>
           <div className="contract-editor-grid">
             <label>{tr("Company", "Empresa", "Empresa")}<input aria-label={fieldLabels.promisor} value={company} onChange={(event) => { setCompany(event.target.value); }} /></label>
             <label>{fieldLabels.result}<input aria-label={fieldLabels.result} value={result} onChange={(event) => { setResult(event.target.value); }} /></label>
@@ -355,8 +355,8 @@ export function PlanReview({
           onLegitimateContactChange={setLegitimateContact}
           actionLabel={draft.state === "READY" ? copy.activated : copy.start}
           busy={busy}
-          disabled={draft.state === "READY" || boundary.locker !== null}
-          blockerReason={boundary.locker}
+          disabled={draft.state === "READY" || blocker !== null}
+          blockerReason={blocker}
           onApprove={() => { void command({ action: "approve", expectedPlanVersion: draft.plan.version, expectedPlanHash: draft.plan.planHash }); }}
         />
         <div className="channel-plan">
@@ -407,13 +407,13 @@ export function PlanReview({
             <details><summary>{tr("Change the company email", "Cambiar el correo de la empresa", "Alterar o e-mail da empresa")}</summary><div className="inline-edit"><input type="email" aria-label={fieldLabels.allowedRecipient} value={recipient} placeholder={draft.plan.allowedRecipient} onChange={(event) => { setRecipient(event.target.value); }} /><button type="button" disabled={busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)} onClick={() => void saveRevision({ allowedRecipient: recipient.trim() })}>{tr("Save recipient", "Guardar destinatario", "Salvar destinatário")}</button></div></details>
           ) : null}
         </div>
-        <div className="boundary.decision" aria-label={copy.before}>
+        <div className="approval-decision" aria-label={copy.before}>
           <strong>{copy.before}</strong>
           <p>{locale === "es" ? "ActionOS contactará a" : locale === "pt" ? "O ActionOS entrará em contato com" : "ActionOS will contact"} {activeChannelType === "MANAGED_EMAIL" ? draft.plan.allowedRecipient : copy.merchant}, {locale === "es" ? "compartirá" : locale === "pt" ? "compartilhará" : "share"} {monetaryPromise ? copy.dataMoney : copy.dataOutcome}, {locale === "es" ? "hará hasta" : locale === "pt" ? "fará até" : "make up to"} {draft.plan.maxLogicalSends ?? 3} {copy.decisionEnd}</p>
         </div>
-        <details className="boundary.details">
+        <details className="approval-details">
           <summary>{copy.reviewLimits}</summary>
-          <div className="permission-list boundary.summary" aria-label={copy.limitsLabel}>
+          <div className="permission-list approval-summary" aria-label={copy.limitsLabel}>
           <div><span className="permission-icon">1</span><div><strong>{copy.request}</strong><p>{draft.plan.goal}</p></div></div>
           <div><span className="permission-icon">2</span><div><strong>{copy.contact}</strong><p>{draft.plan.allowedRecipient} via {activeChannelType === "MANAGED_EMAIL" ? copy.email : copy.demo}.</p></div></div>
           <div><span className="permission-icon">3</span><div><strong>{copy.timing}</strong><p>{draft.plan.executionMode === "ACCELERATED_DEMO" ? copy.seconds : draft.plan.followUpAt ? dateTime(draft.plan.followUpAt) : "—"}</p></div></div>
@@ -422,7 +422,7 @@ export function PlanReview({
           </div>
         </details>
         <details className="shared-data" open><summary>{copy.shared}</summary><p>{monetaryPromise ? copy.dataMoney : copy.dataOutcome}: {activeChannelType === "MANAGED_EMAIL" ? draft.plan.allowedRecipient : copy.merchant}. {copy.noExtra}</p></details>
-        {activeChannelType === "CONTROLLED_SANDBOX" ? <p className="demo-warning"><strong>{tr("Accelerated controlled demo", "Demo controlada acelerada", "Demonstração controlada acelerada")}:</strong> {tr("after boundary. real Cloud Tasks and the isolated merchant adapter run in seconds. The action goes to ActionOS’s simulator; no real company will be contacted.", "después de aprobar, Cloud Tasks y el adaptador aislado se ejecutan en segundos. La acción va al simulador de ActionOS; no se contactará a una empresa real.", "após a aprovação, Cloud Tasks e o adaptador isolado executam em segundos. A ação vai para o simulador do ActionOS; nenhuma empresa real será contatada.")}</p> : null}
+        {activeChannelType === "CONTROLLED_SANDBOX" ? <p className="demo-warning"><strong>{tr("Accelerated controlled demo", "Demo controlada acelerada", "Demonstração controlada acelerada")}:</strong> {tr("after approval, real Cloud Tasks and the isolated merchant adapter run in seconds. The action goes to ActionOS’s simulator; no real company will be contacted.", "después de aprobar, Cloud Tasks y el adaptador aislado se ejecutan en segundos. La acción va al simulador de ActionOS; no se contactará a una empresa real.", "após a aprovação, Cloud Tasks e o adaptador isolado executam em segundos. A ação vai para o simulador do ActionOS; nenhuma empresa real será contatada.")}</p> : null}
         <div className="return-promise">
           <strong>{copy.resultReturn}</strong><p>{copy.returnText}</p>
           <div className="inline-edit">

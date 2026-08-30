@@ -1,6 +1,6 @@
 import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
 import { authenticatedOwner } from "../../../../../lib/authz";
-import { handleCaseDetail } from "../../../../../lib/case-detail-controller";
+import { handleCaseDetail } from "../../../../../lib/mission-detail-controller";
 import { firestore } from "../../../../../lib/firebase-admin";
 
 export const runtime = "nodejs";

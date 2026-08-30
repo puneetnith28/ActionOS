@@ -80,6 +80,7 @@ const status: Record<FollowThroughMission["state"], string> = {
   READY: "Scheduled",
   RUNNING: "Contacting the company",
   WAITING_EXTERNAL: "Waiting for the company",
+  VERIFYING: "Verifying evidence",
   WAITING_RETRY: "Retrying safely",
   NEEDS_ATTENTION: "Needs your decision",
   DONE: "Proof accepted",

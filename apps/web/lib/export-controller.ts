@@ -1,6 +1,6 @@
 import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { EvidenceRecord } from "@actionos/runtime/verification-service";
-import { caseExportText } from "./case-export";
+import { caseExportText } from "./mission-export";
 
 export interface CaseExportStore {
   get(missionId: string): Promise<FollowThroughMission | undefined>;

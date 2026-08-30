@@ -8,8 +8,8 @@ function redactReference(value: string): string {
 }
 
 export function caseExportText(item: FollowThroughMission, verification: readonly EvidenceRecord[], generatedAt: string): string {
-  const latest = evidence.at(-1);
-  const rows = outcomeComparison(item, evidence).map((row) => ({
+  const latest = verification.at(-1);
+  const rows = outcomeComparison(item, verification).map((row) => ({
     ...row,
     promised: row.label === "Reference" ? redactReference(row.promised) : row.promised,
     observed: row.label === "Reference" && row.observed !== "Not stated in the reply"
@@ -26,18 +26,18 @@ export function caseExportText(item: FollowThroughMission, verification: readonl
     `Channel: ${item.plan.channelType === "MANAGED_EMAIL" ? "Managed email (controlled pilot)" : "Controlled demo"}`,
     "",
     "COMPANY STATEMENT",
-    latest ? `Evidence status: ${latest.candidate.level}` : "No company evidence recorded.",
+    latest ? `Evidence status: ${latest.candidate.status}` : "No company verification recorded.",
     "",
     "DUEBACK DECISION",
-    latest ? (accepted ? "The explicit evidence met the approved contract." : `Not resolved: ${latest.verification.reasonCodes.join(", ")}.`) : "No evidence decision yet.",
+    latest ? (accepted ? "The explicit verification met the approved contract." : `Not resolved: ${latest.verification.reasonCodes.join(", ")}.`) : "No verification decision yet.",
     "",
     "PROMISED VS OBSERVED",
     ...rows.map((row) => `${row.label}: promised ${row.promised}; observed ${row.observed}; ${row.status}.`),
     "",
     "LIMITATION",
     monetary
-      ? "Company-confirmed refund evidence is not bank settlement. Check the payment account."
-      : "Company evidence is not independent fulfillment. Check that the promised outcome arrived.",
+      ? "Company-confirmed refund verification is not bank settlement. Check the payment account."
+      : "Company verification is not independent fulfillment. Check that the promised outcome arrived.",
     "",
     "This static summary grants no ActionOS access or control."
   ].join("\n");

@@ -34,7 +34,7 @@ export async function selectActionWithGateway(
 ): Promise<SelectedAction> {
   const input = selectActionInputSchema.parse(unparsedInput);
   const plan = resolutionPlanSchema.parse(input.plan);
-  const availableCapabilities = input.availableCapabilities.map((c: unknown) => channelCapabilitySchema.parse(c));
+  const availableCapabilities: ChannelCapability[] = input.availableCapabilities.map((c: unknown) => channelCapabilitySchema.parse(c));
   
   const prompt = `Goal: ${plan.goal}
 Allowed Actions: ${plan.allowedActions.join(", ")}

@@ -5,8 +5,8 @@ import type { VerificationService } from "./verification-service";
 import type { InterventionService } from "./interventions";
 
 export interface InboundCorrelationStore extends FollowThroughStore {
-  caseForReplyRoute(replyRoute: string): Promise<string | undefined>;
-  caseForProviderMessageId?(providerMessageId: string): Promise<string | undefined>;
+  missionForReplyRoute(replyRoute: string): Promise<string | undefined>;
+  missionForProviderMessageId?(providerMessageId: string): Promise<string | undefined>;
 }
 
 export interface NormalizedInboundEmail {
@@ -21,7 +21,7 @@ export interface NormalizedInboundEmail {
 
 export interface ExecutionResult {
   readonly replyType: "ACKNOWLEDGEMENT" | "STATUS" | "PROPOSAL_CHANGE" | "EVIDENCE" | "AUTO_REPLY" | "UNKNOWN";
-  readonly evidenceLevel: ExecutionOutcomeContract["level"];
+  readonly evidenceLevel: ExecutionOutcomeContract["status"];
   readonly transactionRef?: string | undefined;
   readonly amountMinor?: number | undefined;
   readonly currency?: string | undefined;
@@ -57,7 +57,7 @@ export class InboundService {
     reasonCodes?: readonly string[];
   }> {
     const correlations = (await Promise.all(email.to.map((recipient) =>
-      this.cases.caseForReplyRoute(address(recipient))
+      this.cases.missionForReplyRoute(address(recipient))
     ))).filter((missionId): missionId is string => Boolean(missionId));
     const uniqueCases = [...new Set(correlations)];
     if (uniqueCases.length !== 1) {
@@ -65,8 +65,8 @@ export class InboundService {
     }
     const missionId = uniqueCases[0];
     if (!missionId) return { status: "REJECTED", reasonCodes: ["UNKNOWN_MISSION"] };
-    if (email.inReplyTo && this.cases.caseForProviderMessageId) {
-      const threadedMissionId = await this.cases.caseForProviderMessageId(email.inReplyTo);
+    if (email.inReplyTo && this.cases.missionForProviderMessageId) {
+      const threadedMissionId = await this.cases.missionForProviderMessageId(email.inReplyTo);
       // Provider delivery IDs and RFC Message-IDs are different namespaces.
       // An indexed thread may veto an opaque route, but absence of an index
       // must not reject an otherwise exact case-specific reply address.
@@ -134,7 +134,7 @@ export class InboundService {
     const candidate: ExecutionOutcomeContract = {
       outcomeId: `evidence_${stableHash({ namespace: "dueback/inbound-evidence/v1", id: email.providerEmailId }).slice(7, 31)}`,
       missionId,
-      level: interpretation.evidenceLevel,
+      status: interpretation.evidenceLevel,
       ...(interpretation.amountMinor === undefined ? {} : { amountMinor: interpretation.amountMinor }),
       ...(interpretation.currency === undefined ? {} : { currency: interpretation.currency }),
       ...(interpretation.transactionRef === undefined

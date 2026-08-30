@@ -6,7 +6,7 @@ import type {
   VerificationResult
 } from "./types";
 
-function statusRank(status: ExecutionOutcome["level"]): number {
+function statusRank(status: ExecutionOutcome["status"]): number {
   return verificationStatuses.indexOf(status);
 }
 

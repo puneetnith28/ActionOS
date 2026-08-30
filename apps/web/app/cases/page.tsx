@@ -1,5 +1,5 @@
 import { AppHeader } from "../../components/app-header";
-import { CaseInbox } from "../../components/mission-inbox";
+import { CaseInbox } from "../../components/case-inbox";
 import { getRequestMessages } from "../../lib/i18n-server";
 
 export default async function CasesPage() {

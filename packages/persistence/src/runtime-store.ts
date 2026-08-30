@@ -377,7 +377,7 @@ export class FirestoreRuntimeStore
     wake?: WakeIntent;
   }): Promise<{ duplicate: boolean }> {
     const missionRef = this.db.collection("missionRuns").doc(input.missionId);
-    const evidenceRef = missionRef.collection("evidence").doc(input.evidence.candidate.outcomeId);
+    const evidenceRef = missionRef.collection("evidence").doc(input.verification.candidate.outcomeId);
     return this.db.runTransaction(async (transaction) => {
       const [item, prior] = await Promise.all([
         transaction.get(missionRef),
@@ -387,36 +387,36 @@ export class FirestoreRuntimeStore
       if (prior.exists) return { duplicate: true };
       if (item.get("version") !== input.expectedVersion) throw new Error("VERSION_CONFLICT");
       transaction.create(evidenceRef, {
-        ...input.evidence,
-        deleteAt: firestoreDeleteAt(input.evidence.recordedAt)
+        ...input.verification,
+        deleteAt: firestoreDeleteAt(input.verification.recordedAt)
       });
       transaction.update(missionRef, {
         state: input.nextState,
         version: input.expectedVersion + 1,
-        updatedAt: input.evidence.recordedAt,
+        updatedAt: input.verification.recordedAt,
         nextWakeAt: input.nextWakeAt ?? FieldValue.delete(),
         ...(input.nextState === "DONE"
           ? {
-              completedStatus: input.evidence.candidate.level,
-              deleteAt: firestoreDeleteAt(input.evidence.recordedAt)
+              completedStatus: input.verification.candidate.status,
+              deleteAt: firestoreDeleteAt(input.verification.recordedAt)
             }
           : {})
       });
       persistWakeIntent(transaction, this.db, input.wake);
       const sequence = input.expectedVersion + 1;
-      const eventId = `${String(sequence).padStart(6, "0")}-evidence-result-${input.evidence.candidate.outcomeId.slice(-8)}`;
+      const eventId = `${String(sequence).padStart(6, "0")}-evidence-result-${input.verification.candidate.outcomeId.slice(-8)}`;
       transaction.create(missionRef.collection("events").doc(eventId), {
         eventId,
         missionId: input.missionId,
         sequence,
         type: "EVIDENCE_RESULT",
         actor: "COUNTERPARTY",
-        occurredAt: input.evidence.recordedAt,
-        reasonCodes: input.evidence.verification.reasonCodes,
-        correlationId: input.evidence.correlationId,
+        occurredAt: input.verification.recordedAt,
+        reasonCodes: input.verification.verification.reasonCodes,
+        correlationId: input.verification.correlationId,
         state: input.nextState,
-        outcomeId: input.evidence.candidate.outcomeId,
-        deleteAt: firestoreDeleteAt(input.evidence.recordedAt)
+        outcomeId: input.verification.candidate.outcomeId,
+        deleteAt: firestoreDeleteAt(input.verification.recordedAt)
       });
       return { duplicate: false };
     });

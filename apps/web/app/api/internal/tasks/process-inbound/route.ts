@@ -7,7 +7,7 @@ import { InboundService } from "@actionos/runtime/inbound-service";
 import { InterventionService } from "@actionos/runtime/interventions";
 import { firestore } from "../../../../../lib/firebase-admin";
 import { notificationDelivery } from "../../../../../lib/notification-delivery";
-import { caseScheduler } from "../../../../../lib/case-scheduler";
+import { missionScheduler } from "../../../../../lib/mission-scheduler";
 import { requireCloudTaskIdentity } from "../../../../../lib/cloud-task-identity";
 
 export const runtime = "nodejs";
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
         store,
         store,
         notificationDelivery(store),
-        caseScheduler()
+        missionScheduler()
       ),
       interventions
     );

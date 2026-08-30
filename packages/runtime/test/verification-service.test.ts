@@ -22,7 +22,7 @@ class Cases implements EvidenceMissionStore {
     nextWakeAt?: string;
     verification: EvidenceRecord;
   }): Promise<{ duplicate: boolean }> {
-    this.records.push(input.evidence);
+    this.records.push(input.verification);
     this.item = {
       ...this.item,
       state: input.nextState,

@@ -45,7 +45,7 @@ export function missionConversation(
   const inbound = evidence.map((record) => ({
     id: `inbound-${record.candidate.outcomeId}`,
     direction: "INBOUND" as const,
-    title: record.candidate.level === "ACTION_ATTEMPTED"
+    title: record.candidate.status === "ACTION_ATTEMPTED"
       ? "The company acknowledged the request"
       : "ActionOS checked a company reply",
     occurredAt: record.recordedAt,

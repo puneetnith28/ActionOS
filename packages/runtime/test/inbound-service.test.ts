@@ -38,7 +38,7 @@ describe("inbound service", () => {
       return Promise.resolve({ status: "INSUFFICIENT" as const, verification: { accepted: false, reasonCodes: ["INSUFFICIENT_STATUS" as const] } });
     });
     const service = new InboundService(
-      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.missionId) },
+      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), missionForReplyRoute: () => Promise.resolve(item.missionId) },
       { interpret: () => Promise.resolve({ replyType: "ACKNOWLEDGEMENT", evidenceLevel: "ACTION_ATTEMPTED", changedTerms: [], uncertainty: "NONE" }) },
       { verifyOutcome } as unknown as VerificationService,
       { raise: vi.fn() } as unknown as InterventionService
@@ -60,7 +60,7 @@ describe("inbound service", () => {
       });
     });
     const service = new InboundService(
-      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.missionId) },
+      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), missionForReplyRoute: () => Promise.resolve(item.missionId) },
       { interpret: () => Promise.resolve({
         replyType: "EVIDENCE",
         evidenceLevel: "OUTCOME_CONFIRMED",
@@ -102,7 +102,7 @@ describe("inbound service", () => {
       });
     });
     const service = new InboundService(
-      { get: () => Promise.resolve(replacement), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.missionId) },
+      { get: () => Promise.resolve(replacement), compareAndSet: () => Promise.resolve(), missionForReplyRoute: () => Promise.resolve(item.missionId) },
       { interpret: () => Promise.resolve({
         replyType: "EVIDENCE",
         evidenceLevel: "OUTCOME_CONFIRMED",
@@ -125,7 +125,7 @@ describe("inbound service", () => {
   it("rejects unknown routing without invoking the model", async () => {
     const interpret = vi.fn();
     const service = new InboundService(
-      { get: () => Promise.resolve(undefined), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(undefined) },
+      { get: () => Promise.resolve(undefined), compareAndSet: () => Promise.resolve(), missionForReplyRoute: () => Promise.resolve(undefined) },
       { interpret },
       { verifyOutcome: vi.fn() } as unknown as VerificationService,
       { raise: vi.fn() } as unknown as InterventionService
@@ -139,8 +139,8 @@ describe("inbound service", () => {
     const service = new InboundService(
       {
         get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(),
-        caseForReplyRoute: () => Promise.resolve(item.missionId),
-        caseForProviderMessageId: () => Promise.resolve("mission_other")
+        missionForReplyRoute: () => Promise.resolve(item.missionId),
+        missionForProviderMessageId: () => Promise.resolve("mission_other")
       },
       { interpret },
       { verifyOutcome: vi.fn() } as unknown as VerificationService,
@@ -162,8 +162,8 @@ describe("inbound service", () => {
     const service = new InboundService(
       {
         get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(),
-        caseForReplyRoute: () => Promise.resolve(item.missionId),
-        caseForProviderMessageId: () => Promise.resolve(undefined)
+        missionForReplyRoute: () => Promise.resolve(item.missionId),
+        missionForProviderMessageId: () => Promise.resolve(undefined)
       },
       { interpret },
       { verifyOutcome } as unknown as VerificationService,
@@ -179,7 +179,7 @@ describe("inbound service", () => {
     const interpret = vi.fn();
     const raise = vi.fn(() => Promise.resolve({}));
     const service = new InboundService(
-      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.missionId) },
+      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), missionForReplyRoute: () => Promise.resolve(item.missionId) },
       { interpret },
       { verifyOutcome: vi.fn() } as unknown as VerificationService,
       { raise } as unknown as InterventionService
@@ -195,7 +195,7 @@ describe("inbound service", () => {
       {
         get: () => Promise.resolve(item),
         compareAndSet: () => Promise.resolve(),
-        caseForReplyRoute: (route) => Promise.resolve(route.includes("other") ? "mission_other" : item.missionId)
+        missionForReplyRoute: (route) => Promise.resolve(route.includes("other") ? "mission_other" : item.missionId)
       },
       { interpret },
       { verifyOutcome: vi.fn() } as unknown as VerificationService,
@@ -208,7 +208,7 @@ describe("inbound service", () => {
       {
         get: () => Promise.resolve({ ...item, state: "CANCELLED" }),
         compareAndSet: () => Promise.resolve(),
-        caseForReplyRoute: () => Promise.resolve(item.missionId)
+        missionForReplyRoute: () => Promise.resolve(item.missionId)
       },
       { interpret },
       { verifyOutcome: vi.fn() } as unknown as VerificationService,
@@ -223,7 +223,7 @@ describe("inbound service", () => {
     const raise = vi.fn(() => Promise.resolve({}));
     const verifyOutcome = vi.fn();
     const service = new InboundService(
-      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.missionId) },
+      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), missionForReplyRoute: () => Promise.resolve(item.missionId) },
       { interpret: () => Promise.resolve({
         replyType: "PROPOSAL_CHANGE",
         evidenceLevel: "SYSTEM_ACKNOWLEDGED",

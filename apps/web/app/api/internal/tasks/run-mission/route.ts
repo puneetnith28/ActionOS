@@ -20,7 +20,7 @@ import {
   parseAllowedRecipientDomains
 } from "../../../../../lib/security-limits";
 import { notificationDelivery } from "../../../../../lib/notification-delivery";
-import { durableCaseScheduler } from "../../../../../lib/durable-case-scheduler";
+import { durableCaseScheduler } from "../../../../../lib/durable-mission-scheduler";
 
 export const runtime = "nodejs";
 

@@ -65,7 +65,7 @@ const gateway: PlanningModelGateway = {
 export const planExecutionFlow = ai.defineFlow(
   {
     name: "planExecution",
-    inputSchema: missionGoalSchema,
+    inputSchema: missionGoalSchema as any,
     outputSchema: decomposedPlanSchema
   },
   async (input) => planExecutionWithGateway(gateway, input)

@@ -7,7 +7,7 @@ import { firestore } from "../../../../../lib/firebase-admin";
 import { handlePlanRequest } from "../../../../../lib/plan-controller";
 import { publicCapabilities } from "@actionos/runtime/capability-registry";
 import { stableHash } from "@actionos/domain";
-import { durableCaseScheduler } from "../../../../../lib/durable-case-scheduler";
+import { durableCaseScheduler } from "../../../../../lib/durable-mission-scheduler";
 
 export const runtime = "nodejs";
 function planService() {

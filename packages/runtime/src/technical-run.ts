@@ -13,7 +13,7 @@ export interface TechnicalRunSource {
   };
   hasTypedDraft: boolean;
   events: readonly RuntimeTimelineEvent[];
-  verification: readonly EvidenceRecord[];
+  evidence: readonly EvidenceRecord[];
   notifications: readonly NotificationRecord[];
   channelEvents: readonly { transportStatus: string; acceptedAt: string; observedAt?: string }[];
 }

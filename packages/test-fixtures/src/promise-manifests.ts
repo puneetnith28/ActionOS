@@ -35,7 +35,7 @@ export const billCreditFixture = {
   acceptedEvidence: {
     outcomeId: "evidence_bill_credit_ok",
     missionId: "mission_bill_credit_1234",
-    level: "OUTCOME_CONFIRMED",
+    status: "OUTCOME_CONFIRMED",
     amountMinor: 2500,
     currency: "USD",
     transactionRef: "ACCOUNT-44",
@@ -73,7 +73,7 @@ export const replacementFixture = {
   acceptedEvidence: {
     outcomeId: "evidence_replacement_ok",
     missionId: "mission_replacement_1234",
-    level: "OUTCOME_CONFIRMED",
+    status: "OUTCOME_CONFIRMED",
     transactionRef: "RMA-808",
     subject: "Noise-cancelling headphones",
     trackingNumber: "TRACK-123456",
