@@ -1,12 +1,12 @@
-export const evidenceLevels = [
-  "PROMISE_RECORDED",
-  "REQUEST_ACKNOWLEDGED",
-  "MERCHANT_COMMITTED",
-  "MERCHANT_CONFIRMED",
-  "FUNDS_SETTLED"
+export const verificationStatuses = [
+  "PLANNED",
+  "ACTION_ATTEMPTED",
+  "SYSTEM_ACKNOWLEDGED",
+  "OUTCOME_CONFIRMED",
+  "STATE_VERIFIED"
 ] as const;
 
-export type EvidenceLevel = (typeof evidenceLevels)[number];
+export type VerificationStatus = (typeof verificationStatuses)[number];
 
 export type MissionState =
   | "DRAFT"
@@ -37,7 +37,7 @@ export interface MissionSnapshot {
   readonly planVersion: number;
   readonly planHash: string;
   readonly approval?: ApprovalBoundary;
-  readonly completedLevel?: EvidenceLevel;
+  readonly completedStatus?: VerificationStatus;
 }
 
 export interface DomainEvent {
@@ -58,24 +58,24 @@ export interface TransitionCommand {
   readonly verification?: VerificationResult;
 }
 
-export interface EvidenceRequirement {
-  readonly minimumLevel: EvidenceLevel;
+export interface VerificationRequirement {
+  readonly minimumStatus: VerificationStatus;
   readonly amountMinor?: number | undefined;
   readonly currency?: string | undefined;
   readonly transactionRef: string;
   readonly subject?: string | undefined;
   readonly billPeriod?: string | undefined;
-  readonly requiredEvidenceFields?:
+  readonly requiredOutcomeFields?:
     | readonly ("amountMinor" | "currency" | "subject" | "billPeriod" | "trackingNumber")[]
     | undefined;
   readonly maxAgeSeconds: number;
   readonly trustedIssuer: string;
 }
 
-export interface EvidenceCandidate {
-  readonly evidenceId: string;
+export interface ExecutionOutcome {
+  readonly outcomeId: string;
   readonly missionId: string;
-  readonly level: EvidenceLevel;
+  readonly status: VerificationStatus;
   readonly amountMinor?: number | undefined;
   readonly currency?: string | undefined;
   readonly transactionRef?: string | undefined;
@@ -90,19 +90,19 @@ export interface EvidenceCandidate {
 export type VerificationReason =
   | "ACCEPTED"
   | "WRONG_MISSION"
-  | "INSUFFICIENT_LEVEL"
+  | "INSUFFICIENT_STATUS"
   | "WRONG_AMOUNT"
   | "WRONG_CURRENCY"
   | "WRONG_REFERENCE"
   | "WRONG_SUBJECT"
   | "WRONG_BILL_PERIOD"
   | "MISSING_TRACKING"
-  | "STALE_EVIDENCE"
+  | "STALE_OUTCOME"
   | "UNTRUSTED_ISSUER"
   | "INVALID_SIGNATURE";
 
 export interface VerificationResult {
   readonly accepted: boolean;
-  readonly level?: EvidenceLevel;
+  readonly status?: VerificationStatus;
   readonly reasonCodes: readonly VerificationReason[];
 }

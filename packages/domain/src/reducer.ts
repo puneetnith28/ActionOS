@@ -83,8 +83,8 @@ export function reduceMission(
     state: command.target,
     version: snapshot.version + 1,
     ...(command.approval ? { approval: command.approval } : {}),
-    ...(command.target === "DONE" && command.verification?.level
-      ? { completedLevel: command.verification.level }
+    ...(command.target === "DONE" && command.verification?.status
+      ? { completedStatus: command.verification.status }
       : {})
   };
 

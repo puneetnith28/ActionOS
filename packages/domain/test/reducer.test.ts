@@ -44,12 +44,12 @@ describe("reduceMission", () => {
       actor: "SYSTEM",
       verification: {
         accepted: true,
-        level: "MERCHANT_CONFIRMED",
+        status: "OUTCOME_CONFIRMED",
         reasonCodes: ["ACCEPTED"]
       }
     });
     expect(result.snapshot.state).toBe("DONE");
-    expect(result.snapshot.completedLevel).toBe("MERCHANT_CONFIRMED");
+    expect(result.snapshot.completedStatus).toBe("OUTCOME_CONFIRMED");
   });
 
   it("rejects stale concurrent commands", () => {
@@ -119,7 +119,7 @@ describe("reduceMission", () => {
     const done: MissionSnapshot = {
       ...running,
       state: "DONE",
-      completedLevel: "MERCHANT_CONFIRMED"
+      completedStatus: "OUTCOME_CONFIRMED"
     };
     const result = reduceMission(done, {
       expectedVersion: 3,
@@ -128,6 +128,6 @@ describe("reduceMission", () => {
       actor: "PERSON"
     });
     expect(result.snapshot.state).toBe("NEEDS_ATTENTION");
-    expect(result.snapshot.completedLevel).toBe("MERCHANT_CONFIRMED");
+    expect(result.snapshot.completedStatus).toBe("OUTCOME_CONFIRMED");
   });
 });

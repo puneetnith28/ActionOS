@@ -1,27 +1,27 @@
-import { evidenceLevels } from "./types";
+import { verificationStatuses } from "./types";
 import type {
-  EvidenceCandidate,
-  EvidenceRequirement,
+  ExecutionOutcome,
+  VerificationRequirement,
   VerificationReason,
   VerificationResult
 } from "./types";
 
-function levelRank(level: EvidenceCandidate["level"]): number {
-  return evidenceLevels.indexOf(level);
+function statusRank(status: ExecutionOutcome["level"]): number {
+  return verificationStatuses.indexOf(status);
 }
 
-export function verifyEvidence(input: {
+export function verifyOutcome(input: {
   readonly missionId: string;
-  readonly requirement: EvidenceRequirement;
-  readonly candidate: EvidenceCandidate;
+  readonly requirement: VerificationRequirement;
+  readonly candidate: ExecutionOutcome;
   readonly now: string;
 }): VerificationResult {
   const { missionId, requirement, candidate } = input;
   const reasons: VerificationReason[] = [];
 
   if (candidate.missionId !== missionId) reasons.push("WRONG_MISSION");
-  if (levelRank(candidate.level) < levelRank(requirement.minimumLevel))
-    reasons.push("INSUFFICIENT_LEVEL");
+  if (statusRank(candidate.status) < statusRank(requirement.minimumStatus))
+    reasons.push("INSUFFICIENT_STATUS");
   if (requirement.amountMinor !== undefined && candidate.amountMinor !== requirement.amountMinor)
     reasons.push("WRONG_AMOUNT");
   if (requirement.currency !== undefined && candidate.currency !== requirement.currency)
@@ -31,16 +31,16 @@ export function verifyEvidence(input: {
     reasons.push("WRONG_SUBJECT");
   if (requirement.billPeriod !== undefined && candidate.billPeriod !== requirement.billPeriod)
     reasons.push("WRONG_BILL_PERIOD");
-  if (requirement.requiredEvidenceFields?.includes("trackingNumber") && !candidate.trackingNumber)
+  if (requirement.requiredOutcomeFields?.includes("trackingNumber") && !candidate.trackingNumber)
     reasons.push("MISSING_TRACKING");
   if (candidate.issuer !== requirement.trustedIssuer) reasons.push("UNTRUSTED_ISSUER");
   if (!candidate.signatureValid) reasons.push("INVALID_SIGNATURE");
 
   const ageSeconds = (Date.parse(input.now) - Date.parse(candidate.issuedAt)) / 1000;
   if (!Number.isFinite(ageSeconds) || ageSeconds < 0 || ageSeconds > requirement.maxAgeSeconds) {
-    reasons.push("STALE_EVIDENCE");
+    reasons.push("STALE_OUTCOME");
   }
 
   if (reasons.length > 0) return { accepted: false, reasonCodes: reasons };
-  return { accepted: true, level: candidate.level, reasonCodes: ["ACCEPTED"] };
+  return { accepted: true, status: candidate.status, reasonCodes: ["ACCEPTED"] };
 }

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { verifyEvidence } from "../src/verifier";
-import type { EvidenceCandidate, EvidenceRequirement } from "../src/types";
+import { verifyOutcome } from "../src/verifier";
+import type { ExecutionOutcome, VerificationRequirement } from "../src/types";
 
-const requirement: EvidenceRequirement = {
-  minimumLevel: "MERCHANT_CONFIRMED",
+const requirement: VerificationRequirement = {
+  minimumStatus: "OUTCOME_CONFIRMED",
   amountMinor: 7900,
   currency: "USD",
   transactionRef: "ORDER-79",
@@ -11,10 +11,10 @@ const requirement: EvidenceRequirement = {
   trustedIssuer: "merchant-sandbox"
 };
 
-const candidate: EvidenceCandidate = {
-  evidenceId: "ev_1",
+const candidate: ExecutionOutcome = {
+  outcomeId: "ev_1",
   missionId: "case_1",
-  level: "MERCHANT_CONFIRMED",
+  status: "OUTCOME_CONFIRMED",
   amountMinor: 7900,
   currency: "USD",
   transactionRef: "ORDER-79",
@@ -23,8 +23,8 @@ const candidate: EvidenceCandidate = {
   signatureValid: true
 };
 
-function verify(overrides: Partial<EvidenceCandidate> = {}) {
-  return verifyEvidence({
+function verify(overrides: Partial<ExecutionOutcome> = {}) {
+  return verifyOutcome({
     missionId: "case_1",
     requirement,
     candidate: { ...candidate, ...overrides },
@@ -32,17 +32,17 @@ function verify(overrides: Partial<EvidenceCandidate> = {}) {
   });
 }
 
-describe("verifyEvidence", () => {
+describe("verifyOutcome", () => {
   it("accepts exact merchant-confirmed evidence", () => {
     expect(verify()).toEqual({
       accepted: true,
-      level: "MERCHANT_CONFIRMED",
+      status: "OUTCOME_CONFIRMED",
       reasonCodes: ["ACCEPTED"]
     });
   });
 
   it.each([
-    ["acknowledgement", { level: "REQUEST_ACKNOWLEDGED" }, "INSUFFICIENT_LEVEL"],
+    ["acknowledgement", { status: "ACTION_ATTEMPTED" }, "INSUFFICIENT_STATUS"],
     ["wrong mission", { missionId: "case_2" }, "WRONG_MISSION"],
     ["wrong amount", { amountMinor: 7800 }, "WRONG_AMOUNT"],
     ["missing amount", { amountMinor: undefined }, "WRONG_AMOUNT"],
@@ -52,43 +52,43 @@ describe("verifyEvidence", () => {
     ["missing reference", { transactionRef: undefined }, "WRONG_REFERENCE"],
     ["unsigned evidence", { signatureValid: false }, "INVALID_SIGNATURE"],
     ["untrusted issuer", { issuer: "unknown" }, "UNTRUSTED_ISSUER"],
-    ["stale evidence", { issuedAt: "2026-08-01T12:00:00.000Z" }, "STALE_EVIDENCE"]
+    ["stale evidence", { issuedAt: "2026-08-01T12:00:00.000Z" }, "STALE_OUTCOME"]
   ] as const)("rejects %s", (_name, overrides, reason) => {
     const result = verify(overrides);
     expect(result.accepted).toBe(false);
     expect(result.reasonCodes).toContain(reason);
   });
 
-  it.each(["PROMISE_RECORDED", "REQUEST_ACKNOWLEDGED", "MERCHANT_COMMITTED"] as const)(
-    "does not accept the insufficient level %s",
-    (level) => {
-      expect(verify({ level }).reasonCodes).toContain("INSUFFICIENT_LEVEL");
+  it.each(["PLANNED", "ACTION_ATTEMPTED", "SYSTEM_ACKNOWLEDGED"] as const)(
+    "does not accept the insufficient status %s",
+    (status) => {
+      expect(verify({ status }).reasonCodes).toContain("INSUFFICIENT_STATUS");
     }
   );
 
   it("accepts stronger independently verified settlement evidence without downgrading it", () => {
-    expect(verify({ level: "FUNDS_SETTLED" })).toMatchObject({
+    expect(verify({ status: "STATE_VERIFIED" })).toMatchObject({
       accepted: true,
-      level: "FUNDS_SETTLED"
+      status: "STATE_VERIFIED"
     });
   });
 
   it("requires explicit replacement subject and tracking evidence", () => {
-    const replacementRequirement: EvidenceRequirement = {
-      minimumLevel: "MERCHANT_CONFIRMED",
+    const replacementRequirement: VerificationRequirement = {
+      minimumStatus: "OUTCOME_CONFIRMED",
       transactionRef: "ORDER-79",
       subject: "damaged headphones",
-      requiredEvidenceFields: ["subject", "trackingNumber"],
+      requiredOutcomeFields: ["subject", "trackingNumber"],
       maxAgeSeconds: 3600,
       trustedIssuer: "merchant-sandbox"
     };
-    const result = verifyEvidence({
+    const result = verifyOutcome({
       missionId: "case_1",
       requirement: replacementRequirement,
       candidate: {
-        evidenceId: "ev_replacement",
+        outcomeId: "ev_replacement",
         missionId: "case_1",
-        level: "MERCHANT_CONFIRMED",
+        status: "OUTCOME_CONFIRMED",
         transactionRef: "ORDER-79",
         subject: "damaged headphones",
         issuedAt: "2026-08-15T12:00:00.000Z",
