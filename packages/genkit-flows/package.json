@@ -6,6 +6,7 @@
   "exports": {
     "./extract-promise": "./src/extract-promise.ts",
     "./verify-outcome": "./src/verify-outcome.ts",
+    "./plan-execution": "./src/plan-execution.ts",
     "./extract-inbound": "./src/extract-inbound.ts"
   },
   "scripts": {
