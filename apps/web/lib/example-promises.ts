@@ -12,20 +12,20 @@ function pastDate(daysAgo: number, now: Date): string {
 export function examplePromises(now = new Date()) {
   return [
     {
-      label: "Missing refund",
-      text: `Northstar Store promised to refund USD 59 for order ORDER-1842 by ${pastDate(1, now)}, but the refund has not arrived.`
+      label: "Database Provisioning",
+      text: `Provision a new Postgres database in the us-central1 region with 100GB storage. Send the connection string to the operations team.`
     },
     {
-      label: "Cancellation",
-      text: `Northstar Travel promised to cancel booking BOOKING-731 and confirm a full USD 120 refund by ${pastDate(2, now)}.`
+      label: "Data Migration",
+      text: `Migrate tenant configuration for account ACCT-731 from the legacy API to the new partner system.`
     },
     {
-      label: "Replacement",
-      text: `Northstar Electronics promised to replace the damaged headphones from order ORDER-992 by ${pastDate(1, now)}.`
+      label: "Incident Escalation",
+      text: `Escalate high-priority ticket TICK-842 to the on-call engineer and verify that it has been acknowledged.`
     },
     {
-      label: "Missing document",
-      text: `Northstar Insurance promised to email the coverage certificate for mission CASE-441 by ${pastDate(3, now)}.`
+      label: "Certificate Renewal",
+      text: `Renew the SSL certificate for the internal gateway before it expires next week.`
     }
   ] as const;
 }

@@ -61,7 +61,7 @@ const en = {
   steps: {
     analysisEye: "Step 1 · Goal comprehension", analysisTitle: "Your mission is safely planned.", analysisText: "Gemini decomposes the goal; deterministic rules validate capability requirements.",
     reviewEye: "Step 2 · Nothing executes without you", reviewTitle: "Review what ActionOS planned.", reviewText: "Correct any parameters and approve the execution boundaries.",
-    resultEye: "Step 3 · Autonomous execution", resultTitle: "ActionOS is driving the workflow.", resultText: "This console updates as capabilities are invoked and state is verified.",
+    resultEye: "Step 3 · Autonomous execution", resultTitle: "ActionOS is driving the workflow.", resultText: "The Live Mission Console updates as capabilities are invoked and state is verified.",
     exceptionEye: "Only when human judgment matters", exceptionTitle: "ActionOS needs an intervention."
   }
 } as const;
