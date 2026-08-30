@@ -1,7 +1,7 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
-import { MerchantSandboxAdapter } from "@actionos/channel-adapters/merchant-sandbox";
-import { CompanyEmailActionAdapter } from "@actionos/channel-adapters/company-email";
-import { PartnerApiFixtureAdapter } from "@actionos/channel-adapters/partner-api";
+import { MerchantSandboxAdapter } from "@actionos/capabilities/merchant-sandbox";
+import { CompanyEmailActionAdapter } from "@actionos/capabilities/company-email";
+import { PartnerApiFixtureAdapter } from "@actionos/capabilities/partner-api";
 import {
   CapabilityRegistry,
   publicCapabilities,

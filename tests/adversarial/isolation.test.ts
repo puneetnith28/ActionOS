@@ -4,7 +4,7 @@ import { handleCaseControl } from "../../apps/web/lib/control-controller";
 import {
   issueArtifactGrant,
   verifyArtifactGrant
-} from "../../packages/channel-adapters/src/artifact-access";
+} from "../../packages/capabilities/src/artifact-access";
 
 describe("case control isolation", () => {
   it("rejects cross-owner control before any mutation", async () => {

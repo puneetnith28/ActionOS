@@ -1,4 +1,4 @@
-import { acceptUpload } from "@actionos/channel-adapters/upload";
+import { acceptUpload } from "@actionos/capabilities/upload";
 import { stableHash } from "@actionos/domain";
 import type { IntakeService } from "@actionos/runtime/intake-service";
 import { redactedPublicError } from "./security-limits";

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { PartnerApiFixtureAdapter } from "../../packages/channel-adapters/src/partner-api";
+import { PartnerApiFixtureAdapter } from "../../packages/capabilities/src/partner-api";
 import {
   ActionBroker,
   type ActionReceipt,

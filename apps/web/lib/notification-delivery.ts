@@ -1,4 +1,4 @@
-import { OutboundEmailAdapter, ResendEmailTransport } from "@actionos/channel-adapters/outbound-email";
+import { OutboundEmailAdapter, ResendEmailTransport } from "@actionos/capabilities/outbound-email";
 import type { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
 import { NotificationDeliveryService } from "@actionos/runtime/notifications";
 

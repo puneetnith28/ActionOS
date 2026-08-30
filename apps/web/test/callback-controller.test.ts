@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { signCallback } from "@actionos/channel-adapters/callback-signature";
+import { signCallback } from "@actionos/capabilities/callback-signature";
 import { handleMerchantCallback, type CallbackRecordStore } from "../lib/callback-controller";
 
 class Callbacks implements CallbackRecordStore {

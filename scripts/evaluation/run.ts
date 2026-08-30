@@ -4,7 +4,7 @@ import { genkit } from "genkit";
 import { actionIdempotencyKey } from "../../packages/domain/src/identity.ts";
 import { authorizeAction } from "../../packages/domain/src/policy.ts";
 import { verifyEvidence } from "../../packages/domain/src/verifier.ts";
-import { transportStatusForProviderEvent } from "../../packages/channel-adapters/src/email-webhook.ts";
+import { transportStatusForProviderEvent } from "../../packages/capabilities/src/email-webhook.ts";
 import {
   evaluationCorpus,
   type EvaluationCase

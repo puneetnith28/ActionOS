@@ -2,7 +2,7 @@ import { stableHash } from "@actionos/domain";
 import {
   parseEmailProviderEvent,
   verifyEmailWebhook
-} from "@actionos/channel-adapters/email-webhook";
+} from "@actionos/capabilities/email-webhook";
 
 export interface EmailProviderEventStore {
   reserveProviderEvent(input: {

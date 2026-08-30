@@ -6,7 +6,7 @@ import {
   handleMerchantCallback,
   type CallbackRecordStore
 } from "../../apps/web/lib/callback-controller";
-import { MerchantSandboxAdapter } from "../../packages/channel-adapters/src/merchant-sandbox";
+import { MerchantSandboxAdapter } from "../../packages/capabilities/src/merchant-sandbox";
 import {
   ActionBroker,
   type ActionReceipt,

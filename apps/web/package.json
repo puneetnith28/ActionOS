@@ -12,7 +12,7 @@
     "deploy:firestore-rules": "tsx scripts/deploy-firestore-rules.ts"
   },
   "dependencies": {
-    "@actionos/channel-adapters": "workspace:*",
+    "@actionos/capabilities": "workspace:*",
     "@actionos/contracts": "workspace:*",
     "@actionos/domain": "workspace:*",
     "@actionos/genkit-flows": "workspace:*",

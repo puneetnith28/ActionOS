@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { acceptUpload } from "../../packages/channel-adapters/src/upload";
+import { acceptUpload } from "../../packages/capabilities/src/upload";
 import { authorizeAction } from "../../packages/domain/src/policy";
 import { ActionBroker } from "../../packages/runtime/src/action-broker";
 import { CaseRunner, type FollowThroughCase } from "../../packages/runtime/src/case-runner";

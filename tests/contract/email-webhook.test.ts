@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { emailEventFixtures } from "../../packages/test-fixtures/src/email-events";
-import { signEmailWebhook } from "../../packages/channel-adapters/src/email-webhook";
+import { signEmailWebhook } from "../../packages/capabilities/src/email-webhook";
 import { handleEmailWebhook } from "../../apps/web/lib/email-webhook-controller";
 
 const now = "2026-08-16T12:00:00.000Z";

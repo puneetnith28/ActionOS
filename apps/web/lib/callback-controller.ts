@@ -1,6 +1,6 @@
 import { executionOutcomeSchema } from "@actionos/contracts";
 import { stableHash } from "@actionos/domain";
-import { verifyCallbackSignature } from "@actionos/channel-adapters/callback-signature";
+import { verifyCallbackSignature } from "@actionos/capabilities/callback-signature";
 import type { VerificationService } from "@actionos/runtime/verification-service";
 
 export interface CallbackRecordStore {

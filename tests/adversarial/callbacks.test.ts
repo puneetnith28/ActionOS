@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   CallbackReplayGuard,
   signCallback
-} from "../../packages/channel-adapters/src/callback-signature";
+} from "../../packages/capabilities/src/callback-signature";
 import {
   verifyEvidence,
   type EvidenceCandidate,

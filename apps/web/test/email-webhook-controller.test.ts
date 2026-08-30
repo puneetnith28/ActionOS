@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { signEmailWebhook } from "@actionos/channel-adapters/email-webhook";
+import { signEmailWebhook } from "@actionos/capabilities/email-webhook";
 import { handleEmailWebhook } from "../lib/email-webhook-controller";
 
 const now = "2026-08-16T12:00:00.000Z";

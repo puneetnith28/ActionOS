@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
-import { signCallback } from "@actionos/channel-adapters/callback-signature";
+import { signCallback } from "@actionos/capabilities/callback-signature";
 import { scenarioStep, type ScenarioName } from "./scenarios.ts";
 import { statusPage } from "./status-page.ts";
 

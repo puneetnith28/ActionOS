@@ -22,7 +22,7 @@
     "@actionos/contracts": "workspace:*",
     "@actionos/runtime": "workspace:*",
     "@actionos/domain": "workspace:*",
-    "@actionos/channel-adapters": "workspace:*",
+    "@actionos/capabilities": "workspace:*",
     "firebase-admin": "14.2.0"
   }
 }

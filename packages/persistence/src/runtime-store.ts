@@ -8,7 +8,7 @@ import type { InterventionRecord, InterventionStore } from "@actionos/runtime/in
 import type {
   EmailDeliveryReceipt,
   EmailDeliveryStore
-} from "@actionos/channel-adapters/outbound-email";
+} from "@actionos/capabilities/outbound-email";
 import { firestoreDeleteAt } from "./expiry";
 import type { RuntimeTimelineEvent } from "@actionos/runtime/timeline";
 import { stableHash } from "@actionos/domain";

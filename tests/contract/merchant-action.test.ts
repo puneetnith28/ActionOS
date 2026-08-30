@@ -1,7 +1,7 @@
 import { once } from "node:events";
 import { describe, expect, it, vi } from "vitest";
 import { createMerchantServer } from "../../apps/merchant-sandbox/src/server";
-import { MerchantSandboxAdapter } from "../../packages/channel-adapters/src/merchant-sandbox";
+import { MerchantSandboxAdapter } from "../../packages/capabilities/src/merchant-sandbox";
 import {
   ActionBroker,
   type ActionRecordStore,

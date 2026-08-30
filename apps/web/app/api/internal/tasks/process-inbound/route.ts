@@ -1,5 +1,5 @@
-import { ResendInboundEmailAdapter } from "@actionos/channel-adapters/inbound-email";
-import { transportStatusForProviderEvent } from "@actionos/channel-adapters/email-webhook";
+import { ResendInboundEmailAdapter } from "@actionos/capabilities/inbound-email";
+import { transportStatusForProviderEvent } from "@actionos/capabilities/email-webhook";
 import { extractInboundFlow } from "@actionos/genkit-flows/extract-inbound";
 import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
 import { VerificationService } from "@actionos/runtime/verification-service";

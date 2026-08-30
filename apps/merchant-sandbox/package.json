@@ -12,6 +12,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@actionos/channel-adapters": "workspace:*"
+    "@actionos/capabilities": "workspace:*"
   }
 }

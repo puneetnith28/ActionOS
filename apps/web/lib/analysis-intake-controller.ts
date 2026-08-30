@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { analysisJobSchema } from "@actionos/contracts";
-import { acceptUpload } from "@actionos/channel-adapters/upload";
+import { acceptUpload } from "@actionos/capabilities/upload";
 import { stableHash } from "@actionos/domain";
 import type { FirestoreAnalysisStore } from "@actionos/persistence/analysis-store";
 import type { PrivateArtifactStorage } from "./artifact-storage";
