@@ -1,4 +1,5 @@
 import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
+import { config } from "../../../../lib/config";
 import { FirestoreTelemetryStore } from "@actionos/persistence/telemetry-store";
 import { VerificationService } from "@actionos/runtime/verification-service";
 import { handleMerchantCallback } from "../../../../lib/callback-controller";
@@ -9,7 +10,7 @@ import { missionScheduler } from "../../../../lib/mission-scheduler";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const secret = process.env.MERCHANT_CALLBACK_SECRET;
+  const secret = config.secrets.merchantCallback;
   if (!secret) return Response.json({ error: "CALLBACK_SECRET_NOT_CONFIGURED" }, { status: 503 });
   const store = new FirestoreRuntimeStore(firestore);
   return handleMerchantCallback(request, {

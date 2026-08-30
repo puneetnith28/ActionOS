@@ -1,4 +1,5 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
+import { config } from "../../../../lib/config";
 import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
 import { TaskScheduler } from "@actionos/runtime/task-scheduler";
 import { firestore } from "../../../../lib/firebase-admin";
@@ -7,22 +8,22 @@ import { handleEmailWebhook } from "../../../../lib/email-webhook-controller";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const projectId = process.env.GOOGLE_CLOUD_PROJECT;
-  const baseUrl = process.env.APP_BASE_URL;
-  const serviceAccountEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT;
-  const secret = process.env.EMAIL_WEBHOOK_SIGNING_SECRET;
-  if (!projectId || !baseUrl || !serviceAccountEmail || !secret) {
+  const projectId = config.projectId;
+  const baseUrl = config.urls.base;
+  const serviceAccountEmail = config.tasks.serviceAccount;
+  const secret = config.secrets.emailWebhookSigning;
+  if (!secret) {
     return Response.json({ error: "EMAIL_WEBHOOK_NOT_CONFIGURED" }, { status: 503 });
   }
   const scheduler = new TaskScheduler(new CloudTasksClient(), {
     projectId,
-    location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
-    queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-missions",
+    location: config.tasks.location,
+    queue: config.tasks.queue,
     workerUrl: `${baseUrl}/api/internal/tasks/run-mission`,
     inboundWorkerUrl: `${baseUrl}/api/internal/tasks/process-inbound`,
     serviceAccountEmail,
-    ...(process.env.ACTIONOS_TASKS_OIDC_AUDIENCE
-      ? { oidcAudience: process.env.ACTIONOS_TASKS_OIDC_AUDIENCE }
+    ...(config.tasks.oidcAudience
+      ? { oidcAudience: config.tasks.oidcAudience }
       : {})
   });
   return handleEmailWebhook(request, {

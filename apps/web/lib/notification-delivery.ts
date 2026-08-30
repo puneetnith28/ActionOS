@@ -1,11 +1,12 @@
 import { OutboundEmailAdapter, ResendEmailTransport } from "@actionos/capabilities/outbound-email";
+import { config } from "./config";
 import type { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
 import { NotificationDeliveryService } from "@actionos/runtime/notifications";
 
 export function notificationDelivery(store: FirestoreRuntimeStore): NotificationDeliveryService {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.ACTIONOS_NOTIFICATION_FROM ?? process.env.COMPANY_EMAIL_FROM;
-  const publicBaseUrl = process.env.ACTIONOS_PUBLIC_BASE_URL;
+  const apiKey = config.secrets.resendApiKey;
+  const from = config.email.notificationFrom;
+  const publicBaseUrl = config.urls.publicBaseUrl;
   if (!apiKey || !from || !publicBaseUrl) return new NotificationDeliveryService(store);
   return new NotificationDeliveryService(
     store,

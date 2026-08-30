@@ -1,4 +1,5 @@
 import type { DecodedIdToken } from "firebase-admin/auth";
+import { config } from "./config";
 import { adminAuth } from "./firebase-admin";
 
 export class AuthorizationError extends Error {
@@ -24,7 +25,7 @@ export async function authenticatedOwner(request: Request): Promise<DecodedIdTok
 
 export function assertSameOrigin(request: Request): void {
   const origin = request.headers.get("origin");
-  const expected = process.env.APP_BASE_URL;
+  const expected = config.urls.base;
   if (origin && expected && origin !== expected) {
     throw new AuthorizationError("CROSS_ORIGIN_MUTATION_DENIED", 403);
   }

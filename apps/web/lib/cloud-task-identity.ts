@@ -1,4 +1,5 @@
 import { OAuth2Client } from "google-auth-library";
+import { config } from "./config";
 
 export interface CloudTaskIdentity {
   readonly taskName: string;
@@ -27,8 +28,8 @@ export async function verifyCloudTaskIdentity(request: Request): Promise<CloudTa
   )?.trim();
   const authorization = request.headers.get("authorization") ?? "";
   const token = authorization.match(/^Bearer ([A-Za-z0-9._~-]+)$/)?.[1];
-  const audience = process.env.ACTIONOS_TASKS_OIDC_AUDIENCE?.trim();
-  const expectedEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT?.trim().toLowerCase();
+  const audience = config.tasks.oidcAudience?.trim();
+  const expectedEmail = config.tasks.serviceAccount?.trim().toLowerCase();
 
   if (!taskName || !token || !audience || !expectedEmail) {
     throw new Error("CLOUD_TASK_IDENTITY_REQUIRED");

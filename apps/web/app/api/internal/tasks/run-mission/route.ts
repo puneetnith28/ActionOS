@@ -1,4 +1,5 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
+import { config } from "../../../../../lib/config";
 import { MerchantSandboxAdapter } from "@actionos/capabilities/merchant-sandbox";
 import { CompanyEmailActionAdapter } from "@actionos/capabilities/company-email";
 import { PartnerApiFixtureAdapter } from "@actionos/capabilities/partner-api";
@@ -26,30 +27,28 @@ import { durableCaseScheduler } from "../../../../../lib/durable-mission-schedul
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const projectId = process.env.GOOGLE_CLOUD_PROJECT;
-  const workerUrl = process.env.ACTIONOS_WORKER_URL;
-  const merchantUrl = process.env.MERCHANT_SANDBOX_URL;
-  const serviceAccountEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT;
-  const actionSecret = process.env.MERCHANT_CALLBACK_SECRET;
-  const emailApiKey = process.env.RESEND_API_KEY;
-  const emailFrom = process.env.COMPANY_EMAIL_FROM;
-  const emailReplyDomain = process.env.COMPANY_EMAIL_REPLY_DOMAIN;
+  const projectId = config.projectId;
+  const workerUrl = config.tasks.workerUrl;
+  const merchantUrl = config.urls.sandbox;
+  const serviceAccountEmail = config.tasks.serviceAccount;
+  const actionSecret = config.secrets.merchantCallback;
+  const emailApiKey = config.secrets.resendApiKey;
+  const emailFrom = config.email.from;
+  const emailReplyDomain = config.email.replyDomain;
   const allowedRecipientDomains = parseAllowedRecipientDomains(
-    process.env.COMPANY_EMAIL_ALLOWED_RECIPIENT_DOMAINS
+    config.email.allowedDomains
   );
   const partnerEndpoint = process.env.PARTNER_FIXTURE_ENDPOINT;
   const partnerSecret = process.env.PARTNER_FIXTURE_SIGNING_SECRET;
-  if (!projectId || !workerUrl || !serviceAccountEmail)
-    return Response.json({ error: "RUNTIME_NOT_CONFIGURED" }, { status: 503 });
   const store = new FirestoreRuntimeStore(firestore);
   const scheduler = durableCaseScheduler(new TaskScheduler(new CloudTasksClient(), {
     projectId,
-    location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
-    queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-missions",
+    location: config.tasks.location,
+    queue: config.tasks.queue,
     workerUrl,
     serviceAccountEmail,
-    ...(process.env.ACTIONOS_TASKS_OIDC_AUDIENCE
-      ? { oidcAudience: process.env.ACTIONOS_TASKS_OIDC_AUDIENCE }
+    ...(config.tasks.oidcAudience
+      ? { oidcAudience: config.tasks.oidcAudience }
       : {})
   }));
   const capabilities = publicCapabilities({
@@ -63,7 +62,7 @@ export async function POST(request: Request) {
     ),
     managedEmailInbound: Boolean(
       emailApiKey &&
-      process.env.EMAIL_WEBHOOK_SIGNING_SECRET &&
+      config.secrets.emailWebhookSigning &&
       emailReplyDomain
     ),
     partnerFixtureAvailable: Boolean(partnerEndpoint && partnerSecret)

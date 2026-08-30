@@ -1,4 +1,5 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
+import { config } from "../../../../../lib/config";
 import { FirestoreIntakeStore } from "@actionos/persistence/intake-store";
 import { PlanService } from "@actionos/runtime/plan-service";
 import { TaskScheduler } from "@actionos/runtime/task-scheduler";
@@ -11,22 +12,19 @@ import { durableCaseScheduler } from "../../../../../lib/durable-mission-schedul
 
 export const runtime = "nodejs";
 function planService() {
-  const projectId = process.env.GOOGLE_CLOUD_PROJECT;
-  const workerUrl = process.env.ACTIONOS_WORKER_URL;
-  const serviceAccountEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT;
-  const scheduler =
-    projectId && workerUrl && serviceAccountEmail
-      ? durableCaseScheduler(new TaskScheduler(new CloudTasksClient(), {
-          projectId,
-          location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
-          queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-missions",
-          workerUrl,
-          serviceAccountEmail,
-          ...(process.env.ACTIONOS_TASKS_OIDC_AUDIENCE
-            ? { oidcAudience: process.env.ACTIONOS_TASKS_OIDC_AUDIENCE }
-            : {})
-        }))
-      : undefined;
+  const projectId = config.projectId;
+  const workerUrl = config.tasks.workerUrl;
+  const serviceAccountEmail = config.tasks.serviceAccount;
+  const scheduler = durableCaseScheduler(new TaskScheduler(new CloudTasksClient(), {
+    projectId,
+    location: config.tasks.location,
+    queue: config.tasks.queue,
+    workerUrl,
+    serviceAccountEmail,
+    ...(config.tasks.oidcAudience
+      ? { oidcAudience: config.tasks.oidcAudience }
+      : {})
+  }));
   return new PlanService(new FirestoreIntakeStore(firestore), scheduler);
 }
 
@@ -40,16 +38,16 @@ function isChannelAvailable(channelType: string | undefined): boolean {
   const capabilities = publicCapabilities({
     now: new Date().toISOString(),
     sandboxAvailable: Boolean(
-      process.env.MERCHANT_SANDBOX_URL && process.env.MERCHANT_CALLBACK_SECRET
+      config.urls.sandbox && config.secrets.merchantCallback
     ),
     managedEmailOutbound: Boolean(
-      process.env.RESEND_API_KEY && process.env.COMPANY_EMAIL_FROM &&
-      process.env.COMPANY_EMAIL_REPLY_DOMAIN &&
-      process.env.COMPANY_EMAIL_ALLOWED_RECIPIENT_DOMAINS
+      config.secrets.resendApiKey && config.email.from &&
+      config.email.replyDomain &&
+      config.email.allowedDomains
     ),
     managedEmailInbound: Boolean(
-      process.env.RESEND_API_KEY && process.env.EMAIL_WEBHOOK_SIGNING_SECRET &&
-      process.env.COMPANY_EMAIL_REPLY_DOMAIN
+      config.secrets.resendApiKey && config.secrets.emailWebhookSigning &&
+      config.email.replyDomain
     ),
     partnerFixtureAvailable: Boolean(
       process.env.PARTNER_FIXTURE_ENDPOINT && process.env.PARTNER_FIXTURE_SIGNING_SECRET
@@ -63,15 +61,15 @@ function isChannelAvailable(channelType: string | undefined): boolean {
 function resolveChannel(channelType: string) {
   if (channelType === "CONTROLLED_SANDBOX") return {
     channelType,
-    allowedRecipient: process.env.MERCHANT_SANDBOX_RECIPIENT ?? "merchant@controlled.actionos.test",
+    allowedRecipient: config.urls.sandboxRecipient,
     senderIdentity: "ActionOS controlled demo",
     replyRoute: "Signed callback",
     trustedIssuer: "merchant-sandbox"
   } as const;
   if (channelType === "MANAGED_EMAIL") {
     const recipient = process.env.COMPANY_EMAIL_DEFAULT_RECIPIENT ?? "recipient-required@actionos.invalid";
-    const replyDomain = process.env.COMPANY_EMAIL_REPLY_DOMAIN;
-    const senderIdentity = process.env.COMPANY_EMAIL_FROM;
+    const replyDomain = config.email.replyDomain;
+    const senderIdentity = config.email.from;
     if (!replyDomain || !senderIdentity) return undefined;
     return {
       channelType,

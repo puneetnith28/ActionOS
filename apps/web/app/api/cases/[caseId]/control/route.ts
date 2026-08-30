@@ -1,4 +1,5 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
+import { config } from "../../../../../lib/config";
 import { FirestoreMissionControlStore } from "@actionos/persistence/retention";
 import { MissionControlService } from "@actionos/runtime/mission-control";
 import { TaskScheduler } from "@actionos/runtime/task-scheduler";
@@ -11,22 +12,19 @@ export const runtime = "nodejs";
 type Context = { params: Promise<{ caseId: string }> };
 
 function controlService() {
-  const projectId = process.env.GOOGLE_CLOUD_PROJECT;
-  const workerUrl = process.env.ACTIONOS_WORKER_URL;
-  const serviceAccountEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT;
-  const scheduler =
-    projectId && workerUrl && serviceAccountEmail
-      ? durableCaseScheduler(new TaskScheduler(new CloudTasksClient(), {
-          projectId,
-          location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
-          queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-missions",
-          workerUrl,
-          serviceAccountEmail,
-          ...(process.env.ACTIONOS_TASKS_OIDC_AUDIENCE
-            ? { oidcAudience: process.env.ACTIONOS_TASKS_OIDC_AUDIENCE }
-            : {})
-        }))
-      : undefined;
+  const projectId = config.projectId;
+  const workerUrl = config.tasks.workerUrl;
+  const serviceAccountEmail = config.tasks.serviceAccount;
+  const scheduler = durableCaseScheduler(new TaskScheduler(new CloudTasksClient(), {
+    projectId,
+    location: config.tasks.location,
+    queue: config.tasks.queue,
+    workerUrl,
+    serviceAccountEmail,
+    ...(config.tasks.oidcAudience
+      ? { oidcAudience: config.tasks.oidcAudience }
+      : {})
+  }));
   return new MissionControlService(new FirestoreMissionControlStore(firestore), scheduler);
 }
 

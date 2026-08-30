@@ -1,6 +1,8 @@
+import { config } from "./config";
+
 export function defaultIntakeChannel() {
   return {
-    recipient: process.env.MERCHANT_SANDBOX_RECIPIENT ?? "merchant@controlled.actionos.test",
+    recipient: config.urls.sandboxRecipient,
     channel: {
       channelType: "CONTROLLED_SANDBOX" as const,
       senderIdentity: "ActionOS controlled demo",
