@@ -12,7 +12,10 @@ export async function AppHeader() {
         <span>ActionOS</span>
       </a>
       <nav className="header-actions" aria-label={copy.navigation}>
-        <a className="header-link" href={localizePath("/cases", locale)}>{copy.cases}</a>
+        <a className="header-link" href={localizePath("/missions", locale)}>{copy.missions}</a>
+        <a className="header-link" href={localizePath("/activity", locale)}>{copy.activity}</a>
+        <a className="header-link" href={localizePath("/capabilities", locale)}>{copy.capabilities}</a>
+        <a className="header-link" href={localizePath("/status", locale)}>{copy.systemStatus}</a>
         <a className="header-link" href={localizePath("/privacy", locale)}>{copy.privacy}</a>
         <LanguageSwitcher />
         <a className="header-cta" href={localizePath("/intake", locale)}>{copy.try}</a>

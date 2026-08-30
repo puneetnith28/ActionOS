@@ -16,7 +16,7 @@ export function localizePath(pathname: string, locale: Locale): string {
 
 const en = {
   language: { label: "Language", en: "English", es: "Español", pt: "Português" },
-  header: { home: "ActionOS home", navigation: "Primary navigation", cases: "My Missions", privacy: "Privacy", try: "Try ActionOS" },
+  header: { home: "ActionOS home", navigation: "Primary navigation", missions: "Missions", activity: "Activity", capabilities: "Capabilities", systemStatus: "System Status", privacy: "Privacy", try: "Try ActionOS" },
   metadata: { title: "ActionOS — AI that takes action, not just instructions", description: "Give ActionOS a goal. It builds a plan, uses tools, and evaluates evidence until the mission is accomplished." },
   cases: { eyebrow: "My Missions", title: "Only intervene when necessary.", lede: "Monitor what ActionOS is executing, what needs human boundary. and what is already verified complete." },
   home: {
@@ -71,7 +71,7 @@ export type Messages = WidenStrings<typeof en>;
 
 const es: Messages = {
   language: { label: "Idioma", en: "English", es: "Español", pt: "Português" },
-  header: { home: "Inicio de ActionOS", navigation: "Navegación principal", cases: "Mis seguimientos", privacy: "Privacidad", try: "Probar ActionOS" },
+  header: { home: "Inicio de ActionOS", navigation: "Navegación principal", missions: "Misiones", activity: "Actividad", capabilities: "Capacidades", systemStatus: "Estado del sistema", privacy: "Privacidad", try: "Probar ActionOS" },
   metadata: { title: "ActionOS — Prueba de cumplimiento para agentes cotidianos", description: "Dale a ActionOS un resultado pendiente. Seguirá los límites aprobados hasta obtener evidencia real." },
   cases: { eyebrow: "Mis seguimientos", title: "Volvé sólo cuando importe.", lede: "Mirá qué está gestionando ActionOS, qué necesita una decisión y qué ya tiene prueba suficiente." },
   home: {
@@ -88,7 +88,7 @@ const es: Messages = {
 
 const pt: Messages = {
   language: { label: "Idioma", en: "English", es: "Español", pt: "Português" },
-  header: { home: "Início do ActionOS", navigation: "Navegação principal", cases: "Meus acompanhamentos", privacy: "Privacidade", try: "Testar ActionOS" },
+  header: { home: "Início do ActionOS", navigation: "Navegação principal", missions: "Missões", activity: "Atividade", capabilities: "Capacidades", systemStatus: "Status do sistema", privacy: "Privacidade", try: "Testar ActionOS" },
   metadata: { title: "ActionOS — Prova de conclusão para agentes cotidianos", description: "Entregue ao ActionOS um resultado pendente. Ele seguirá os limites aprovados até obter evidência real." },
   cases: { eyebrow: "Meus acompanhamentos", title: "Volte somente quando for importante.", lede: "Veja o que o ActionOS está gerenciando, o que precisa de uma decisão e o que já tem prova suficiente." },
   home: {
