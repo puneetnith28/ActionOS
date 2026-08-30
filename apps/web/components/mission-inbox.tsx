@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { anonymousIdToken, recoverableIdentity } from "../lib/firebase-client";
-import type { CaseSummary } from "../lib/missions-controller";
+import type { MissionSummary } from "../lib/missions-controller";
 import { emptyInboxPresentation, type InboxIdentity } from "../lib/inbox-presentation";
 import { GoogleSignIn } from "./google-sign-in";
 import { useLocale } from "../lib/use-locale";
@@ -10,7 +10,7 @@ import { useLocale } from "../lib/use-locale";
 export function MissionInbox() {
   const { locale, localize } = useLocale();
   const tr = useCallback((en: string, es: string, pt: string) => locale === "es" ? es : locale === "pt" ? pt : en, [locale]);
-  const [items, setItems] = useState<CaseSummary[]>();
+  const [items, setItems] = useState<MissionSummary[]>();
   const [identity, setIdentity] = useState<InboxIdentity>();
   const [nextCursor, setNextCursor] = useState<string | null>();
   const [loadingMore, setLoadingMore] = useState(false);
@@ -22,7 +22,7 @@ export function MissionInbox() {
       const query = new URLSearchParams({ limit: "25" });
       if (cursor) query.set("cursor", cursor);
       const response = await fetch(`/api/missions?${query}`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
-      const result = await response.json() as { items?: CaseSummary[]; nextCursor?: string | null; error?: string };
+      const result = await response.json() as { items?: MissionSummary[]; nextCursor?: string | null; error?: string };
       if (!response.ok || !result.items) throw new Error(result.error ?? "CASES_FAILED");
       const pageItems = result.items;
       setItems((current) => cursor && current ? [...current, ...pageItems] : pageItems);

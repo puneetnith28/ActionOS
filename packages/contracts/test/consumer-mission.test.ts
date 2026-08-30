@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  caseSummarySchema,
+  missionSummarySchema,
   conversationEntrySchema,
   identityClaimSchema,
   outcomeComparisonSchema,
@@ -11,7 +11,7 @@ const at = "2026-08-17T18:00:00.000Z";
 
 describe("consumer case contracts", () => {
   it("accepts bounded consumer projections", () => {
-    expect(caseSummarySchema.parse({
+    expect(missionSummarySchema.parse({
       missionId: "mission_12345678", companyName: "Example", outcomeLabel: "USD 59 refund",
       bucket: "WORKING", statusLabel: "Waiting for the company", lastActivityAt: at,
       nextStepLabel: "ActionOS will evaluate the next reply", attentionRequired: false,
@@ -36,7 +36,7 @@ describe("consumer case contracts", () => {
       partyLabel: "person@example.com", safeSummary: "Request received", authenticity: "VERIFIED_ROUTE",
       evidenceDecision: "INSUFFICIENT", rawBody: "private original email"
     })).toThrow();
-    expect(() => caseSummarySchema.parse({
+    expect(() => missionSummarySchema.parse({
       missionId: "mission_12345678", companyName: "person@example.com", outcomeLabel: "Refund",
       bucket: "WORKING", statusLabel: "Waiting", lastActivityAt: at, nextStepLabel: "Wait",
       attentionRequired: false, channelLabel: "Email"

@@ -1,13 +1,13 @@
 import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { AnalysisJob } from "@actionos/contracts";
 
-export type CaseBucket = "NEEDS_YOU" | "WORKING" | "DONE";
+export type MissionBucket = "NEEDS_YOU" | "WORKING" | "DONE";
 
-export interface CaseSummary {
+export interface MissionSummary {
   missionId: string;
   companyName: string;
   outcomeLabel: string;
-  bucket: CaseBucket;
+  bucket: MissionBucket;
   statusLabel: string;
   lastActivityAt: string;
   nextStepLabel: string;
@@ -20,7 +20,7 @@ export interface OwnerCaseStore {
   listByOwner(ownerId: string, limit: number): Promise<readonly FollowThroughMission[]>;
 }
 
-function analysisSummary(job: AnalysisJob): CaseSummary {
+function analysisSummary(job: AnalysisJob): MissionSummary {
   return {
     missionId: job.missionId,
     companyName: "New promise",
@@ -41,10 +41,10 @@ interface CaseCursor {
   version: 1;
   missionId: string;
   lastActivityAt: string;
-  bucket: CaseBucket | null;
+  bucket: MissionBucket | null;
 }
 
-function encodeCursor(item: CaseSummary, requestedBucket: CaseBucket | null): string {
+function encodeCursor(item: MissionSummary, requestedBucket: MissionBucket | null): string {
   return Buffer.from(JSON.stringify({
     version: 1,
     missionId: item.missionId,
@@ -53,7 +53,7 @@ function encodeCursor(item: CaseSummary, requestedBucket: CaseBucket | null): st
   } satisfies CaseCursor)).toString("base64url");
 }
 
-function decodeCursor(value: string, requestedBucket: CaseBucket | null): CaseCursor {
+function decodeCursor(value: string, requestedBucket: MissionBucket | null): CaseCursor {
   try {
     if (value.length > 512) throw new Error("CURSOR_INVALID");
     const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as Partial<CaseCursor>;
@@ -68,7 +68,7 @@ function decodeCursor(value: string, requestedBucket: CaseBucket | null): CaseCu
   }
 }
 
-function bucket(state: FollowThroughMission["state"]): CaseBucket {
+function bucket(state: FollowThroughMission["state"]): MissionBucket {
   if (["NEEDS_ATTENTION", "FAILED"].includes(state)) return "NEEDS_YOU";
   if (["DONE", "CANCELLED", "EXPIRED"].includes(state)) return "DONE";
   return "WORKING";
@@ -102,7 +102,7 @@ function companyName(item: FollowThroughMission): string {
   return item.plan.counterpartyName?.trim() || "Company";
 }
 
-export function caseSummary(item: FollowThroughMission): CaseSummary {
+export function missionSummary(item: FollowThroughMission): MissionSummary {
   const requirement = item.plan.evidenceRequirements[0];
   return {
     missionId: item.missionId,
@@ -133,7 +133,7 @@ export async function handleMissions(
     const limit = Number.isInteger(requestedLimit) ? Math.min(Math.max(requestedLimit, 1), 25) : 10;
     const bucketParam = url.searchParams.get("bucket");
     const requestedBucket = bucketParam && ["NEEDS_YOU", "WORKING", "DONE"].includes(bucketParam)
-      ? bucketParam as CaseBucket
+      ? bucketParam as MissionBucket
       : null;
     if (bucketParam && !requestedBucket) throw new Error("BUCKET_INVALID");
     const [runtimeCases, analysisJobs] = await Promise.all([
@@ -142,7 +142,7 @@ export async function handleMissions(
     ]);
     const runtimeIds = new Set(runtimeCases.map((item) => item.missionId));
     const ordered = [
-      ...runtimeCases.map(caseSummary),
+      ...runtimeCases.map(missionSummary),
       ...analysisJobs
         .filter((job) => job.status !== "READY" && !runtimeIds.has(job.missionId))
         .map(analysisSummary)

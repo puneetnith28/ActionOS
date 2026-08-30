@@ -368,7 +368,7 @@ export const identityClaimSchema = z.object({
   reasonCodes: z.array(z.string().min(1).max(100)).max(10)
 }).strict();
 
-export const caseSummarySchema = z.object({
+export const missionSummarySchema = z.object({
   missionId: opaqueIdSchema,
   companyName: safeDisplayTextSchema(120),
   outcomeLabel: safeDisplayTextSchema(300),
@@ -441,7 +441,7 @@ export type ConversationPlan = z.infer<typeof conversationPlanSchema>;
 export type ActionEnvelope = z.infer<typeof actionEnvelopeSchema>;
 export type ExecutionOutcomeContract = z.infer<typeof executionOutcomeSchema>;
 export type IdentityClaim = z.infer<typeof identityClaimSchema>;
-export type CaseSummaryContract = z.infer<typeof caseSummarySchema>;
+export type MissionSummaryContract = z.infer<typeof missionSummarySchema>;
 export type ConversationEntry = z.infer<typeof conversationEntrySchema>;
 export type OutcomeComparison = z.infer<typeof outcomeComparisonSchema>;
 export type TechnicalStep = z.infer<typeof technicalStepSchema>;

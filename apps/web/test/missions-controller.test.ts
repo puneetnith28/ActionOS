@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
-import { caseSummary, handleMissions, type CaseSummary } from "../lib/missions-controller";
+import { missionSummary, handleMissions, type MissionSummary } from "../lib/missions-controller";
 
 function item(state: FollowThroughMission["state"], ownerId = "owner_12345678") {
   return {
@@ -20,10 +20,10 @@ function datedItem(state: FollowThroughMission["state"], date: string, suffix: s
 
 describe("owner mission inbox", () => {
   it("maps lifecycle states to three human buckets", () => {
-    expect(caseSummary(item("NEEDS_ATTENTION"))).toMatchObject({ bucket: "NEEDS_YOU", attentionRequired: true });
-    expect(caseSummary(item("WAITING_EXTERNAL"))).toMatchObject({ bucket: "WORKING", statusLabel: "Waiting for the company" });
-    expect(caseSummary(item("DONE"))).toMatchObject({ bucket: "DONE", nextStepLabel: "Review the proof and limitation" });
-    expect(caseSummary(item("WAITING_EXTERNAL"))).toMatchObject({ companyName: "Northstar Store" });
+    expect(missionSummary(item("NEEDS_ATTENTION"))).toMatchObject({ bucket: "NEEDS_YOU", attentionRequired: true });
+    expect(missionSummary(item("WAITING_EXTERNAL"))).toMatchObject({ bucket: "WORKING", statusLabel: "Waiting for the company" });
+    expect(missionSummary(item("DONE"))).toMatchObject({ bucket: "DONE", nextStepLabel: "Review the proof and limitation" });
+    expect(missionSummary(item("WAITING_EXTERNAL"))).toMatchObject({ companyName: "Northstar Store" });
   });
 
   it("uses persisted counterparty and newest activity instead of recipient provider or due date", () => {
@@ -33,7 +33,7 @@ describe("owner mission inbox", () => {
       lastAttemptAt: "2026-08-18T10:00:00.000Z",
       updatedAt: "2026-08-18T10:05:00.000Z"
     };
-    expect(caseSummary(value)).toMatchObject({
+    expect(missionSummary(value)).toMatchObject({
       companyName: "Northstar Store",
       lastActivityAt: "2026-08-18T10:05:00.000Z"
     });
@@ -87,7 +87,7 @@ describe("owner mission inbox", () => {
       store: { listByOwner: () => Promise.resolve(records) }
     };
     const first = await handleMissions(new Request("https://actionos.test/api/missions?limit=2&bucket=DONE"), dependencies);
-    const firstBody = await first.json() as { items: CaseSummary[]; nextCursor: string };
+    const firstBody = await first.json() as { items: MissionSummary[]; nextCursor: string };
     expect(firstBody.items.map(({ missionId }) => missionId)).toEqual(["mission_newest_12345678", "mission_middle_12345678"]);
     expect(firstBody.nextCursor).toBeTruthy();
 
