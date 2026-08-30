@@ -1,6 +1,6 @@
 import type { ExecutionPlan } from "@actionos/contracts";
 import type { ExecutionBoundary, MissionState, VerificationStatus, ProposedCapabilityExecution } from "@actionos/domain";
-import { ActionOutcomeUnknownError, type ActionBroker, type BrokerResult } from "./action-broker";
+import { CapabilityOutcomeUnknownError, type ExecutionBroker, type BrokerResult } from "./capability-broker";
 import type { InterventionService } from "./interventions";
 import type { CaseNotificationService } from "./notifications";
 import { wakeIntent, type WakeIntent } from "./wake-outbox";
@@ -84,7 +84,7 @@ function actionProposal(item: FollowThroughCase): ProposedCapabilityExecution {
 export class CaseRunner {
   constructor(
     private readonly store: FollowThroughStore,
-    private readonly broker: ActionBroker,
+    private readonly broker: ExecutionBroker,
     private readonly scheduler: RetryScheduler,
     private readonly retryDelaySeconds = 30,
     private readonly maxAttempts = 5,
@@ -270,7 +270,7 @@ export class CaseRunner {
         version: item.version + 1,
         nextWakeAt: retryAt,
         lastError: error instanceof Error ? error.message : "ACTION_FAILED",
-        ...(error instanceof ActionOutcomeUnknownError && error.idempotencyKey
+        ...(error instanceof CapabilityOutcomeUnknownError && error.idempotencyKey
           ? { lastActionIdempotencyKey: error.idempotencyKey }
           : {}),
         attemptCount,

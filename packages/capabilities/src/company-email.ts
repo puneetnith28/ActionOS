@@ -1,10 +1,10 @@
 import { stableHash } from "@actionos/domain";
 import type { ProposedCapabilityExecution } from "@actionos/domain";
 import {
-  ActionOutcomeUnknownError,
-  type ActionReceipt,
-  type ClosedActionAdapter
-} from "@actionos/runtime/action-broker";
+  CapabilityOutcomeUnknownError,
+  type ExecutionReceipt,
+  type CapabilityExecutor
+} from "@actionos/runtime/capability-broker";
 
 export interface CompanyEmailConfig {
   readonly apiKey: string;
@@ -36,7 +36,7 @@ function messageFor(proposal: ProposedCapabilityExecution, missionId: string) {
   };
 }
 
-export class CompanyEmailActionAdapter implements ClosedActionAdapter {
+export class CompanyEmailActionAdapter implements CapabilityExecutor {
   private readonly request: typeof globalThis.fetch;
 
   constructor(private readonly config: CompanyEmailConfig) {
@@ -47,7 +47,7 @@ export class CompanyEmailActionAdapter implements ClosedActionAdapter {
     proposal: ProposedCapabilityExecution,
     idempotencyKey: string,
     context: { readonly missionId: string; readonly correlationId?: string }
-  ): Promise<ActionReceipt> {
+  ): Promise<ExecutionReceipt> {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(proposal.recipient)) {
       throw new Error("COMPANY_EMAIL_RECIPIENT_INVALID");
     }
@@ -78,14 +78,14 @@ export class CompanyEmailActionAdapter implements ClosedActionAdapter {
         })
       });
     } catch {
-      throw new ActionOutcomeUnknownError("COMPANY_EMAIL_TRANSPORT_UNKNOWN");
+      throw new CapabilityOutcomeUnknownError("COMPANY_EMAIL_TRANSPORT_UNKNOWN");
     }
     if (response.status >= 500) {
-      throw new ActionOutcomeUnknownError(`COMPANY_EMAIL_TRANSPORT_${String(response.status)}`);
+      throw new CapabilityOutcomeUnknownError(`COMPANY_EMAIL_TRANSPORT_${String(response.status)}`);
     }
     if (!response.ok) throw new Error(`COMPANY_EMAIL_TRANSPORT_${String(response.status)}`);
     const result = (await response.json()) as { id?: string };
-    if (!result.id) throw new ActionOutcomeUnknownError("COMPANY_EMAIL_RECEIPT_MISSING");
+    if (!result.id) throw new CapabilityOutcomeUnknownError("COMPANY_EMAIL_RECEIPT_MISSING");
     return {
       receiptId: result.id,
       providerMessageId: result.id,

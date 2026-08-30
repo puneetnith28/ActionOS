@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  ActionBroker,
-  type ActionReceipt,
-  type ActionRecordStore,
-  type ClosedActionAdapter,
+  ExecutionBroker,
+  type ExecutionReceipt,
+  type ExecutionRecordStore,
+  type CapabilityExecutor,
   type Reservation
-} from "../../packages/runtime/src/action-broker";
+} from "../../packages/runtime/src/capability-broker";
 import {
   reduceCase,
   verifyEvidence,
@@ -16,7 +16,7 @@ import {
   type ProposedCapabilityExecution
 } from "../../packages/domain/src/index";
 
-class ContractStore implements ActionRecordStore {
+class ContractStore implements ExecutionRecordStore {
   private readonly records = new Map<string, Reservation>();
 
   reserve(key: string): Promise<Reservation> {
@@ -27,7 +27,7 @@ class ContractStore implements ActionRecordStore {
     return Promise.resolve({ status: "RESERVED" });
   }
 
-  succeed(key: string, receipt: ActionReceipt): Promise<void> {
+  succeed(key: string, receipt: ExecutionReceipt): Promise<void> {
     this.records.set(key, { status: "SUCCEEDED", receipt });
     return Promise.resolve();
   }
@@ -66,10 +66,10 @@ const proposal: ProposedCapabilityExecution = {
 
 describe("cross-package domain invariants", () => {
   it("keeps acknowledgement open even after one idempotent action succeeds", async () => {
-    const execute = vi.fn<ClosedActionAdapter["execute"]>(() =>
+    const execute = vi.fn<CapabilityExecutor["execute"]>(() =>
       Promise.resolve({ receiptId: "receipt_1", acceptedAt: "2026-08-15T12:00:00.000Z" })
     );
-    const broker = new ActionBroker(new ContractStore(), { execute });
+    const broker = new ExecutionBroker(new ContractStore(), { execute });
     const action = {
       caseId: "case_1",
       actionOrdinal: 1,

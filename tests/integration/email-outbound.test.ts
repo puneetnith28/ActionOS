@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  ActionBroker,
-  ActionOutcomeUnknownError,
-  type ActionReceipt,
+  ExecutionBroker,
+  CapabilityOutcomeUnknownError,
+  type ExecutionReceipt,
   type Reservation
-} from "../../packages/runtime/src/action-broker";
+} from "../../packages/runtime/src/capability-broker";
 
 describe("managed email interruption safety", () => {
   it("does not resend after a simulated post-acceptance connection loss, even much later", async () => {
@@ -17,7 +17,7 @@ describe("managed email interruption safety", () => {
         }
         return Promise.resolve({ status: "IN_FLIGHT" as const });
       },
-      succeed: (_key: string, receipt: ActionReceipt) => {
+      succeed: (_key: string, receipt: ExecutionReceipt) => {
         reservation = { status: "SUCCEEDED", receipt };
         return Promise.resolve();
       },
@@ -27,9 +27,9 @@ describe("managed email interruption safety", () => {
       }
     };
     const execute = vi.fn(() => Promise.reject(
-      new ActionOutcomeUnknownError("PROVIDER_ACCEPTED_RESPONSE_LOST")
+      new CapabilityOutcomeUnknownError("PROVIDER_ACCEPTED_RESPONSE_LOST")
     ));
-    const broker = new ActionBroker(store, { execute });
+    const broker = new ExecutionBroker(store, { execute });
     const input = {
       caseId: "case_12345678",
       actionOrdinal: 1,

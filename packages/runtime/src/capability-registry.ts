@@ -1,21 +1,21 @@
 import type { ChannelCapability, ChannelType } from "@actionos/contracts";
-import type { ClosedActionAdapter } from "./action-broker";
-import type { ActionReceipt } from "./action-broker";
+import type { CapabilityExecutor } from "./capability-broker";
+import type { ExecutionReceipt } from "./capability-broker";
 import type { ProposedCapabilityExecution } from "@actionos/domain";
 
 export interface RegisteredCapability {
   readonly capability: ChannelCapability;
-  readonly adapter?: ClosedActionAdapter;
+  readonly adapter?: CapabilityExecutor;
 }
 
-export class RoutingCapabilityAdapter implements ClosedActionAdapter {
+export class RoutingCapabilityAdapter implements CapabilityExecutor {
   constructor(private readonly registry: CapabilityRegistry) {}
 
   execute(
     proposal: ProposedCapabilityExecution,
     idempotencyKey: string,
     context: { readonly missionId: string; readonly correlationId?: string }
-  ): Promise<ActionReceipt> {
+  ): Promise<ExecutionReceipt> {
     const channelType = proposal.channelType;
     if (!channelType || ![
       "CONTROLLED_SANDBOX",
@@ -44,7 +44,7 @@ export class CapabilityRegistry {
     return [...this.channels.values()].map(({ capability }) => capability);
   }
 
-  requireAvailable(channelType: ChannelType): ClosedActionAdapter {
+  requireAvailable(channelType: ChannelType): CapabilityExecutor {
     const channel = this.channels.get(channelType);
     if (!channel || channel.capability.status !== "AVAILABLE" || !channel.capability.canSend) {
       throw new Error("CONTACT_CHANNEL_UNAVAILABLE");

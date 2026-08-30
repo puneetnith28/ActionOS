@@ -66,12 +66,12 @@ describe("company email action adapter", () => {
       request: () => Promise.reject(new Error("socket closed"))
     });
     await expect(networkFailure.execute(proposal, "key", { missionId: "case_12345678" }))
-      .rejects.toMatchObject({ name: "ActionOutcomeUnknownError" });
+      .rejects.toMatchObject({ name: "CapabilityOutcomeUnknownError" });
     const missingReceipt = new CompanyEmailActionAdapter({
       apiKey: "test-key", from: "a@example.com", replyDomain: "inbound.example.com",
       request: () => Promise.resolve(new Response("{}"))
     });
     await expect(missingReceipt.execute(proposal, "key", { missionId: "case_12345678" }))
-      .rejects.toMatchObject({ name: "ActionOutcomeUnknownError" });
+      .rejects.toMatchObject({ name: "CapabilityOutcomeUnknownError" });
   });
 });

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./action-broker": "./src/action-broker.ts",
+    "./capability-broker": "./src/capability-broker.ts",
     "./task-scheduler": "./src/task-scheduler.ts",
     "./intake-service": "./src/intake-service.ts",
     "./plan-service": "./src/plan-service.ts",

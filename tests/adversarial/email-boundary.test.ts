@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { ActionBroker } from "../../packages/runtime/src/action-broker";
+import { ExecutionBroker } from "../../packages/runtime/src/capability-broker";
 import { assertControlledRecipient } from "../../apps/web/lib/security-limits";
 
 describe("managed email authority boundary", () => {
@@ -7,7 +7,7 @@ describe("managed email authority boundary", () => {
     expect(() => { assertControlledRecipient("support@attacker.test", ["controlled.test"]); })
       .toThrow("COMPANY_EMAIL_RECIPIENT_NOT_ALLOWED");
     const execute = vi.fn();
-    const broker = new ActionBroker({
+    const broker = new ExecutionBroker({
       reserve: () => Promise.resolve({ status: "RESERVED" as const }),
       succeed: () => Promise.resolve(),
       fail: () => Promise.resolve()

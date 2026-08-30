@@ -8,11 +8,11 @@ import {
 } from "../../apps/web/lib/callback-controller";
 import { MerchantSandboxAdapter } from "../../packages/capabilities/src/merchant-sandbox";
 import {
-  ActionBroker,
-  type ActionReceipt,
-  type ActionRecordStore,
+  ExecutionBroker,
+  type ExecutionReceipt,
+  type ExecutionRecordStore,
   type Reservation
-} from "../../packages/runtime/src/action-broker";
+} from "../../packages/runtime/src/capability-broker";
 import {
   CaseRunner,
   type FollowThroughCase,
@@ -33,7 +33,7 @@ class WalkingStore
   implements
     FollowThroughStore,
     EvidenceCaseStore,
-    ActionRecordStore,
+    ExecutionRecordStore,
     NotificationStore,
     CallbackRecordStore
 {
@@ -73,7 +73,7 @@ class WalkingStore
     this.actions.set(key, { status: "RESERVED" });
     return Promise.resolve({ status: "RESERVED" });
   }
-  succeed(key: string, receipt: ActionReceipt): Promise<void> {
+  succeed(key: string, receipt: ExecutionReceipt): Promise<void> {
     this.actions.set(key, { status: "SUCCEEDED", receipt });
     return Promise.resolve();
   }
@@ -174,7 +174,7 @@ describe("refund walking skeleton", () => {
     const merchantUrl = await listen(merchantServer);
     const runner = new CaseRunner(
       store,
-      new ActionBroker(
+      new ExecutionBroker(
         store,
         new MerchantSandboxAdapter({ baseUrl: merchantUrl, scenario: "signed-completion" })
       ),

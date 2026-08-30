@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  ActionBroker,
-  type ActionReceipt,
-  type ActionRecordStore,
+  ExecutionBroker,
+  type ExecutionReceipt,
+  type ExecutionRecordStore,
   type Reservation
-} from "../../packages/runtime/src/action-broker";
+} from "../../packages/runtime/src/capability-broker";
 import {
   CaseRunner,
   type FollowThroughCase,
@@ -19,7 +19,7 @@ import type { NotificationRecord } from "../../packages/runtime/src/notification
 import { CaseNotificationService } from "../../packages/runtime/src/notifications";
 import type { WakeIntent } from "../../packages/runtime/src/wake-outbox";
 
-class Records implements ActionRecordStore {
+class Records implements ExecutionRecordStore {
   readonly records = new Map<string, Reservation>();
   reserve(key: string): Promise<Reservation> {
     const value = this.records.get(key);
@@ -28,7 +28,7 @@ class Records implements ActionRecordStore {
     this.records.set(key, { status: "RESERVED" });
     return Promise.resolve({ status: "RESERVED" });
   }
-  succeed(key: string, receipt: ActionReceipt): Promise<void> {
+  succeed(key: string, receipt: ExecutionReceipt): Promise<void> {
     this.records.set(key, { status: "SUCCEEDED", receipt });
     return Promise.resolve();
   }
@@ -99,7 +99,7 @@ describe("durable follow-through", () => {
     const scheduleCase = vi.fn(() => Promise.resolve({}));
     const runner = new CaseRunner(
       cases,
-      new ActionBroker(new Records(), { execute }),
+      new ExecutionBroker(new Records(), { execute }),
       { scheduleCase }
     );
 
@@ -141,7 +141,7 @@ describe("durable follow-through", () => {
     const scheduleCase = vi.fn(() => Promise.resolve({}));
     const runner = new CaseRunner(
       cases,
-      new ActionBroker(new Records(), { execute }),
+      new ExecutionBroker(new Records(), { execute }),
       { scheduleCase },
       30
     );
@@ -181,7 +181,7 @@ describe("durable follow-through", () => {
     const scheduleCase = vi.fn(() => Promise.resolve({}));
     const firstProcess = new CaseRunner(
       cases,
-      new ActionBroker(records, { execute }),
+      new ExecutionBroker(records, { execute }),
       { scheduleCase },
       1
     );
@@ -195,7 +195,7 @@ describe("durable follow-through", () => {
 
     const restarted = new CaseRunner(
       cases,
-      new ActionBroker(records, { execute }),
+      new ExecutionBroker(records, { execute }),
       { scheduleCase },
       1
     );
@@ -216,7 +216,7 @@ describe("durable follow-through", () => {
 
   it("ignores duplicate tasks after state advanced", async () => {
     const cases = new Cases({ ...readyCase(), state: "WAITING_EXTERNAL", version: 2 });
-    const runner = new CaseRunner(cases, new ActionBroker(new Records(), { execute: vi.fn() }), {
+    const runner = new CaseRunner(cases, new ExecutionBroker(new Records(), { execute: vi.fn() }), {
       scheduleCase: vi.fn()
     });
     await expect(
@@ -234,11 +234,11 @@ describe("durable follow-through", () => {
     const records = new Records();
     // Reserve the exact key without completing its external call, modeling a
     // second Cloud Task that arrives while the first worker owns the send.
-    let releaseAction: ((receipt: ActionReceipt) => void) | undefined;
+    let releaseAction: ((receipt: ExecutionReceipt) => void) | undefined;
     const blockingAdapter = {
-      execute: vi.fn(() => new Promise<ActionReceipt>((resolve) => { releaseAction = resolve; }))
+      execute: vi.fn(() => new Promise<ExecutionReceipt>((resolve) => { releaseAction = resolve; }))
     };
-    const broker = new ActionBroker(records, blockingAdapter);
+    const broker = new ExecutionBroker(records, blockingAdapter);
     const first = broker.execute({
       caseId: initial.caseId,
       actionOrdinal: initial.actionOrdinal,
@@ -288,7 +288,7 @@ describe("durable follow-through", () => {
       .mockResolvedValue({ taskName: "recovered-task", duplicate: false });
     const runner = new CaseRunner(
       cases,
-      new ActionBroker(new Records(), { execute }),
+      new ExecutionBroker(new Records(), { execute }),
       { scheduleCase }
     );
 
@@ -354,7 +354,7 @@ describe("durable follow-through", () => {
     const execute = vi.fn();
     const runner = new CaseRunner(
       cases,
-      new ActionBroker(new Records(), { execute }),
+      new ExecutionBroker(new Records(), { execute }),
       { scheduleCase: vi.fn() },
       30,
       5,
@@ -412,7 +412,7 @@ describe("durable follow-through", () => {
     );
     const runner = new CaseRunner(
       cases,
-      new ActionBroker(new Records(), { execute: vi.fn(() => Promise.reject(new Error("503"))) }),
+      new ExecutionBroker(new Records(), { execute: vi.fn(() => Promise.reject(new Error("503"))) }),
       { scheduleCase: vi.fn() },
       30,
       1,
@@ -450,7 +450,7 @@ describe("durable follow-through", () => {
     const scheduleCase = vi.fn(() => Promise.resolve({}));
     const runner = new CaseRunner(
       cases,
-      new ActionBroker(new Records(), { execute: vi.fn() }),
+      new ExecutionBroker(new Records(), { execute: vi.fn() }),
       { scheduleCase },
       30,
       5,

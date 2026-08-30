@@ -3,13 +3,13 @@ import { describe, expect, it, vi } from "vitest";
 import { createMerchantServer } from "../../apps/merchant-sandbox/src/server";
 import { MerchantSandboxAdapter } from "../../packages/capabilities/src/merchant-sandbox";
 import {
-  ActionBroker,
-  type ActionRecordStore,
+  ExecutionBroker,
+  type ExecutionRecordStore,
   type Reservation
-} from "../../packages/runtime/src/action-broker";
+} from "../../packages/runtime/src/capability-broker";
 import type { ApprovedActionPolicy, ProposedCapabilityExecution } from "../../packages/domain/src/index";
 
-class Records implements ActionRecordStore {
+class Records implements ExecutionRecordStore {
   readonly values = new Map<string, Reservation>();
   reserve(key: string): Promise<Reservation> {
     const existing = this.values.get(key);
@@ -74,7 +74,7 @@ describe("merchant action contract", () => {
       scenario: "acknowledgement",
       fetch: request
     });
-    const broker = new ActionBroker(new Records(), adapter);
+    const broker = new ExecutionBroker(new Records(), adapter);
     const input = {
       caseId: "case_12345678",
       actionOrdinal: 1,

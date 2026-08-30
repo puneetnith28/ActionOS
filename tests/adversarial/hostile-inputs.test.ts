@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { acceptUpload } from "../../packages/capabilities/src/upload";
 import { validateCapabilityExecution } from "../../packages/domain/src/capability-validator";
-import { ActionBroker } from "../../packages/runtime/src/action-broker";
+import { ExecutionBroker } from "../../packages/runtime/src/capability-broker";
 import { CaseRunner, type FollowThroughCase } from "../../packages/runtime/src/case-runner";
 import { IntakeService, type DraftCase } from "../../packages/runtime/src/intake-service";
 import { assertLogicalActionBudget, redactedPublicError } from "../../apps/web/lib/security-limits";
@@ -108,7 +108,7 @@ describe("hostile input and budget boundaries", () => {
           return Promise.resolve();
         }
       },
-      new ActionBroker(
+      new ExecutionBroker(
         {
           reserve: vi.fn(),
           succeed: vi.fn(),

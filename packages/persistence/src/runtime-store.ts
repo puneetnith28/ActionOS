@@ -1,6 +1,6 @@
 import { FieldValue, type Firestore } from "firebase-admin/firestore";
-import type { ActionReceipt, ActionRecordStore, Reservation } from "@actionos/runtime/action-broker";
-import type { ExternalSendBudget } from "@actionos/runtime/action-broker";
+import type { ExecutionReceipt, ExecutionRecordStore, Reservation } from "@actionos/runtime/capability-broker";
+import type { ExternalSendBudget } from "@actionos/runtime/capability-broker";
 import type { FollowThroughCase, FollowThroughStore } from "@actionos/runtime/case-runner";
 import type { EvidenceCaseStore, EvidenceRecord } from "@actionos/runtime/verification-service";
 import type { NotificationRecord, NotificationStore } from "@actionos/runtime/notifications";
@@ -20,7 +20,7 @@ import { persistWakeIntent } from "./wake-outbox-store";
 export class FirestoreRuntimeStore
   implements
     FollowThroughStore,
-    ActionRecordStore,
+    ExecutionRecordStore,
     EvidenceCaseStore,
     NotificationStore,
     InterventionStore,
@@ -122,7 +122,7 @@ export class FirestoreRuntimeStore
       .limit(20)
       .get();
     return snapshot.docs.map((document) => {
-      const receipt = document.get("receipt") as ActionReceipt & {
+      const receipt = document.get("receipt") as ExecutionReceipt & {
         transportStatus?: string;
         observedAt?: string;
       };
@@ -174,7 +174,7 @@ export class FirestoreRuntimeStore
     return this.db.runTransaction(async (transaction) => {
       const current = await transaction.get(reference);
       if (current.exists) {
-        const record = current.data() as { status: string; receipt?: ActionReceipt };
+        const record = current.data() as { status: string; receipt?: ExecutionReceipt };
         return record.status === "SUCCEEDED" && record.receipt
           ? { status: "SUCCEEDED" as const, receipt: record.receipt }
           : { status: "IN_FLIGHT" as const };
@@ -188,7 +188,7 @@ export class FirestoreRuntimeStore
     });
   }
 
-  async succeed(idempotencyKey: string, receipt: ActionReceipt): Promise<void> {
+  async succeed(idempotencyKey: string, receipt: ExecutionReceipt): Promise<void> {
     const actionReference = this.db.collection("actionRecords").doc(idempotencyKey.slice(7));
     const batch = this.db.batch();
     batch.set(actionReference, {
@@ -247,7 +247,7 @@ export class FirestoreRuntimeStore
     if (snapshot.size !== 1) return "AMBIGUOUS";
     const actionDocument = snapshot.docs[0];
     if (!actionDocument) return "UNKNOWN";
-    const receipt = actionDocument.get("receipt") as ActionReceipt;
+    const receipt = actionDocument.get("receipt") as ExecutionReceipt;
     await actionDocument.ref.set({
       receipt: { ...receipt, transportStatus, observedAt },
       deleteAt: firestoreDeleteAt(observedAt)

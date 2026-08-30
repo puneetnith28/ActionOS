@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ClosedActionAdapter } from "@actionos/runtime/action-broker";
+import type { CapabilityExecutor } from "@actionos/runtime/capability-broker";
 import { CompanyEmailActionAdapter } from "../src/company-email";
 import { MerchantSandboxAdapter } from "../src/merchant-sandbox";
 import { PartnerApiFixtureAdapter } from "../src/partner-api";
@@ -13,7 +13,7 @@ const proposal = {
   sharedFields: { transactionRef: "ORDER-79" }
 };
 
-function cases(): readonly [string, ClosedActionAdapter][] {
+function cases(): readonly [string, CapabilityExecutor][] {
   return [
     ["sandbox", new MerchantSandboxAdapter({
       baseUrl: "https://sandbox.example",

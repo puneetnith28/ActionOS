@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { ActionBroker, ActionOutcomeUnknownError } from "../src/action-broker";
+import { ExecutionBroker, CapabilityOutcomeUnknownError } from "../src/capability-broker";
 import type {
-  ActionReceipt,
-  ActionRecordStore,
-  ClosedActionAdapter,
+  ExecutionReceipt,
+  ExecutionRecordStore,
+  CapabilityExecutor,
   Reservation
-} from "../src/action-broker";
+} from "../src/capability-broker";
 import type { CapabilityPolicy, ProposedCapabilityExecution } from "@actionos/domain";
 
 const policy: CapabilityPolicy = {
@@ -32,7 +32,7 @@ const proposal: ProposedCapabilityExecution = {
   sharedFields: { transactionRef: "ORDER-79" }
 };
 
-class MemoryActionStore implements ActionRecordStore {
+class MemoryActionStore implements ExecutionRecordStore {
   private readonly records = new Map<string, Reservation>();
 
   reserve(key: string): Promise<Reservation> {
@@ -44,7 +44,7 @@ class MemoryActionStore implements ActionRecordStore {
     return Promise.resolve(reservation);
   }
 
-  succeed(key: string, receipt: ActionReceipt): Promise<void> {
+  succeed(key: string, receipt: ExecutionReceipt): Promise<void> {
     this.records.set(key, { status: "SUCCEEDED", receipt });
     return Promise.resolve();
   }
@@ -55,15 +55,15 @@ class MemoryActionStore implements ActionRecordStore {
   }
 }
 
-describe("ActionBroker", () => {
+describe("ExecutionBroker", () => {
   it("performs one external effect across duplicate delivery", async () => {
     const execute = vi.fn(() =>
       Promise.resolve({ receiptId: "receipt_1", acceptedAt: "2026-08-15T12:00:00.000Z" })
     );
-    const adapter: ClosedActionAdapter = {
+    const adapter: CapabilityExecutor = {
       execute
     };
-    const broker = new ActionBroker(new MemoryActionStore(), adapter);
+    const broker = new ExecutionBroker(new MemoryActionStore(), adapter);
     const input = {
       missionId: "case_1",
       actionOrdinal: 1,
@@ -84,9 +84,9 @@ describe("ActionBroker", () => {
   });
 
   it("never calls the adapter for an unapproved recipient", async () => {
-    const execute = vi.fn<ClosedActionAdapter["execute"]>();
-    const adapter: ClosedActionAdapter = { execute };
-    const broker = new ActionBroker(new MemoryActionStore(), adapter);
+    const execute = vi.fn<CapabilityExecutor["execute"]>();
+    const adapter: CapabilityExecutor = { execute };
+    const broker = new ExecutionBroker(new MemoryActionStore(), adapter);
     await expect(
       broker.execute({
         missionId: "case_1",
@@ -100,10 +100,10 @@ describe("ActionBroker", () => {
   });
 
   it("keeps an uncertain provider acceptance reserved and never blindly resends", async () => {
-    const execute = vi.fn<ClosedActionAdapter["execute"]>(() =>
-      Promise.reject(new ActionOutcomeUnknownError("TRANSPORT_UNKNOWN"))
+    const execute = vi.fn<CapabilityExecutor["execute"]>(() =>
+      Promise.reject(new CapabilityOutcomeUnknownError("TRANSPORT_UNKNOWN"))
     );
-    const broker = new ActionBroker(new MemoryActionStore(), { execute });
+    const broker = new ExecutionBroker(new MemoryActionStore(), { execute });
     const input = {
       missionId: "case_1",
       actionOrdinal: 1,
@@ -119,8 +119,8 @@ describe("ActionBroker", () => {
   it("persists enough redacted identity to reconcile an uncertain acceptance", async () => {
     const store = new MemoryActionStore();
     const markUnknown = vi.fn(() => Promise.resolve());
-    const broker = new ActionBroker(Object.assign(store, { markUnknown }), {
-      execute: () => Promise.reject(new ActionOutcomeUnknownError("TRANSPORT_UNKNOWN"))
+    const broker = new ExecutionBroker(Object.assign(store, { markUnknown }), {
+      execute: () => Promise.reject(new CapabilityOutcomeUnknownError("TRANSPORT_UNKNOWN"))
     });
     await expect(broker.execute({
       missionId: "case_1", actionOrdinal: 1, policy, proposal,
@@ -140,7 +140,7 @@ describe("ActionBroker", () => {
       receiptId: "receipt_1",
       acceptedAt: "2026-08-15T12:00:00.000Z"
     }));
-    const broker = new ActionBroker(new MemoryActionStore(), { execute }, { reserveExternalSend });
+    const broker = new ExecutionBroker(new MemoryActionStore(), { execute }, { reserveExternalSend });
     const input = {
       missionId: "case_1",
       actionOrdinal: 1,
@@ -158,8 +158,8 @@ describe("ActionBroker", () => {
   });
 
   it("does not call the provider when an external send budget is exhausted", async () => {
-    const execute = vi.fn<ClosedActionAdapter["execute"]>();
-    const broker = new ActionBroker(new MemoryActionStore(), { execute }, {
+    const execute = vi.fn<CapabilityExecutor["execute"]>();
+    const broker = new ExecutionBroker(new MemoryActionStore(), { execute }, {
       reserveExternalSend: () => Promise.reject(new Error("EXTERNAL_SEND_BUDGET_EXHAUSTED"))
     });
     await expect(broker.execute({

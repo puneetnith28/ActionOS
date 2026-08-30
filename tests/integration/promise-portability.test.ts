@@ -3,7 +3,7 @@ import { validateCapabilityExecution } from "../../packages/domain/src/capabilit
 import { reduceCase } from "../../packages/domain/src/reducer";
 import { verifyEvidence } from "../../packages/domain/src/verifier";
 import { assertManifestRequirement } from "../../packages/domain/src/promise-types";
-import { ActionBroker, type Reservation } from "../../packages/runtime/src/action-broker";
+import { ExecutionBroker, type Reservation } from "../../packages/runtime/src/capability-broker";
 import {
   billCreditFixture,
   replacementFixture
@@ -52,7 +52,7 @@ describe("promise type portability", () => {
       );
       expect(authorization.authorized).toBe(true);
       const records = new Map<string, Reservation>();
-      const broker = new ActionBroker(
+      const broker = new ExecutionBroker(
         {
           reserve: async (key) => {
             const old = records.get(key);

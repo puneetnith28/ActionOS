@@ -1,7 +1,7 @@
 import { actionIdempotencyKey, validateCapabilityExecution, stableHash } from "@actionos/domain";
 import type { CapabilityPolicy, AuthorizationDecision, ProposedCapabilityExecution } from "@actionos/domain";
 
-export interface ActionReceipt {
+export interface ExecutionReceipt {
   readonly receiptId: string;
   readonly acceptedAt: string;
   readonly missionId?: string;
@@ -16,11 +16,11 @@ export interface ActionReceipt {
 export type Reservation =
   | { readonly status: "RESERVED" }
   | { readonly status: "IN_FLIGHT" }
-  | { readonly status: "SUCCEEDED"; readonly receipt: ActionReceipt };
+  | { readonly status: "SUCCEEDED"; readonly receipt: ExecutionReceipt };
 
-export interface ActionRecordStore {
+export interface ExecutionRecordStore {
   reserve(idempotencyKey: string): Promise<Reservation>;
-  succeed(idempotencyKey: string, receipt: ActionReceipt): Promise<void>;
+  succeed(idempotencyKey: string, receipt: ExecutionReceipt): Promise<void>;
   fail(idempotencyKey: string, reasonCode: string): Promise<void>;
   markUnknown?(input: {
     idempotencyKey: string;
@@ -34,12 +34,12 @@ export interface ActionRecordStore {
   }): Promise<void>;
 }
 
-export interface ClosedActionAdapter {
+export interface CapabilityExecutor {
   execute(
     proposal: ProposedCapabilityExecution,
     idempotencyKey: string,
     context: { readonly missionId: string; readonly correlationId?: string }
-  ): Promise<ActionReceipt>;
+  ): Promise<ExecutionReceipt>;
 }
 
 export interface ExternalSendBudget {
@@ -53,12 +53,12 @@ export interface ExternalSendBudget {
   }): Promise<void>;
 }
 
-export class ActionOutcomeUnknownError extends Error {
+export class CapabilityOutcomeUnknownError extends Error {
   idempotencyKey?: string;
 
   constructor(readonly reasonCode: string) {
     super(reasonCode);
-    this.name = "ActionOutcomeUnknownError";
+    this.name = "CapabilityOutcomeUnknownError";
   }
 }
 
@@ -68,14 +68,14 @@ export type BrokerResult =
   | {
       readonly status: "SUCCEEDED";
       readonly idempotencyKey: string;
-      readonly receipt: ActionReceipt;
+      readonly receipt: ExecutionReceipt;
       readonly duplicate: boolean;
     };
 
-export class ActionBroker {
+export class ExecutionBroker {
   constructor(
-    private readonly store: ActionRecordStore,
-    private readonly adapter: ClosedActionAdapter,
+    private readonly store: ExecutionRecordStore,
+    private readonly adapter: CapabilityExecutor,
     private readonly budget?: ExternalSendBudget
   ) {}
 
@@ -123,7 +123,7 @@ export class ActionBroker {
         ...(input.correlationId ? { correlationId: input.correlationId } : {})
       });
       const channelType = input.proposal.channelType ?? providerReceipt.channelType;
-      const receipt: ActionReceipt = {
+      const receipt: ExecutionReceipt = {
         ...providerReceipt,
         missionId: input.missionId,
         ...(channelType ? { channelType } : {}),
@@ -135,7 +135,7 @@ export class ActionBroker {
     } catch (error) {
       // A timeout or malformed success response may occur after the provider accepted the action.
       // Keep the reservation IN_FLIGHT: retrying the same logical action blindly could duplicate it.
-      if (error instanceof ActionOutcomeUnknownError) {
+      if (error instanceof CapabilityOutcomeUnknownError) {
         error.idempotencyKey = idempotencyKey;
         await this.store.markUnknown?.({
           idempotencyKey,

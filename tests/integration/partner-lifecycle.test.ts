@@ -1,17 +1,17 @@
 import { describe, expect, it, vi } from "vitest";
 import { PartnerApiFixtureAdapter } from "../../packages/capabilities/src/partner-api";
 import {
-  ActionBroker,
-  type ActionReceipt,
+  ExecutionBroker,
+  type ExecutionReceipt,
   type Reservation
-} from "../../packages/runtime/src/action-broker";
+} from "../../packages/runtime/src/capability-broker";
 
 describe("partner adapter lifecycle", () => {
   it("uses the common authorization, retry, idempotency and receipt lifecycle", async () => {
     let reservation: Reservation | undefined;
     const store = {
       reserve: () => Promise.resolve(reservation ?? { status: "RESERVED" as const }),
-      succeed: (_key: string, receipt: ActionReceipt) => {
+      succeed: (_key: string, receipt: ExecutionReceipt) => {
         reservation = { status: "SUCCEEDED", receipt };
         return Promise.resolve();
       },
@@ -22,7 +22,7 @@ describe("partner adapter lifecycle", () => {
       .mockResolvedValueOnce(new Response(JSON.stringify({
         receiptId: "partner_receipt_123", acceptedAt: "2026-08-16T12:00:02.000Z"
       })));
-    const broker = new ActionBroker(store, new PartnerApiFixtureAdapter({
+    const broker = new ExecutionBroker(store, new PartnerApiFixtureAdapter({
       endpoint: "https://partner.example/v1/dueback/actions",
       signingSecret: "fixture-secret",
       request

@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
 import type { ProposedCapabilityExecution } from "@actionos/domain";
-import type { ActionReceipt, ClosedActionAdapter } from "@actionos/runtime/action-broker";
+import type { ExecutionReceipt, CapabilityExecutor } from "@actionos/runtime/capability-broker";
 
 export interface PartnerApiFixtureConfig {
   readonly endpoint: string;
@@ -8,7 +8,7 @@ export interface PartnerApiFixtureConfig {
   readonly request?: typeof globalThis.fetch;
 }
 
-export class PartnerApiFixtureAdapter implements ClosedActionAdapter {
+export class PartnerApiFixtureAdapter implements CapabilityExecutor {
   private readonly request: typeof globalThis.fetch;
 
   constructor(private readonly config: PartnerApiFixtureConfig) {
@@ -26,7 +26,7 @@ export class PartnerApiFixtureAdapter implements ClosedActionAdapter {
     proposal: ProposedCapabilityExecution,
     idempotencyKey: string,
     context: { readonly missionId: string; readonly correlationId?: string }
-  ): Promise<ActionReceipt> {
+  ): Promise<ExecutionReceipt> {
     const body = JSON.stringify({
       schemaVersion: "dueback.partner-action.v1",
       missionId: context.missionId,
@@ -44,7 +44,7 @@ export class PartnerApiFixtureAdapter implements ClosedActionAdapter {
       body
     });
     if (!response.ok) throw new Error(`PARTNER_API_${String(response.status)}`);
-    const receipt = (await response.json()) as Partial<ActionReceipt>;
+    const receipt = (await response.json()) as Partial<ExecutionReceipt>;
     if (!receipt.receiptId || !receipt.acceptedAt) throw new Error("PARTNER_RECEIPT_INVALID");
     return { ...receipt, receiptId: receipt.receiptId, acceptedAt: receipt.acceptedAt,
       missionId: context.missionId, channelType: "PARTNER_API" };
