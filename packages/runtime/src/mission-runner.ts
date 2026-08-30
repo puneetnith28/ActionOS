@@ -263,7 +263,8 @@ export class MissionRunner {
         });
         return { status: "NEEDS_ATTENTION", reason: "RECOVERY_EXHAUSTED" };
       }
-      const retryAt = new Date(Date.parse(input.now) + this.retryDelaySeconds * 1000).toISOString();
+      const delay = this.retryDelaySeconds * Math.pow(2, attemptCount - 1);
+      const retryAt = new Date(Date.parse(input.now) + delay * 1000).toISOString();
       const next = {
         ...item,
         state: "WAITING_RETRY" as const,

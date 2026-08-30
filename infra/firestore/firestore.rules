@@ -1,15 +1,36 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /cases/{caseId} {
+    match /missionRuns/{missionId} {
       allow read: if request.auth != null && resource.data.ownerId == request.auth.uid;
       allow create, update, delete: if false;
 
       match /events/{eventId} {
         allow read: if request.auth != null
-          && get(/databases/$(database)/documents/cases/$(caseId)).data.ownerId == request.auth.uid;
+          && get(/databases/$(database)/documents/missionRuns/$(missionId)).data.ownerId == request.auth.uid;
         allow write: if false;
       }
+
+      match /evidence/{evidenceId} {
+        allow read: if request.auth != null
+          && get(/databases/$(database)/documents/missionRuns/$(missionId)).data.ownerId == request.auth.uid;
+        allow write: if false;
+      }
+    }
+
+    match /missionDrafts/{draftId} {
+      allow read: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow write: if false;
+    }
+
+    match /interventions/{interventionId} {
+      allow read: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow write: if false;
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow write: if false;
     }
 
     match /{document=**} {

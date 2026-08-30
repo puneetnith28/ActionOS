@@ -20,24 +20,37 @@ beforeAll(async () => {
     }
   });
   await environment.withSecurityRulesDisabled(async (context) => {
-    await setDoc(doc(context.firestore(), "cases/mission_owned"), { ownerId: "owner_a" });
-    await setDoc(doc(context.firestore(), "cases/mission_owned/events/event_1"), { caseId: "mission_owned" });
+    await setDoc(doc(context.firestore(), "missionRuns/mission_owned"), { ownerId: "owner_a" });
+    await setDoc(doc(context.firestore(), "missionRuns/mission_owned/events/event_1"), { missionId: "mission_owned" });
+    await setDoc(doc(context.firestore(), "missionRuns/mission_owned/evidence/evidence_1"), { missionId: "mission_owned" });
+    await setDoc(doc(context.firestore(), "missionDrafts/draft_1"), { ownerId: "owner_a" });
+    await setDoc(doc(context.firestore(), "interventions/intervention_1"), { ownerId: "owner_a" });
+    await setDoc(doc(context.firestore(), "notifications/notification_1"), { ownerId: "owner_a" });
     await setDoc(doc(context.firestore(), "providerEvents/provider_1"), { status: "FAILED" });
     await setDoc(doc(context.firestore(), "inboundEnvelopes/inbound_1"), { text: "private" });
-    await setDoc(doc(context.firestore(), "messageThreads/thread_1"), { caseId: "mission_owned" });
+    await setDoc(doc(context.firestore(), "messageThreads/thread_1"), { missionId: "mission_owned" });
   });
 });
 
 afterAll(async () => environment.cleanup());
 
 describe("Firestore ownership and server-only channel records", () => {
-  it("allows only the owner to read the case and its event history", async () => {
+  it("allows only the owner to read the mission and its event/evidence history", async () => {
     const owner = environment.authenticatedContext("owner_a").firestore();
     const attacker = environment.authenticatedContext("owner_b").firestore();
-    await assertSucceeds(getDoc(doc(owner, "cases/mission_owned")));
-    await assertSucceeds(getDoc(doc(owner, "cases/mission_owned/events/event_1")));
-    await assertFails(getDoc(doc(attacker, "cases/mission_owned")));
-    await assertFails(getDoc(doc(attacker, "cases/mission_owned/events/event_1")));
+    await assertSucceeds(getDoc(doc(owner, "missionRuns/mission_owned")));
+    await assertSucceeds(getDoc(doc(owner, "missionRuns/mission_owned/events/event_1")));
+    await assertSucceeds(getDoc(doc(owner, "missionRuns/mission_owned/evidence/evidence_1")));
+    await assertSucceeds(getDoc(doc(owner, "missionDrafts/draft_1")));
+    await assertSucceeds(getDoc(doc(owner, "interventions/intervention_1")));
+    await assertSucceeds(getDoc(doc(owner, "notifications/notification_1")));
+
+    await assertFails(getDoc(doc(attacker, "missionRuns/mission_owned")));
+    await assertFails(getDoc(doc(attacker, "missionRuns/mission_owned/events/event_1")));
+    await assertFails(getDoc(doc(attacker, "missionRuns/mission_owned/evidence/evidence_1")));
+    await assertFails(getDoc(doc(attacker, "missionDrafts/draft_1")));
+    await assertFails(getDoc(doc(attacker, "interventions/intervention_1")));
+    await assertFails(getDoc(doc(attacker, "notifications/notification_1")));
   });
 
   it.each(["providerEvents/provider_1", "inboundEnvelopes/inbound_1", "messageThreads/thread_1"])(
