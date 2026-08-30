@@ -4,12 +4,12 @@
       "collectionGroup": "events",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "caseId", "order": "ASCENDING" },
+        { "fieldPath": "missionId", "order": "ASCENDING" },
         { "fieldPath": "sequence", "order": "ASCENDING" }
       ]
     },
     {
-      "collectionGroup": "cases",
+      "collectionGroup": "missionRuns",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "ownerId", "order": "ASCENDING" },
@@ -20,7 +20,7 @@
       "collectionGroup": "interventions",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "caseId", "order": "ASCENDING" },
+        { "fieldPath": "missionId", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "ASCENDING" }
       ]
     },
@@ -28,7 +28,7 @@
       "collectionGroup": "notifications",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "caseId", "order": "ASCENDING" },
+        { "fieldPath": "missionId", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "ASCENDING" }
       ]
     }

@@ -1,5 +1,5 @@
 queue:
-  name: actionos-cases
+  name: actionos-missions
   location: us-central1
   rateLimits:
     maxDispatchesPerSecond: 2

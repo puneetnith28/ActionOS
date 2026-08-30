@@ -18,13 +18,13 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
     const document = await this.db.collection("intakeDedupe").doc(dedupeKey.slice(7)).get();
     if (!document.exists || document.get("ownerId") !== ownerId) return undefined;
     const missionId = document.get("missionId") as string;
-    const draftDocument = await this.db.collection("caseDrafts").doc(missionId).get();
+    const draftDocument = await this.db.collection("missionDrafts").doc(missionId).get();
     return draftDocument.exists ? (draftDocument.data() as DraftMission) : undefined;
   }
 
   async createDraft(draft: DraftMission): Promise<void> {
     const dedupeRef = this.db.collection("intakeDedupe").doc(draft.dedupeKey.slice(7));
-    const draftRef = this.db.collection("caseDrafts").doc(draft.missionId);
+    const draftRef = this.db.collection("missionDrafts").doc(draft.missionId);
     await this.db.runTransaction(async (transaction) => {
       const existing = await transaction.get(dedupeRef);
       if (existing.exists) throw new Error("DUPLICATE_INTAKE_RACE");
@@ -40,12 +40,12 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
   }
 
   async get(missionId: string): Promise<DraftMission | undefined> {
-    const document = await this.db.collection("caseDrafts").doc(missionId).get();
+    const document = await this.db.collection("missionDrafts").doc(missionId).get();
     return document.exists ? (document.data() as DraftMission) : undefined;
   }
 
   async deleteDraft(missionId: string, ownerId: string): Promise<void> {
-    const draftRef = this.db.collection("caseDrafts").doc(missionId);
+    const draftRef = this.db.collection("missionDrafts").doc(missionId);
     await this.db.runTransaction(async (transaction) => {
       const current = await transaction.get(draftRef);
       if (!current.exists) return;
@@ -62,8 +62,8 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
     next: DraftMission,
     wake?: WakeIntent
   ): Promise<void> {
-    const reference = this.db.collection("caseDrafts").doc(missionId);
-    const runReference = this.db.collection("caseRuns").doc(missionId);
+    const reference = this.db.collection("missionDrafts").doc(missionId);
+    const runReference = this.db.collection("missionRuns").doc(missionId);
     await this.db.runTransaction(async (transaction) => {
       const current = await transaction.get(reference);
       if (!current.exists) throw new Error("MISSION_NOT_FOUND");

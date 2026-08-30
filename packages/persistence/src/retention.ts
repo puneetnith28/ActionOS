@@ -10,7 +10,7 @@ export class FirestoreMissionControlStore implements MissionControlStore {
   constructor(private readonly db: Firestore) {}
 
   private commandReference(idempotencyKey: string) {
-    return this.db.collection("caseControlCommands").doc(stableHash(idempotencyKey).slice(7, 39));
+    return this.db.collection("missionControlCommands").doc(stableHash(idempotencyKey).slice(7, 39));
   }
 
   async getCommandResult(input: {
@@ -27,7 +27,7 @@ export class FirestoreMissionControlStore implements MissionControlStore {
   }
 
   async get(missionId: string): Promise<FollowThroughMission | undefined> {
-    const document = await this.db.collection("caseRuns").doc(missionId).get();
+    const document = await this.db.collection("missionRuns").doc(missionId).get();
     return document.exists ? (document.data() as FollowThroughMission) : undefined;
   }
 
@@ -41,7 +41,7 @@ export class FirestoreMissionControlStore implements MissionControlStore {
     idempotencyKey: string;
     wake?: WakeIntent;
   }): Promise<FollowThroughMission> {
-    const reference = this.db.collection("caseRuns").doc(input.missionId);
+    const reference = this.db.collection("missionRuns").doc(input.missionId);
     const commandRef = this.commandReference(input.idempotencyKey);
     const openInterventionsQuery = this.db.collection("interventions").where("missionId", "==", input.missionId).where("status", "==", "OPEN");
     return this.db.runTransaction(async (transaction) => {
@@ -116,8 +116,8 @@ export class FirestoreMissionControlStore implements MissionControlStore {
     now: string;
     idempotencyKey: string;
   }): Promise<FollowThroughMission> {
-    const runRef = this.db.collection("caseRuns").doc(input.missionId);
-    const draftRef = this.db.collection("caseDrafts").doc(input.missionId);
+    const runRef = this.db.collection("missionRuns").doc(input.missionId);
+    const draftRef = this.db.collection("missionDrafts").doc(input.missionId);
     const commandRef = this.commandReference(input.idempotencyKey);
     const openInterventionsQuery = this.db.collection("interventions").where("missionId", "==", input.missionId).where("status", "==", "OPEN");
     return this.db.runTransaction(async (transaction) => {
@@ -183,8 +183,8 @@ export class FirestoreMissionControlStore implements MissionControlStore {
     now: string;
     idempotencyKey: string;
   }): Promise<DeletionReceipt> {
-    const runRef = this.db.collection("caseRuns").doc(input.missionId);
-    const draftRef = this.db.collection("caseDrafts").doc(input.missionId);
+    const runRef = this.db.collection("missionRuns").doc(input.missionId);
+    const draftRef = this.db.collection("missionDrafts").doc(input.missionId);
     const tombstoneId = stableHash({
       namespace: "actionos/deletion/v1",
       missionId: input.missionId

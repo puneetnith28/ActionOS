@@ -66,7 +66,7 @@ if [[ -z "$(gcloud firestore indexes composite list --project="${project_id}" --
     --project="${project_id}" \
     --collection-group=interventions \
     --query-scope=collection \
-    --field-config=field-path=caseId,order=ascending \
+    --field-config=field-path=missionId,order=ascending \
     --field-config=field-path=createdAt,order=ascending >/dev/null
 fi
 
@@ -75,11 +75,11 @@ if [[ -z "$(gcloud firestore indexes composite list --project="${project_id}" --
     --project="${project_id}" \
     --collection-group=notifications \
     --query-scope=collection \
-    --field-config=field-path=caseId,order=ascending \
+    --field-config=field-path=missionId,order=ascending \
     --field-config=field-path=createdAt,order=ascending >/dev/null
 fi
 
-for collection_group in caseDrafts intakeDedupe analysisJobs analysisDedupe caseRuns evidence events notifications interventions caseControlCommands deletionTombstones securityBudgets modelUsage actionRecords actionFailures callbackDedupe emailDeliveries messageThreads providerEvents inboundEnvelopes externalSendBudgets externalSendReservations wakeIntents; do
+for collection_group in missionDrafts intakeDedupe analysisJobs analysisDedupe missionRuns evidence events notifications interventions missionControlCommands deletionTombstones securityBudgets modelUsage actionRecords actionFailures callbackDedupe emailDeliveries messageThreads providerEvents inboundEnvelopes externalSendBudgets externalSendReservations wakeIntents; do
   ttl_state="$(gcloud firestore fields ttls list --project="${project_id}" --collection-group="${collection_group}" --format='value(ttlConfig.state)' 2>/dev/null || true)"
   if [[ "${ttl_state}" != "ACTIVE" ]]; then
     gcloud firestore fields ttls update deleteAt \
@@ -90,8 +90,8 @@ for collection_group in caseDrafts intakeDedupe analysisJobs analysisDedupe case
   fi
 done
 
-gcloud tasks queues describe actionos-cases --location="${region}" --project="${project_id}" >/dev/null 2>&1 || \
-  gcloud tasks queues create actionos-cases --location="${region}" --max-dispatches-per-second=2 --max-concurrent-dispatches=2 --max-attempts=5 --min-backoff=10s --max-backoff=300s --project="${project_id}"
+gcloud tasks queues describe actionos-missions --location="${region}" --project="${project_id}" >/dev/null 2>&1 || \
+  gcloud tasks queues create actionos-missions --location="${region}" --max-dispatches-per-second=2 --max-concurrent-dispatches=2 --max-attempts=5 --min-backoff=10s --max-backoff=300s --project="${project_id}"
 
 if gcloud secrets describe actionos-merchant-callback --project="${project_id}" >/dev/null 2>&1; then
   printf '%s' "${callback_secret}" | gcloud secrets versions add actionos-merchant-callback --data-file=- --project="${project_id}" >/dev/null
@@ -116,11 +116,11 @@ web_image="${region}-docker.pkg.dev/${project_id}/${repository}/web:${image_tag}
 gcloud run deploy actionos-merchant-sandbox --image="${sandbox_image}" --region="${region}" --service-account="${sandbox_sa}" --allow-unauthenticated --no-cpu-throttling --set-secrets="MERCHANT_CALLBACK_SECRET=actionos-merchant-callback:latest" --project="${project_id}"
 sandbox_url="$(gcloud run services describe actionos-merchant-sandbox --region="${region}" --project="${project_id}" --format='value(status.url)')"
 
-gcloud run deploy actionos-web --image="${web_image}" --region="${region}" --service-account="${runtime_sa}" --allow-unauthenticated --set-env-vars="GOOGLE_CLOUD_PROJECT=${project_id},GOOGLE_CLOUD_LOCATION=global,CLOUD_TASKS_LOCATION=${region},CLOUD_TASKS_QUEUE=actionos-cases,CLOUD_TASKS_SERVICE_ACCOUNT=${tasks_sa},ACTIONOS_ARTIFACT_BUCKET=${artifact_bucket},MERCHANT_SANDBOX_URL=${sandbox_url},MERCHANT_SCENARIO=signed-completion,FIREBASE_WEB_API_KEY=${firebase_api_key},FIREBASE_AUTH_DOMAIN=${firebase_auth_domain},FIREBASE_APP_ID=${firebase_app_id}" --set-secrets="MERCHANT_CALLBACK_SECRET=actionos-merchant-callback:latest" --project="${project_id}"
+gcloud run deploy actionos-web --image="${web_image}" --region="${region}" --service-account="${runtime_sa}" --allow-unauthenticated --set-env-vars="GOOGLE_CLOUD_PROJECT=${project_id},GOOGLE_CLOUD_LOCATION=global,CLOUD_TASKS_LOCATION=${region},CLOUD_TASKS_QUEUE=actionos-missions,CLOUD_TASKS_SERVICE_ACCOUNT=${tasks_sa},ACTIONOS_ARTIFACT_BUCKET=${artifact_bucket},MERCHANT_SANDBOX_URL=${sandbox_url},MERCHANT_SCENARIO=signed-completion,FIREBASE_WEB_API_KEY=${firebase_api_key},FIREBASE_AUTH_DOMAIN=${firebase_auth_domain},FIREBASE_APP_ID=${firebase_app_id}" --set-secrets="MERCHANT_CALLBACK_SECRET=actionos-merchant-callback:latest" --project="${project_id}"
 web_url="$(gcloud run services describe actionos-web --region="${region}" --project="${project_id}" --format='value(status.url)')"
 public_base_url="${ACTIONOS_PUBLIC_BASE_URL:-${web_url}}"
 
-gcloud run services update actionos-web --region="${region}" --update-env-vars="APP_BASE_URL=${public_base_url},ACTIONOS_PUBLIC_BASE_URL=${public_base_url},ACTIONOS_WORKER_URL=${web_url}/api/internal/tasks/run-case,ACTIONOS_ANALYSIS_WORKER_URL=${web_url}/api/internal/tasks/analyze-case,ACTIONOS_TASKS_OIDC_AUDIENCE=${web_url}" --project="${project_id}" >/dev/null
+gcloud run services update actionos-web --region="${region}" --update-env-vars="APP_BASE_URL=${public_base_url},ACTIONOS_PUBLIC_BASE_URL=${public_base_url},ACTIONOS_WORKER_URL=${web_url}/api/internal/tasks/run-mission,ACTIONOS_ANALYSIS_WORKER_URL=${web_url}/api/internal/tasks/analyze-case,ACTIONOS_TASKS_OIDC_AUDIENCE=${web_url}" --project="${project_id}" >/dev/null
 
 # Managed email is opt-in and fail-closed. The sandbox deploy remains reproducible without these
 # external credentials. To enable it, provision both named secrets and set every bounded channel
