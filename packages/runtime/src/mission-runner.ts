@@ -100,12 +100,15 @@ export class MissionRunner {
   }): Promise<RunResult> {
     const item = await this.store.get(input.missionId);
     if (!item) throw new Error("MISSION_NOT_FOUND");
+    const isStuck = ["RUNNING", "VERIFYING"].includes(item.state) &&
+      Date.parse(input.now) - Date.parse(item.updatedAt ?? item.lastAttemptAt ?? item.dueAt) > 5 * 60 * 1000;
+
     if (
       item.version !== input.expectedVersion ||
-      !["READY", "WAITING_RETRY", "WAITING_EXTERNAL"].includes(item.state)
+      (!["READY", "WAITING_RETRY", "WAITING_EXTERNAL"].includes(item.state) && !isStuck)
     ) {
       if (
-        ["READY", "WAITING_RETRY", "WAITING_EXTERNAL"].includes(item.state) &&
+        (["READY", "WAITING_RETRY", "WAITING_EXTERNAL"].includes(item.state) || isStuck) &&
         item.nextWakeAt
       ) {
         await this.scheduler.scheduleMission({
@@ -117,6 +120,30 @@ export class MissionRunner {
       }
       return { status: "STALE_TASK" };
     }
+
+    if (isStuck) {
+      const nextWakeAt = new Date(Date.parse(input.now) + 30 * 1000).toISOString();
+      const next: FollowThroughMission = {
+        ...item,
+        state: item.state === "VERIFYING" ? "WAITING_EXTERNAL" : "WAITING_RETRY",
+        version: item.version + 1,
+        nextWakeAt,
+        lastError: "WORKER_TIMEOUT_RECOVERED",
+        updatedAt: input.now,
+        lastAttemptAt: input.now
+      };
+      const wake = wakeIntent({
+        missionId: item.missionId,
+        expectedVersion: next.version,
+        wakeAt: nextWakeAt,
+        createdAt: input.now,
+        ...(input.correlationId || item.correlationId ? { correlationId: input.correlationId ?? item.correlationId } : {})
+      });
+      await this.store.compareAndSet(item.missionId, item.version, next, wake);
+      await this.scheduler.scheduleMission(wake);
+      return { status: "WAITING_RETRY", wakeAt: nextWakeAt };
+    }
+
     const wakeAt = item.nextWakeAt ?? item.dueAt;
     if (Date.parse(wakeAt) > Date.parse(input.now)) return { status: "NOT_DUE", wakeAt };
 

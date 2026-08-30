@@ -1,10 +1,11 @@
 import { vertexAI } from "@genkit-ai/google-genai";
 import { genkit, z } from "genkit";
-import { resolutionPlanSchema, channelCapabilitySchema, type ExecutionPlan, type ChannelCapability } from "@actionos/contracts";
+import { resolutionPlanSchema, channelCapabilitySchema, executionHistoryEntrySchema, type ExecutionPlan, type ChannelCapability, type ExecutionHistoryEntry } from "@actionos/contracts";
 
 export const selectActionInputSchema = z.object({
   plan: z.any(),
-  availableCapabilities: z.any()
+  availableCapabilities: z.any(),
+  executionHistory: z.array(z.any()).optional()
 });
 
 export type SelectActionInput = z.infer<typeof selectActionInputSchema>;
@@ -24,8 +25,8 @@ export interface ActionSelectionGateway {
   }): Promise<SelectedAction | null>;
 }
 
-export const actionSelectionSystemInstruction = `You select the next appropriate autonomous action for a mission based on its execution plan and the available system capabilities.
-Review the goal, allowed actions, and available capabilities.
+export const actionSelectionSystemInstruction = `You select the next appropriate autonomous action for a mission based on its execution plan, the available system capabilities, and the execution history (if any).
+Review the goal, allowed actions, available capabilities, and previous history to determine the most logical next step.
 Return the actionType to perform next. If no capability can satisfy an allowed action, return WAIT or ESCALATE with reasoning.`;
 
 export async function selectActionWithGateway(
@@ -36,9 +37,13 @@ export async function selectActionWithGateway(
   const plan = resolutionPlanSchema.parse(input.plan);
   const availableCapabilities: ChannelCapability[] = input.availableCapabilities.map((c: unknown) => channelCapabilitySchema.parse(c));
   
+  const historyText = input.executionHistory && input.executionHistory.length > 0
+    ? `\nExecution History:\n${input.executionHistory.map((h) => `- [${h.occurredAt}] ${h.eventType}: ${h.summary}`).join("\n")}`
+    : "";
+
   const prompt = `Goal: ${plan.goal}
 Allowed Actions: ${plan.allowedActions.join(", ")}
-Available Capabilities: ${availableCapabilities.map(c => c.channelType + (c.canSend ? ' (Send)' : '')).join(", ")}`;
+Available Capabilities: ${availableCapabilities.map(c => c.channelType + (c.canSend ? ' (Send)' : '')).join(", ")}${historyText}`;
 
   const output = await gateway.generate({
     system: actionSelectionSystemInstruction,
