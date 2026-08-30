@@ -21,6 +21,7 @@
     "test:deployed": "playwright test",
     "test:firestore-rules": "firebase emulators:exec --only firestore --project actionos-rules-test 'pnpm exec vitest run tests/security/firestore-rules.test.ts --config vitest.security.config.ts'",
     "demo:reset": "tsx scripts/demo/reset.ts",
+    "demo:seed": "tsx scripts/demo/seed.ts",
     "release:capture-google": "tsx scripts/release/capture-google-state.ts"
   },
   "devDependencies": {
