@@ -1,20 +1,20 @@
 import { FieldValue, type Firestore } from "firebase-admin/firestore";
-import type { ActionReceipt, ActionRecordStore, Reservation } from "@dueback/runtime/action-broker";
-import type { ExternalSendBudget } from "@dueback/runtime/action-broker";
-import type { FollowThroughCase, FollowThroughStore } from "@dueback/runtime/case-runner";
-import type { EvidenceCaseStore, EvidenceRecord } from "@dueback/runtime/evidence-service";
-import type { NotificationRecord, NotificationStore } from "@dueback/runtime/notifications";
-import type { InterventionRecord, InterventionStore } from "@dueback/runtime/interventions";
+import type { ActionReceipt, ActionRecordStore, Reservation } from "@actionos/runtime/action-broker";
+import type { ExternalSendBudget } from "@actionos/runtime/action-broker";
+import type { FollowThroughCase, FollowThroughStore } from "@actionos/runtime/case-runner";
+import type { EvidenceCaseStore, EvidenceRecord } from "@actionos/runtime/evidence-service";
+import type { NotificationRecord, NotificationStore } from "@actionos/runtime/notifications";
+import type { InterventionRecord, InterventionStore } from "@actionos/runtime/interventions";
 import type {
   EmailDeliveryReceipt,
   EmailDeliveryStore
-} from "@dueback/channel-adapters/outbound-email";
+} from "@actionos/channel-adapters/outbound-email";
 import { firestoreDeleteAt } from "./expiry";
-import type { RuntimeTimelineEvent } from "@dueback/runtime/timeline";
-import { stableHash } from "@dueback/domain";
-import type { TechnicalRunSource } from "@dueback/runtime/technical-run";
-import type { DraftCase } from "@dueback/runtime/intake-service";
-import type { WakeIntent } from "@dueback/runtime/wake-outbox";
+import type { RuntimeTimelineEvent } from "@actionos/runtime/timeline";
+import { stableHash } from "@actionos/domain";
+import type { TechnicalRunSource } from "@actionos/runtime/technical-run";
+import type { DraftCase } from "@actionos/runtime/intake-service";
+import type { WakeIntent } from "@actionos/runtime/wake-outbox";
 import { persistWakeIntent } from "./wake-outbox-store";
 
 export class FirestoreRuntimeStore
@@ -31,7 +31,7 @@ export class FirestoreRuntimeStore
 
   async reserveExternalSend(input: {
     ownerId: string;
-    caseId: string;
+    missionId: string;
     recipient: string;
     channelType: string;
     requestedAt: string;
@@ -68,15 +68,15 @@ export class FirestoreRuntimeStore
       }
       transaction.create(reservation, {
         idempotencyKey: input.idempotencyKey,
-        caseId: input.caseId,
+        missionId: input.missionId,
         createdAt: input.requestedAt,
         deleteAt: firestoreDeleteAt(input.requestedAt)
       });
     });
   }
 
-  async get(caseId: string): Promise<FollowThroughCase | undefined> {
-    const document = await this.db.collection("caseRuns").doc(caseId).get();
+  async get(missionId: string): Promise<FollowThroughCase | undefined> {
+    const document = await this.db.collection("caseRuns").doc(missionId).get();
     return document.exists ? (document.data() as FollowThroughCase) : undefined;
   }
 
@@ -89,10 +89,10 @@ export class FirestoreRuntimeStore
     return snapshot.docs.map((document) => document.data() as FollowThroughCase);
   }
 
-  async listEvidence(caseId: string): Promise<readonly EvidenceRecord[]> {
+  async listEvidence(missionId: string): Promise<readonly EvidenceRecord[]> {
     const snapshot = await this.db
       .collection("caseRuns")
-      .doc(caseId)
+      .doc(missionId)
       .collection("evidence")
       .orderBy("recordedAt", "asc")
       .limit(50)
@@ -100,17 +100,17 @@ export class FirestoreRuntimeStore
     return snapshot.docs.map((document) => document.data() as EvidenceRecord);
   }
 
-  async listEvents(caseId: string): Promise<readonly RuntimeTimelineEvent[]> {
+  async listEvents(missionId: string): Promise<readonly RuntimeTimelineEvent[]> {
     const snapshot = await this.db
       .collection("caseRuns")
-      .doc(caseId)
+      .doc(missionId)
       .collection("events")
       .orderBy("sequence", "asc")
       .get();
     return snapshot.docs.map((document) => document.data() as RuntimeTimelineEvent);
   }
 
-  async listChannelEvents(caseId: string): Promise<readonly {
+  async listChannelEvents(missionId: string): Promise<readonly {
     channelType: string;
     transportStatus: string;
     acceptedAt: string;
@@ -118,7 +118,7 @@ export class FirestoreRuntimeStore
   }[]> {
     const snapshot = await this.db
       .collection("actionRecords")
-      .where("receipt.caseId", "==", caseId)
+      .where("receipt.missionId", "==", missionId)
       .limit(20)
       .get();
     return snapshot.docs.map((document) => {
@@ -136,12 +136,12 @@ export class FirestoreRuntimeStore
   }
 
   async compareAndSet(
-    caseId: string,
+    missionId: string,
     expectedVersion: number,
     next: FollowThroughCase,
     wake?: WakeIntent
   ): Promise<void> {
-    const reference = this.db.collection("caseRuns").doc(caseId);
+    const reference = this.db.collection("caseRuns").doc(missionId);
     await this.db.runTransaction(async (transaction) => {
       const current = await transaction.get(reference);
       if (!current.exists) throw new Error("CASE_NOT_FOUND");
@@ -152,7 +152,7 @@ export class FirestoreRuntimeStore
       const eventId = `${String(next.version).padStart(6, "0")}-action-result`;
       transaction.create(reference.collection("events").doc(eventId), {
         eventId,
-        caseId,
+        missionId,
         sequence: next.version,
         type: "ACTION_RESULT",
         actor: "SYSTEM",
@@ -197,7 +197,7 @@ export class FirestoreRuntimeStore
         receipt,
         deleteAt: firestoreDeleteAt(new Date().toISOString())
       });
-    if (receipt.replyRoute && receipt.caseId) {
+    if (receipt.replyRoute && receipt.missionId) {
       const routeKey = stableHash({
         namespace: "dueback/reply-route/v1",
         replyRoute: receipt.replyRoute.toLowerCase()
@@ -205,7 +205,7 @@ export class FirestoreRuntimeStore
       batch.set(this.db.collection("messageThreads").doc(routeKey.slice(7)), {
         routeKey,
         replyRoute: receipt.replyRoute.toLowerCase(),
-        caseId: receipt.caseId,
+        missionId: receipt.missionId,
         channelType: receipt.channelType ?? "MANAGED_EMAIL",
         providerMessageId: receipt.providerMessageId ?? receipt.receiptId,
         createdAt: receipt.acceptedAt,
@@ -221,7 +221,7 @@ export class FirestoreRuntimeStore
       replyRoute: replyRoute.toLowerCase()
     });
     const document = await this.db.collection("messageThreads").doc(routeKey.slice(7)).get();
-    return document.exists ? document.get("caseId") as string : undefined;
+    return document.exists ? document.get("missionId") as string : undefined;
   }
 
   async caseForProviderMessageId(providerMessageId: string): Promise<string | undefined> {
@@ -230,7 +230,7 @@ export class FirestoreRuntimeStore
       .limit(2)
       .get();
     if (snapshot.size !== 1) return undefined;
-    return snapshot.docs[0]?.get("caseId") as string | undefined;
+    return snapshot.docs[0]?.get("missionId") as string | undefined;
   }
 
   async recordTransportEvent(
@@ -252,22 +252,22 @@ export class FirestoreRuntimeStore
       receipt: { ...receipt, transportStatus, observedAt },
       deleteAt: firestoreDeleteAt(observedAt)
     }, { merge: true });
-    const caseId = receipt.caseId;
-    if (caseId && ["BOUNCED", "COMPLAINED", "SUPPRESSED"].includes(transportStatus)) {
-      const caseReference = this.db.collection("caseRuns").doc(caseId);
+    const missionId = receipt.missionId;
+    if (missionId && ["BOUNCED", "COMPLAINED", "SUPPRESSED"].includes(transportStatus)) {
+      const caseReference = this.db.collection("caseRuns").doc(missionId);
       await this.db.runTransaction(async (transaction) => {
         const current = await transaction.get(caseReference);
         if (!current.exists || ["DONE", "CANCELLED"].includes(String(current.get("state")))) return;
-        const correlationId = String(current.get("correlationId") ?? `corr_${caseId.slice(-24)}`);
+        const correlationId = String(current.get("correlationId") ?? `corr_${missionId.slice(-24)}`);
         const ownerId = String(current.get("ownerId"));
         const interventionKey = stableHash({
           namespace: "dueback/intervention/v1",
-          caseId,
+          missionId,
           kind: "EMAIL_ROUTE_UNAVAILABLE"
         });
         const notificationKey = stableHash({
           namespace: "dueback/notification/v1",
-          caseId,
+          missionId,
           correlationId,
           kind: "NEEDS_ATTENTION"
         });
@@ -288,7 +288,7 @@ export class FirestoreRuntimeStore
           transaction.create(interventionReference, {
             interventionId: `intervention_${interventionKey.slice(7, 31)}`,
             dedupeKey: interventionKey,
-            caseId,
+            missionId,
             ownerId,
             correlationId,
             kind: "EVIDENCE_CONFLICT",
@@ -303,11 +303,11 @@ export class FirestoreRuntimeStore
           transaction.create(notificationReference, {
             notificationId: `notification_${notificationKey.slice(7, 31)}`,
             dedupeKey: notificationKey,
-            caseId,
+            missionId,
             ownerId,
             correlationId,
             kind: "NEEDS_ATTENTION",
-            deepLinkPath: `/cases/${caseId}/result`,
+            deepLinkPath: `/cases/${missionId}/result`,
             createdAt: observedAt,
             deliveryChannel: "IN_APP",
             deliveryStatus: "RECORDED",
@@ -353,7 +353,7 @@ export class FirestoreRuntimeStore
 
   async markUnknown(input: {
     idempotencyKey: string;
-    caseId: string;
+    missionId: string;
     ownerId: string;
     channelType: string;
     recipientFingerprint: string;
@@ -369,15 +369,15 @@ export class FirestoreRuntimeStore
   }
 
   async record(input: {
-    caseId: string;
+    missionId: string;
     expectedVersion: number;
     nextState: FollowThroughCase["state"];
     nextWakeAt?: string;
     evidence: EvidenceRecord;
     wake?: WakeIntent;
   }): Promise<{ duplicate: boolean }> {
-    const caseRef = this.db.collection("caseRuns").doc(input.caseId);
-    const evidenceRef = caseRef.collection("evidence").doc(input.evidence.candidate.evidenceId);
+    const caseRef = this.db.collection("caseRuns").doc(input.missionId);
+    const evidenceRef = caseRef.collection("evidence").doc(input.evidence.candidate.outcomeId);
     return this.db.runTransaction(async (transaction) => {
       const [item, prior] = await Promise.all([
         transaction.get(caseRef),
@@ -397,17 +397,17 @@ export class FirestoreRuntimeStore
         nextWakeAt: input.nextWakeAt ?? FieldValue.delete(),
         ...(input.nextState === "DONE"
           ? {
-              completedLevel: input.evidence.candidate.level,
+              completedStatus: input.evidence.candidate.level,
               deleteAt: firestoreDeleteAt(input.evidence.recordedAt)
             }
           : {})
       });
       persistWakeIntent(transaction, this.db, input.wake);
       const sequence = input.expectedVersion + 1;
-      const eventId = `${String(sequence).padStart(6, "0")}-evidence-result-${input.evidence.candidate.evidenceId.slice(-8)}`;
+      const eventId = `${String(sequence).padStart(6, "0")}-evidence-result-${input.evidence.candidate.outcomeId.slice(-8)}`;
       transaction.create(caseRef.collection("events").doc(eventId), {
         eventId,
-        caseId: input.caseId,
+        missionId: input.missionId,
         sequence,
         type: "EVIDENCE_RESULT",
         actor: "COUNTERPARTY",
@@ -415,7 +415,7 @@ export class FirestoreRuntimeStore
         reasonCodes: input.evidence.verification.reasonCodes,
         correlationId: input.evidence.correlationId,
         state: input.nextState,
-        evidenceId: input.evidence.candidate.evidenceId,
+        outcomeId: input.evidence.candidate.outcomeId,
         deleteAt: firestoreDeleteAt(input.evidence.recordedAt)
       });
       return { duplicate: false };
@@ -430,7 +430,7 @@ export class FirestoreRuntimeStore
       const current = await transaction.get(reference);
       if (current.exists) return { record: current.data() as NotificationRecord, duplicate: true };
       const existingForCase = await transaction.get(
-        this.db.collection("notifications").where("caseId", "==", record.caseId)
+        this.db.collection("notifications").where("missionId", "==", record.missionId)
       );
       if (existingForCase.size >= 3) throw new Error("NOTIFICATION_BUDGET_EXHAUSTED");
       transaction.create(reference, { ...record, deleteAt: firestoreDeleteAt(record.createdAt) });
@@ -451,23 +451,23 @@ export class FirestoreRuntimeStore
     await this.db.collection("notifications").doc(dedupeKey.slice(7)).set(update, { merge: true });
   }
 
-  async listNotifications(caseId: string): Promise<readonly NotificationRecord[]> {
+  async listNotifications(missionId: string): Promise<readonly NotificationRecord[]> {
     const snapshot = await this.db
       .collection("notifications")
-      .where("caseId", "==", caseId)
+      .where("missionId", "==", missionId)
       .orderBy("createdAt", "asc")
       .get();
     return snapshot.docs.map((document) => document.data() as NotificationRecord);
   }
 
-  async technicalRunSource(caseId: string): Promise<TechnicalRunSource> {
+  async technicalRunSource(missionId: string): Promise<TechnicalRunSource> {
     const [run, draft, events, evidence, notifications, channelEvents] = await Promise.all([
-      this.get(caseId),
-      this.db.collection("caseDrafts").doc(caseId).get(),
-      this.listEvents(caseId),
-      this.listEvidence(caseId),
-      this.listNotifications(caseId),
-      this.listChannelEvents(caseId)
+      this.get(missionId),
+      this.db.collection("caseDrafts").doc(missionId).get(),
+      this.listEvents(missionId),
+      this.listEvidence(missionId),
+      this.listNotifications(missionId),
+      this.listChannelEvents(missionId)
     ]);
     let modelUsage: TechnicalRunSource["modelUsage"];
     if (run && draft.exists) {
@@ -519,10 +519,10 @@ export class FirestoreRuntimeStore
     });
   }
 
-  async listInterventions(caseId: string): Promise<readonly InterventionRecord[]> {
+  async listInterventions(missionId: string): Promise<readonly InterventionRecord[]> {
     const snapshot = await this.db
       .collection("interventions")
-      .where("caseId", "==", caseId)
+      .where("missionId", "==", missionId)
       .orderBy("createdAt", "asc")
       .get();
     return snapshot.docs.map((document) => document.data() as InterventionRecord);

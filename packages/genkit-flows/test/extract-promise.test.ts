@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { hostilePromise, spanishRefundPromise } from "@dueback/test-fixtures";
+import { hostilePromise, spanishRefundPromise } from "@actionos/test-fixtures";
 import {
   buildExtractionPrompt,
   extractPromiseWithGateway,
@@ -26,7 +26,7 @@ function draft(artifactId: string) {
       provenance,
       uncertainty: "NONE" as const
     },
-    proposedEvidenceLevel: "MERCHANT_CONFIRMED" as const
+    proposedVerificationStatus: "OUTCOME_CONFIRMED" as const
   };
 }
 

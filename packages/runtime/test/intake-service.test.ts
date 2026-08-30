@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { PromiseDraft } from "@dueback/contracts";
+import type { PromiseDraft } from "@actionos/contracts";
 import { IntakeService } from "../src/intake-service";
 import type { DraftCase, IntakeStore, PromiseExtractor } from "../src/intake-service";
 
@@ -21,7 +21,7 @@ function promiseDraft(uncertainty: "NONE" | "CONTRADICTORY" = "NONE"): PromiseDr
     currency: { value: "USD", provenance, uncertainty: "NONE" },
     transactionRef: { value: "ORDER-79", provenance, uncertainty: "NONE" },
     dueAt: { value: "2026-08-20T00:00:00.000Z", provenance, uncertainty: "NONE" },
-    proposedEvidenceLevel: "MERCHANT_CONFIRMED"
+    proposedVerificationStatus: "OUTCOME_CONFIRMED"
   };
 }
 
@@ -37,7 +37,7 @@ class MemoryIntakeStore implements IntakeStore {
   }
 
   createDraft(draft: DraftCase): Promise<void> {
-    this.cases.set(draft.caseId, draft);
+    this.cases.set(draft.missionId, draft);
     return Promise.resolve();
   }
 }
@@ -61,8 +61,8 @@ describe("IntakeService", () => {
     const duplicate = await service.intake(artifact, "2026-08-15T12:01:00.000Z");
     expect(first.duplicate).toBe(false);
     expect(duplicate.duplicate).toBe(true);
-    expect(duplicate.draft.caseId).toBe(first.draft.caseId);
-    expect(first.draft.plan.evidenceRequirements[0]?.minimumLevel).toBe("MERCHANT_CONFIRMED");
+    expect(duplicate.draft.missionId).toBe(first.draft.missionId);
+    expect(first.draft.plan.evidenceRequirements[0]?.minimumStatus).toBe("OUTCOME_CONFIRMED");
     expect(first.draft.plan).toMatchObject({
       executionMode: "ACCELERATED_DEMO",
       timingPolicyVersion: "accelerated-demo/v1",
@@ -108,7 +108,7 @@ describe("IntakeService", () => {
       result: { ...draft.result, value: "Email the coverage certificate" },
       transactionRef: { ...draft.transactionRef, value: "CASE-441" },
       dueAt: draft.dueAt,
-      proposedEvidenceLevel: "MERCHANT_CONFIRMED"
+      proposedVerificationStatus: "OUTCOME_CONFIRMED"
     };
     const service = new IntakeService(
       new MemoryIntakeStore(),
@@ -124,7 +124,7 @@ describe("IntakeService", () => {
     expect(result.draft.plan.sharedFields).toEqual(["transactionRef"]);
     expect(result.draft.plan.messageBody).not.toContain("Amount:");
     expect(result.draft.plan.evidenceRequirements[0]).toMatchObject({
-      transactionRef: "CASE-441", minimumLevel: "MERCHANT_CONFIRMED"
+      transactionRef: "CASE-441", minimumStatus: "OUTCOME_CONFIRMED"
     });
   });
 
@@ -142,7 +142,7 @@ describe("IntakeService", () => {
       transactionRef: base.transactionRef,
       dueAt: base.dueAt,
       ...(money ? { amountMinor: base.amountMinor, currency: base.currency } : {}),
-      proposedEvidenceLevel: "MERCHANT_CONFIRMED"
+      proposedVerificationStatus: "OUTCOME_CONFIRMED"
     };
     const service = new IntakeService(
       new MemoryIntakeStore(),
@@ -161,7 +161,7 @@ describe("IntakeService", () => {
     if (type === "REPLACEMENT") {
       expect(intake.draft.plan.evidenceRequirements[0]).toMatchObject({
         subject: result,
-        requiredEvidenceFields: ["subject", "trackingNumber"]
+        requiredOutcomeFields: ["subject", "trackingNumber"]
       });
       expect(intake.draft.plan.sharedFields).toContain("subject");
     }

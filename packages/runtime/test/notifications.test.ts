@@ -5,12 +5,12 @@ import {
   notificationRecord,
   type NotificationRecord
 } from "../src/notifications";
-import { notificationSchema } from "@dueback/contracts";
+import { notificationSchema } from "@actionos/contracts";
 import { InterventionService, type InterventionRecord } from "../src/interventions";
 
 function fixture(): NotificationRecord {
   return notificationRecord({
-    caseId: "case_12345678",
+    missionId: "case_12345678",
     ownerId: "owner_12345678",
     correlationId: "corr_12345678",
     kind: "CASE_COMPLETED",
@@ -44,7 +44,7 @@ describe("notification delivery", () => {
       new NotificationDeliveryService(notificationStore, { deliver })
     );
     const input = {
-      caseId: "case_12345678", ownerId: "owner_12345678", correlationId: "corr_attention_12345678",
+      missionId: "case_12345678", ownerId: "owner_12345678", correlationId: "corr_attention_12345678",
       kind: "EVIDENCE_CONFLICT" as const, reasonCodes: ["UNEXPECTED_SENDER"],
       notificationRecipient: "owner@example.test", createdAt: "2026-08-16T12:00:00.000Z"
     };
@@ -114,7 +114,7 @@ describe("notification delivery", () => {
     };
     const service = new CaseNotificationService(store, new NotificationDeliveryService(store, { deliver }));
     const input = {
-      caseId: "case_12345678", ownerId: "owner_12345678", kind: "CASE_FAILED" as const,
+      missionId: "case_12345678", ownerId: "owner_12345678", kind: "CASE_FAILED" as const,
       createdAt: "2026-08-16T12:00:00.000Z", correlationId: "corr_failed_12345678",
       recipient: "owner@example.test"
     };

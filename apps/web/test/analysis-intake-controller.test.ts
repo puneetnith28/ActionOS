@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
-import type { AnalysisJob } from "@dueback/contracts";
+import type { AnalysisJob } from "@actionos/contracts";
 import { handleAnalysisIntake } from "../lib/analysis-intake-controller";
 
 function request(text = "Northstar promised a USD 59 refund by August 20, reference NS-42.") {
   const form = new FormData();
   form.set("text", text);
-  return new Request("https://dueback.test/api/intake", { method: "POST", body: form });
+  return new Request("https://actionos.test/api/intake", { method: "POST", body: form });
 }
 
 describe("durable analysis intake", () => {
-  it("persists the private artifact and returns a queued case immediately", async () => {
+  it("persists the private artifact and returns a queued mission immediately", async () => {
     let savedPath = "";
     let created: AnalysisJob | undefined;
     const schedule = vi.fn();
@@ -30,13 +30,13 @@ describe("durable analysis intake", () => {
     expect(savedPath).toMatch(/^analysis\//);
     expect(created?.status).toBe("QUEUED");
     expect(schedule).toHaveBeenCalledWith(created?.jobId, "2026-08-18T12:00:00.000Z");
-    expect(await response.json()).toMatchObject({ caseId: created?.caseId, status: "QUEUED" });
+    expect(await response.json()).toMatchObject({ missionId: created?.missionId, status: "QUEUED" });
   });
 
-  it("deduplicates the same promise without consuming another case budget", async () => {
+  it("deduplicates the same promise without consuming another mission budget", async () => {
     const existing = {
       jobId: "analysis_existing123",
-      caseId: "case_existing123",
+      missionId: "mission_existing123",
       ownerId: "owner_12345678",
       artifactId: "artifact_existing123",
       artifactPath: "analysis/owner/source",
@@ -63,6 +63,6 @@ describe("durable analysis intake", () => {
     });
     expect(response.status).toBe(200);
     expect(consumeBudget).not.toHaveBeenCalled();
-    expect(await response.json()).toMatchObject({ caseId: existing.caseId, duplicate: true });
+    expect(await response.json()).toMatchObject({ missionId: existing.missionId, duplicate: true });
   });
 });

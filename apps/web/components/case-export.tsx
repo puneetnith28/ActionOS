@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { anonymousIdToken } from "../lib/firebase-client";
 
-export function CaseExport({ caseId }: { readonly caseId: string }) {
+export function CaseExport({ missionId }: { readonly missionId: string }) {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string>();
   const load = async () => {
     const token = await anonymousIdToken();
-    const response = await fetch(`/api/cases/${caseId}/export`, {
+    const response = await fetch(`/api/cases/${missionId}/export`, {
       headers: { Authorization: `Bearer ${token}` }, cache: "no-store"
     });
     if (!response.ok) throw new Error("CASE_EXPORT_FAILED");
@@ -17,7 +17,7 @@ export function CaseExport({ caseId }: { readonly caseId: string }) {
   const run = (action: (text: string) => Promise<void> | void, done: string) => {
     setBusy(true); setStatus(undefined);
     void load().then(action).then(() => { setStatus(done); })
-      .catch(() => { setStatus("DueBack could not create the redacted summary."); })
+      .catch(() => { setStatus("ActionOS could not create the redacted summary."); })
       .finally(() => { setBusy(false); });
   };
   return <section className="card case-export">
@@ -31,7 +31,7 @@ export function CaseExport({ caseId }: { readonly caseId: string }) {
         run((text) => {
           const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
           const anchor = document.createElement("a");
-          anchor.href = url; anchor.download = "dueback-case-summary.txt"; anchor.click();
+          anchor.href = url; anchor.download = "actionos-case-summary.txt"; anchor.click();
           URL.revokeObjectURL(url);
         }, "Summary downloaded.");
       }}>Download summary</button>

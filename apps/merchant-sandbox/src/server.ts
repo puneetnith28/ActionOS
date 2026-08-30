@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
-import { signCallback } from "@dueback/channel-adapters/callback-signature";
+import { signCallback } from "@actionos/channel-adapters/callback-signature";
 import { scenarioStep, type ScenarioName } from "./scenarios.ts";
 import { statusPage } from "./status-page.ts";
 
@@ -111,23 +111,23 @@ export function createMerchantServer(input: {
         }
         const key = request.headers["idempotency-key"];
         if (typeof key !== "string") throw new Error("IDEMPOTENCY_KEY_REQUIRED");
-        const correlationId = request.headers["x-dueback-correlation-id"];
-        const scenario = (request.headers["x-dueback-scenario"] ??
+        const correlationId = request.headers["x-actionos-correlation-id"];
+        const scenario = (request.headers["x-actionos-scenario"] ??
           "signed-completion") as ScenarioName;
         const raw = await readBody(request);
         const envelope = JSON.parse(raw) as {
-          caseId?: string;
+          missionId?: string;
           proposal?: { sharedFields?: Record<string, string> };
         };
-        if (!envelope.caseId || !envelope.proposal?.sharedFields) {
+        if (!envelope.missionId || !envelope.proposal?.sharedFields) {
           throw new Error("INVALID_ACTION_ENVELOPE");
         }
-        const caseId = envelope.caseId;
+        const missionId = envelope.missionId;
         const sharedFields = envelope.proposal.sharedFields;
         // Scenario progression belongs to the case, not the idempotency key.
         // Transport retries reuse a key, while a later approved follow-up gets
-        // a new key; both must advance one observable case story.
-        const attempt = ledger.attempt(caseId);
+        // a new key; both must advance one observable mission story.
+        const attempt = ledger.attempt(missionId);
         const step = scenarioStep(scenario, attempt);
         if (step.status >= 500) {
           response.writeHead(step.status, { "content-type": "application/json" });
@@ -140,10 +140,10 @@ export function createMerchantServer(input: {
 
         if (input.callbackUrl) {
           const callbackUrl = input.callbackUrl;
-          const callbackPayload = (level: typeof step.outcome) =>
+          const callbackPayload = (status: typeof step.outcome) =>
             JSON.stringify({
-              evidenceId: `evidence_${randomUUID()}`,
-              caseId,
+              outcomeId: `evidence_${randomUUID()}`,
+              missionId,
               level,
               ...(sharedFields.amountMinor !== undefined
                 ? { amountMinor: step.mismatch === "amount" ? 1 : Number(sharedFields.amountMinor) }
@@ -152,7 +152,7 @@ export function createMerchantServer(input: {
               ...(sharedFields.subject !== undefined
                 ? {
                     subject: sharedFields.subject,
-                    trackingNumber: `DEMO-${caseId.slice(-8).toUpperCase()}`
+                    trackingNumber: `DEMO-${missionId.slice(-8).toUpperCase()}`
                   }
                 : {}),
               transactionRef:
@@ -160,7 +160,7 @@ export function createMerchantServer(input: {
               issuedAt: now(),
               issuer: "merchant-sandbox"
             });
-          const send = (level: typeof step.outcome) => {
+          const send = (status: typeof step.outcome) => {
             const callback = callbackPayload(level);
             return async () => {
               const timestamp = now();
@@ -168,10 +168,10 @@ export function createMerchantServer(input: {
                 method: "POST",
                 headers: {
                   "content-type": "application/json",
-                  "x-dueback-timestamp": timestamp,
-                  "x-dueback-signature": signCallback(callback, timestamp, input.callbackSecret),
+                  "x-actionos-timestamp": timestamp,
+                  "x-actionos-signature": signCallback(callback, timestamp, input.callbackSecret),
                   ...(typeof correlationId === "string"
-                    ? { "x-dueback-correlation-id": correlationId }
+                    ? { "x-actionos-correlation-id": correlationId }
                     : {})
                 },
                 body: callback

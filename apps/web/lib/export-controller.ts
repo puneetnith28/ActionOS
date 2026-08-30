@@ -1,15 +1,15 @@
-import type { FollowThroughCase } from "@dueback/runtime/case-runner";
-import type { EvidenceRecord } from "@dueback/runtime/evidence-service";
+import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { EvidenceRecord } from "@actionos/runtime/evidence-service";
 import { caseExportText } from "./case-export";
 
 export interface CaseExportStore {
-  get(caseId: string): Promise<FollowThroughCase | undefined>;
-  listEvidence(caseId: string): Promise<readonly EvidenceRecord[]>;
+  get(missionId: string): Promise<FollowThroughMission | undefined>;
+  listEvidence(missionId: string): Promise<readonly EvidenceRecord[]>;
 }
 
 export async function handleCaseExport(
   request: Request,
-  caseId: string,
+  missionId: string,
   dependencies: {
     authenticate: (request: Request) => Promise<{ uid: string }>;
     store: CaseExportStore;
@@ -19,13 +19,13 @@ export async function handleCaseExport(
   const headers = {
     "Cache-Control": "private, no-store",
     "Content-Type": "text/plain; charset=utf-8",
-    "Content-Disposition": "attachment; filename=dueback-case-summary.txt"
+    "Content-Disposition": "attachment; filename=actionos-case-summary.txt"
   };
   try {
     const owner = await dependencies.authenticate(request);
-    const item = await dependencies.store.get(caseId);
+    const item = await dependencies.store.get(missionId);
     if (!item || item.ownerId !== owner.uid) return new Response("CASE_NOT_FOUND", { status: 404, headers });
-    const evidence = await dependencies.store.listEvidence(caseId);
+    const evidence = await dependencies.store.listEvidence(missionId);
     return new Response(caseExportText(item, evidence, dependencies.now()), { headers });
   } catch (error) {
     const code = error instanceof Error ? error.message : "CASE_EXPORT_FAILED";

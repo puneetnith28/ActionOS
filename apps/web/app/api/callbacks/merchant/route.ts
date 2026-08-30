@@ -1,5 +1,5 @@
-import { FirestoreRuntimeStore } from "@dueback/persistence/runtime-store";
-import { EvidenceService } from "@dueback/runtime/evidence-service";
+import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
+import { EvidenceService } from "@actionos/runtime/evidence-service";
 import { handleMerchantCallback } from "../../../../lib/callback-controller";
 import { firestore } from "../../../../lib/firebase-admin";
 import { notificationDelivery } from "../../../../lib/notification-delivery";

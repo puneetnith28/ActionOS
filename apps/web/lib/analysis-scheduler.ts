@@ -1,5 +1,5 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
-import { TaskScheduler } from "@dueback/runtime/task-scheduler";
+import { TaskScheduler } from "@actionos/runtime/task-scheduler";
 
 export function analysisScheduler(): TaskScheduler | undefined {
   const projectId = process.env.GOOGLE_CLOUD_PROJECT;
@@ -10,7 +10,7 @@ export function analysisScheduler(): TaskScheduler | undefined {
   return new TaskScheduler(new CloudTasksClient(), {
     projectId,
     location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
-    queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
+    queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-cases",
     workerUrl,
     analysisWorkerUrl,
     serviceAccountEmail,

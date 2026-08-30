@@ -1,23 +1,23 @@
 import { describe, expect, it } from "vitest";
-import { managedEmailProjectionFixture, sandboxProjectionFixture, weakAcknowledgementFixture } from "@dueback/test-fixtures/case-projections";
-import { projectConsumerCase } from "../lib/case-projection";
-import type { FollowThroughCase } from "@dueback/runtime/case-runner";
-import type { EvidenceRecord } from "@dueback/runtime/evidence-service";
+import { managedEmailProjectionFixture, sandboxProjectionFixture, weakAcknowledgementFixture } from "@actionos/test-fixtures/mission-projections";
+import { projectConsumerMission } from "../lib/mission-projection";
+import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { EvidenceRecord } from "@actionos/runtime/evidence-service";
 
 const managed = managedEmailProjectionFixture as unknown as FollowThroughCase;
 const sandbox = sandboxProjectionFixture as unknown as FollowThroughCase;
 const acknowledgement = weakAcknowledgementFixture as unknown as EvidenceRecord;
 
-describe("consumer case projection", () => {
+describe("consumer mission projection", () => {
   it("uses managed-email copy without sandbox claims", () => {
-    const detail = projectConsumerCase({ item: managed, evidence: [acknowledgement], channelEvents: [{ channelType: "MANAGED_EMAIL", transportStatus: "DELIVERED", acceptedAt: "2026-08-17T10:00:00.000Z" }] });
+    const detail = projectConsumerMission({ item: managed, evidence: [acknowledgement], channelEvents: [{ channelType: "MANAGED_EMAIL", transportStatus: "DELIVERED", acceptedAt: "2026-08-17T10:00:00.000Z" }] });
     expect(detail.channel.label).toBe("Email");
     expect(JSON.stringify(detail)).not.toMatch(/merchant sandbox|signed callback/i);
     expect(detail.nextAction).toMatch(/Not done/i);
   });
 
   it("keeps the controlled demo disclosure and strips private internals", () => {
-    const detail = projectConsumerCase({ item: sandbox, evidence: [] });
+    const detail = projectConsumerMission({ item: sandbox, evidence: [] });
     expect(detail.channel.label).toBe("Controlled demo");
     const serialized = JSON.stringify(detail);
     expect(serialized).not.toContain("Private approved message body");
@@ -26,7 +26,7 @@ describe("consumer case projection", () => {
   });
 
   it("never fills missing reply facts from the promise", () => {
-    const detail = projectConsumerCase({
+    const detail = projectConsumerMission({
       item: {
         ...managed,
         nextWakeAt: "2026-08-19T10:00:00.000Z",

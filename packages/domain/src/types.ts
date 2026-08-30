@@ -21,7 +21,7 @@ export type MissionState =
   | "CANCELLED"
   | "EXPIRED";
 
-export interface ApprovalBoundary {
+export interface ExecutionBoundary {
   readonly ownerId: string;
   readonly planVersion: number;
   readonly planHash: string;
@@ -36,7 +36,7 @@ export interface MissionSnapshot {
   readonly version: number;
   readonly planVersion: number;
   readonly planHash: string;
-  readonly approval?: ApprovalBoundary;
+  readonly boundary?: ExecutionBoundary;
   readonly completedStatus?: VerificationStatus;
 }
 
@@ -54,7 +54,7 @@ export interface TransitionCommand {
   readonly target: MissionState;
   readonly reasonCode: string;
   readonly actor: "PERSON" | "SYSTEM";
-  readonly approval?: ApprovalBoundary;
+  readonly boundary?: ExecutionBoundary;
   readonly verification?: VerificationResult;
 }
 

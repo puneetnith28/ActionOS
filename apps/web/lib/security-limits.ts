@@ -1,7 +1,7 @@
 import type { Firestore } from "firebase-admin/firestore";
 import { FieldValue } from "firebase-admin/firestore";
-import { stableHash } from "@dueback/domain";
-import { firestoreDeleteAt } from "@dueback/persistence/expiry";
+import { stableHash } from "@actionos/domain";
+import { firestoreDeleteAt } from "@actionos/persistence/expiry";
 
 export const publicSecurityLimits = Object.freeze({
   newCasesPerIdentityPerDay: 10,

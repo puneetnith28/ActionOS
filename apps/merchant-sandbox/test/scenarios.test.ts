@@ -16,15 +16,15 @@ describe("merchant scenarios", () => {
 
   it("advances retry-once from failure to acknowledgement to completion", () => {
     expect(scenarioStep("retry-once", 1).status).toBe(503);
-    expect(scenarioStep("retry-once", 2).outcome).toBe("REQUEST_ACKNOWLEDGED");
-    expect(scenarioStep("retry-once", 3).outcome).toBe("MERCHANT_CONFIRMED");
+    expect(scenarioStep("retry-once", 2).outcome).toBe("ACTION_ATTEMPTED");
+    expect(scenarioStep("retry-once", 3).outcome).toBe("OUTCOME_CONFIRMED");
   });
 
   it("keeps a judge-visible acknowledgement window without process-local progression", () => {
     expect(scenarioStep("signed-completion", 1)).toMatchObject({
       status: 202,
-      outcome: "REQUEST_ACKNOWLEDGED",
-      followupOutcome: "MERCHANT_CONFIRMED",
+      outcome: "ACTION_ATTEMPTED",
+      followupOutcome: "OUTCOME_CONFIRMED",
       followupDelayMs: 8_000
     });
     expect(scenarioStep("signed-completion", 99)).toEqual(scenarioStep("signed-completion", 1));
@@ -32,10 +32,10 @@ describe("merchant scenarios", () => {
 
   it("advances the story across distinct logical-action idempotency keys", () => {
     const ledger = new MerchantLedger();
-    expect(ledger.attempt("case_one")).toBe(1);
-    expect(ledger.attempt("case_one")).toBe(2);
-    expect(ledger.attempt("case_one")).toBe(3);
-    expect(ledger.attempt("case_two")).toBe(1);
+    expect(ledger.attempt("mission_one")).toBe(1);
+    expect(ledger.attempt("mission_one")).toBe(2);
+    expect(ledger.attempt("mission_one")).toBe(3);
+    expect(ledger.attempt("mission_two")).toBe(1);
   });
 
   it("retries transient callback conflicts and eventually delivers", async () => {

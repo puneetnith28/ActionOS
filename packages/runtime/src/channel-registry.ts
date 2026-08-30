@@ -1,7 +1,7 @@
-import type { ChannelCapability, ChannelType } from "@dueback/contracts";
+import type { ChannelCapability, ChannelType } from "@actionos/contracts";
 import type { ClosedActionAdapter } from "./action-broker";
 import type { ActionReceipt } from "./action-broker";
-import type { ProposedAction } from "@dueback/domain";
+import type { ProposedAction } from "@actionos/domain";
 
 export interface RegisteredChannel {
   readonly capability: ChannelCapability;
@@ -14,7 +14,7 @@ export class RoutingChannelAdapter implements ClosedActionAdapter {
   execute(
     proposal: ProposedAction,
     idempotencyKey: string,
-    context: { readonly caseId: string; readonly correlationId?: string }
+    context: { readonly missionId: string; readonly correlationId?: string }
   ): Promise<ActionReceipt> {
     const channelType = proposal.channelType;
     if (!channelType || ![

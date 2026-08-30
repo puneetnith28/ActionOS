@@ -1,7 +1,7 @@
 import { vertexAI } from "@genkit-ai/google-genai";
 import { genkit, z } from "genkit";
-import { promiseDraftSchema, type PromiseDraft } from "@dueback/contracts";
-import { stableHash } from "@dueback/domain";
+import { promiseDraftSchema, type PromiseDraft } from "@actionos/contracts";
+import { stableHash } from "@actionos/domain";
 
 export const extractionInputSchema = z.object({
   artifactId: z.string().min(8).max(128),
@@ -43,12 +43,12 @@ const promiseDraftFlowSchema = z.object({
   transactionRef: flowField(z.string()),
   dueAt: flowField(z.string()).optional(),
   dueCondition: flowField(z.string()).optional(),
-  proposedEvidenceLevel: z.enum([
-    "PROMISE_RECORDED",
-    "REQUEST_ACKNOWLEDGED",
-    "MERCHANT_COMMITTED",
-    "MERCHANT_CONFIRMED",
-    "FUNDS_SETTLED"
+  proposedVerificationStatus: z.enum([
+    "PLANNED",
+    "ACTION_ATTEMPTED",
+    "SYSTEM_ACKNOWLEDGED",
+    "OUTCOME_CONFIRMED",
+    "STATE_VERIFIED"
   ])
 });
 

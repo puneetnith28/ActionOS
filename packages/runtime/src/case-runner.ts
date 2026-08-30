@@ -1,17 +1,17 @@
-import type { ResolutionPlan } from "@dueback/contracts";
-import type { ApprovalBoundary, CaseState, EvidenceLevel, ProposedAction } from "@dueback/domain";
+import type { ExecutionPlan } from "@actionos/contracts";
+import type { ExecutionBoundary, MissionState, VerificationStatus, ProposedAction } from "@actionos/domain";
 import { ActionOutcomeUnknownError, type ActionBroker, type BrokerResult } from "./action-broker";
 import type { InterventionService } from "./interventions";
 import type { CaseNotificationService } from "./notifications";
 import { wakeIntent, type WakeIntent } from "./wake-outbox";
 
 export interface FollowThroughCase {
-  readonly caseId: string;
+  readonly missionId: string;
   readonly ownerId: string;
-  readonly state: CaseState;
+  readonly state: MissionState;
   readonly version: number;
-  readonly plan: ResolutionPlan;
-  readonly approval: ApprovalBoundary;
+  readonly plan: ExecutionPlan;
+  readonly boundary: ExecutionBoundary;
   readonly actionOrdinal: number;
   readonly dueAt: string;
   readonly correlationId?: string;
@@ -21,7 +21,7 @@ export interface FollowThroughCase {
   readonly controlReason?: string;
   readonly controlledAt?: string;
   readonly attemptCount?: number;
-  readonly completedLevel?: EvidenceLevel;
+  readonly completedStatus?: VerificationStatus;
   readonly lastAttemptAt?: string;
   readonly lastActionIdempotencyKey?: string;
   readonly lastActionDuplicate?: boolean;
@@ -29,9 +29,9 @@ export interface FollowThroughCase {
 }
 
 export interface FollowThroughStore {
-  get(caseId: string): Promise<FollowThroughCase | undefined>;
+  get(missionId: string): Promise<FollowThroughCase | undefined>;
   compareAndSet(
-    caseId: string,
+    missionId: string,
     expectedVersion: number,
     next: FollowThroughCase,
     wake?: WakeIntent
@@ -40,7 +40,7 @@ export interface FollowThroughStore {
 
 export interface RetryScheduler {
   scheduleCase(input: {
-    caseId: string;
+    missionId: string;
     expectedVersion: number;
     wakeAt: string;
     correlationId?: string;
@@ -93,12 +93,12 @@ export class CaseRunner {
   ) {}
 
   async run(input: {
-    caseId: string;
+    missionId: string;
     expectedVersion: number;
     now: string;
     correlationId?: string;
   }): Promise<RunResult> {
-    const item = await this.store.get(input.caseId);
+    const item = await this.store.get(input.missionId);
     if (!item) throw new Error("CASE_NOT_FOUND");
     if (
       item.version !== input.expectedVersion ||
@@ -109,7 +109,7 @@ export class CaseRunner {
         item.nextWakeAt
       ) {
         await this.scheduler.scheduleCase({
-          caseId: item.caseId,
+          missionId: item.missionId,
           expectedVersion: item.version,
           wakeAt: item.nextWakeAt,
           ...(item.correlationId ? { correlationId: item.correlationId } : {})
@@ -131,10 +131,10 @@ export class CaseRunner {
         lastError: "ACTION_BUDGET_EXHAUSTED",
         updatedAt: input.now
       };
-      await this.store.compareAndSet(item.caseId, item.version, exhausted);
-      const correlationId = input.correlationId ?? item.correlationId ?? `corr_${item.caseId.slice(-24)}`;
+      await this.store.compareAndSet(item.missionId, item.version, exhausted);
+      const correlationId = input.correlationId ?? item.correlationId ?? `corr_${item.missionId.slice(-24)}`;
       await this.interventions?.raise({
-        caseId: item.caseId,
+        missionId: item.missionId,
         ownerId: item.ownerId,
         correlationId,
         kind: "ACTION_BUDGET_EXHAUSTED",
@@ -149,7 +149,7 @@ export class CaseRunner {
 
     try {
       const broker = await this.broker.execute({
-        caseId: item.caseId,
+        missionId: item.missionId,
         actionOrdinal: item.actionOrdinal,
         policy: {
           ownerId: item.ownerId,
@@ -159,7 +159,7 @@ export class CaseRunner {
           allowedRecipient: item.plan.allowedRecipient,
           ...(item.plan.channelType ? { allowedChannel: item.plan.channelType } : {}),
           sharedFields: item.plan.sharedFields,
-          approval: item.approval
+          boundary: item.boundary
         },
         proposal: actionProposal(item),
         now: input.now,
@@ -179,12 +179,12 @@ export class CaseRunner {
         Date.parse(input.now) + followUpIntervalSeconds * 1000
       ).toISOString();
       const waitingExternal: FollowThroughCase = {
-        caseId: item.caseId,
+        missionId: item.missionId,
         ownerId: item.ownerId,
         state: "WAITING_EXTERNAL",
         version: item.version + 1,
         plan: item.plan,
-        approval: item.approval,
+        boundary: item.boundary,
         actionOrdinal: item.actionOrdinal + 1,
         dueAt: item.dueAt,
         nextWakeAt,
@@ -198,7 +198,7 @@ export class CaseRunner {
         updatedAt: input.now
       };
       const wake = wakeIntent({
-        caseId: item.caseId,
+        missionId: item.missionId,
         expectedVersion: waitingExternal.version,
         wakeAt: nextWakeAt,
         createdAt: input.now,
@@ -206,7 +206,7 @@ export class CaseRunner {
           ? { correlationId: input.correlationId ?? item.correlationId }
           : {})
       });
-      await this.store.compareAndSet(item.caseId, item.version, waitingExternal, wake);
+      await this.store.compareAndSet(item.missionId, item.version, waitingExternal, wake);
       try {
         await this.scheduler.scheduleCase(wake);
       } catch (error) {
@@ -224,10 +224,10 @@ export class CaseRunner {
           lastAttemptAt: input.now,
           updatedAt: input.now
         };
-        await this.store.compareAndSet(item.caseId, item.version, failed);
-        const correlationId = input.correlationId ?? item.correlationId ?? `corr_${item.caseId.slice(-24)}`;
+        await this.store.compareAndSet(item.missionId, item.version, failed);
+        const correlationId = input.correlationId ?? item.correlationId ?? `corr_${item.missionId.slice(-24)}`;
         await this.terminalNotifications?.notify({
-          caseId: item.caseId,
+          missionId: item.missionId,
           ownerId: item.ownerId,
           kind: "CASE_FAILED",
           createdAt: input.now,
@@ -247,11 +247,11 @@ export class CaseRunner {
           lastAttemptAt: input.now,
           updatedAt: input.now
         };
-        await this.store.compareAndSet(item.caseId, item.version, exhausted);
+        await this.store.compareAndSet(item.missionId, item.version, exhausted);
         const correlationId =
-          input.correlationId ?? item.correlationId ?? `corr_${item.caseId.slice(-24)}`;
+          input.correlationId ?? item.correlationId ?? `corr_${item.missionId.slice(-24)}`;
         await this.interventions?.raise({
-          caseId: item.caseId,
+          missionId: item.missionId,
           ownerId: item.ownerId,
           correlationId,
           kind: "RECOVERY_EXHAUSTED",
@@ -278,7 +278,7 @@ export class CaseRunner {
         updatedAt: input.now
       };
       const wake = wakeIntent({
-        caseId: item.caseId,
+        missionId: item.missionId,
         expectedVersion: next.version,
         wakeAt: retryAt,
         createdAt: input.now,
@@ -286,7 +286,7 @@ export class CaseRunner {
           ? { correlationId: input.correlationId ?? item.correlationId }
           : {})
       });
-      await this.store.compareAndSet(item.caseId, item.version, next, wake);
+      await this.store.compareAndSet(item.missionId, item.version, next, wake);
       await this.scheduler.scheduleCase(wake);
       return { status: "WAITING_RETRY", wakeAt: retryAt };
     }

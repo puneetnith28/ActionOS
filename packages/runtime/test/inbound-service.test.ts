@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { EvidenceCandidateContract } from "@dueback/contracts";
+import type { ExecutionOutcomeContract } from "@actionos/contracts";
 import { InboundService } from "../src/inbound-service";
 import type { FollowThroughCase } from "../src/case-runner";
 import type { EvidenceService } from "../src/evidence-service";
@@ -8,12 +8,12 @@ import { makeDraft } from "./support";
 
 const draft = makeDraft();
 const item: FollowThroughCase = {
-  caseId: draft.caseId,
+  missionId: draft.missionId,
   ownerId: draft.ownerId,
   state: "WAITING_EXTERNAL",
   version: 2,
   plan: draft.plan,
-  approval: {
+  boundary: {
     ownerId: draft.ownerId,
     planVersion: draft.plan.version,
     planHash: draft.plan.planHash,
@@ -33,13 +33,13 @@ const email = {
 
 describe("inbound service", () => {
   it("routes an acknowledgement through deterministic evidence reconciliation", async () => {
-    const reconcile = vi.fn((candidate: EvidenceCandidateContract, now: string, correlationId: string) => {
+    const reconcile = vi.fn((candidate: ExecutionOutcomeContract, now: string, correlationId: string) => {
       void candidate; void now; void correlationId;
-      return Promise.resolve({ status: "INSUFFICIENT" as const, verification: { accepted: false, reasonCodes: ["INSUFFICIENT_LEVEL" as const] } });
+      return Promise.resolve({ status: "INSUFFICIENT" as const, verification: { accepted: false, reasonCodes: ["INSUFFICIENT_STATUS" as const] } });
     });
     const service = new InboundService(
-      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.caseId) },
-      { interpret: () => Promise.resolve({ replyType: "ACKNOWLEDGEMENT", evidenceLevel: "REQUEST_ACKNOWLEDGED", changedTerms: [], uncertainty: "NONE" }) },
+      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.missionId) },
+      { interpret: () => Promise.resolve({ replyType: "ACKNOWLEDGEMENT", evidenceLevel: "ACTION_ATTEMPTED", changedTerms: [], uncertainty: "NONE" }) },
       { reconcile } as unknown as EvidenceService,
       { raise: vi.fn() } as unknown as InterventionService
     );
@@ -52,7 +52,7 @@ describe("inbound service", () => {
   });
 
   it("never copies expected refund values into incomplete inbound evidence", async () => {
-    const reconcile = vi.fn((candidate: EvidenceCandidateContract, now: string, correlationId: string) => {
+    const reconcile = vi.fn((candidate: ExecutionOutcomeContract, now: string, correlationId: string) => {
       void candidate; void now; void correlationId;
       return Promise.resolve({
         status: "INSUFFICIENT" as const,
@@ -60,10 +60,10 @@ describe("inbound service", () => {
       });
     });
     const service = new InboundService(
-      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.caseId) },
+      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.missionId) },
       { interpret: () => Promise.resolve({
         replyType: "EVIDENCE",
-        evidenceLevel: "MERCHANT_CONFIRMED",
+        evidenceLevel: "OUTCOME_CONFIRMED",
         changedTerms: [],
         uncertainty: "NONE"
       }) },
@@ -85,16 +85,16 @@ describe("inbound service", () => {
         promiseType: "REPLACEMENT",
         sharedFields: ["transactionRef", "subject"],
         evidenceRequirements: [{
-          minimumLevel: "MERCHANT_CONFIRMED",
+          minimumStatus: "OUTCOME_CONFIRMED",
           transactionRef: "ORDER-79",
           subject: "damaged headphones",
-          requiredEvidenceFields: ["subject", "trackingNumber"],
+          requiredOutcomeFields: ["subject", "trackingNumber"],
           maxAgeSeconds: 3600,
           trustedIssuer: "merchant-sandbox"
         }]
       }
     };
-    const reconcile = vi.fn((candidate: EvidenceCandidateContract, now: string, correlationId: string) => {
+    const reconcile = vi.fn((candidate: ExecutionOutcomeContract, now: string, correlationId: string) => {
       void candidate; void now; void correlationId;
       return Promise.resolve({
         status: "INSUFFICIENT" as const,
@@ -102,10 +102,10 @@ describe("inbound service", () => {
       });
     });
     const service = new InboundService(
-      { get: () => Promise.resolve(replacement), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.caseId) },
+      { get: () => Promise.resolve(replacement), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.missionId) },
       { interpret: () => Promise.resolve({
         replyType: "EVIDENCE",
-        evidenceLevel: "MERCHANT_CONFIRMED",
+        evidenceLevel: "OUTCOME_CONFIRMED",
         transactionRef: "ORDER-79",
         subject: "damaged headphones",
         changedTerms: [],
@@ -139,7 +139,7 @@ describe("inbound service", () => {
     const service = new InboundService(
       {
         get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(),
-        caseForReplyRoute: () => Promise.resolve(item.caseId),
+        caseForReplyRoute: () => Promise.resolve(item.missionId),
         caseForProviderMessageId: () => Promise.resolve("case_other")
       },
       { interpret },
@@ -154,7 +154,7 @@ describe("inbound service", () => {
   it("does not confuse an unknown RFC Message-ID with a contradictory case mapping", async () => {
     const interpret = vi.fn(() => Promise.resolve({
       replyType: "ACKNOWLEDGEMENT" as const,
-      evidenceLevel: "REQUEST_ACKNOWLEDGED" as const,
+      evidenceLevel: "ACTION_ATTEMPTED" as const,
       changedTerms: [],
       uncertainty: "NONE" as const
     }));
@@ -162,7 +162,7 @@ describe("inbound service", () => {
     const service = new InboundService(
       {
         get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(),
-        caseForReplyRoute: () => Promise.resolve(item.caseId),
+        caseForReplyRoute: () => Promise.resolve(item.missionId),
         caseForProviderMessageId: () => Promise.resolve(undefined)
       },
       { interpret },
@@ -179,7 +179,7 @@ describe("inbound service", () => {
     const interpret = vi.fn();
     const raise = vi.fn(() => Promise.resolve({}));
     const service = new InboundService(
-      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.caseId) },
+      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.missionId) },
       { interpret },
       { reconcile: vi.fn() } as unknown as EvidenceService,
       { raise } as unknown as InterventionService
@@ -195,7 +195,7 @@ describe("inbound service", () => {
       {
         get: () => Promise.resolve(item),
         compareAndSet: () => Promise.resolve(),
-        caseForReplyRoute: (route) => Promise.resolve(route.includes("other") ? "case_other" : item.caseId)
+        caseForReplyRoute: (route) => Promise.resolve(route.includes("other") ? "case_other" : item.missionId)
       },
       { interpret },
       { reconcile: vi.fn() } as unknown as EvidenceService,
@@ -208,7 +208,7 @@ describe("inbound service", () => {
       {
         get: () => Promise.resolve({ ...item, state: "CANCELLED" }),
         compareAndSet: () => Promise.resolve(),
-        caseForReplyRoute: () => Promise.resolve(item.caseId)
+        caseForReplyRoute: () => Promise.resolve(item.missionId)
       },
       { interpret },
       { reconcile: vi.fn() } as unknown as EvidenceService,
@@ -223,10 +223,10 @@ describe("inbound service", () => {
     const raise = vi.fn(() => Promise.resolve({}));
     const reconcile = vi.fn();
     const service = new InboundService(
-      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.caseId) },
+      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.missionId) },
       { interpret: () => Promise.resolve({
         replyType: "PROPOSAL_CHANGE",
-        evidenceLevel: "MERCHANT_COMMITTED",
+        evidenceLevel: "SYSTEM_ACKNOWLEDGED",
         changedTerms: ["amountMinor"],
         uncertainty: "NONE"
       }) },

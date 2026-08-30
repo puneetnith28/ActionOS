@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { EvidenceCandidateContract } from "@dueback/contracts";
+import type { ExecutionOutcomeContract } from "@actionos/contracts";
 import {
   EvidenceService,
   type EvidenceCase,
@@ -16,7 +16,7 @@ class Cases implements EvidenceCaseStore {
     return Promise.resolve(this.item);
   }
   record(input: {
-    caseId: string;
+    missionId: string;
     expectedVersion: number;
     nextState: EvidenceCase["state"];
     nextWakeAt?: string;
@@ -45,11 +45,11 @@ class Notifications implements NotificationStore {
   }
 }
 
-function candidate(level: EvidenceCandidateContract["level"]): EvidenceCandidateContract {
+function candidate(status: ExecutionOutcomeContract["status"]): ExecutionOutcomeContract {
   return {
-    evidenceId: `evidence_${level}`,
-    caseId: "case_12345678",
-    level,
+    outcomeId: `evidence_${status}`,
+    missionId: "case_12345678",
+    status,
     amountMinor: 7900,
     currency: "USD",
     transactionRef: "ORDER-79",
@@ -63,7 +63,7 @@ describe("EvidenceService", () => {
   it("keeps acknowledgement open and creates no completion notification", async () => {
     const draft = makeDraft();
     const cases = new Cases({
-      caseId: draft.caseId,
+      missionId: draft.missionId,
       ownerId: draft.ownerId,
       state: "WAITING_EXTERNAL",
       version: 2,
@@ -71,7 +71,7 @@ describe("EvidenceService", () => {
     });
     const notifications = new Notifications();
     const scheduled: Array<{
-      caseId: string;
+      missionId: string;
       expectedVersion: number;
       wakeAt: string;
       correlationId?: string;
@@ -87,14 +87,14 @@ describe("EvidenceService", () => {
       undefined,
       { scheduleCase }
     ).reconcile(
-      candidate("REQUEST_ACKNOWLEDGED"),
+      candidate("ACTION_ATTEMPTED"),
       "2026-08-15T12:00:05.000Z"
     );
     expect(result.status).toBe("INSUFFICIENT");
     expect(cases.item.state).toBe("WAITING_EXTERNAL");
     expect(cases.item.nextWakeAt).toBe("2026-08-17T12:00:05.000Z");
     expect(scheduled).toEqual([expect.objectContaining({
-      caseId: draft.caseId,
+      missionId: draft.missionId,
       expectedVersion: 3,
       wakeAt: "2026-08-17T12:00:05.000Z",
       correlationId: scheduled[0]?.correlationId
@@ -106,7 +106,7 @@ describe("EvidenceService", () => {
   it("finishes at merchant-confirmed and deduplicates completion notification", async () => {
     const draft = makeDraft();
     const cases = new Cases({
-      caseId: draft.caseId,
+      missionId: draft.missionId,
       ownerId: draft.ownerId,
       state: "WAITING_EXTERNAL",
       version: 2,
@@ -115,7 +115,7 @@ describe("EvidenceService", () => {
     const notifications = new Notifications();
     const service = new EvidenceService(cases, notifications);
     const result = await service.reconcile(
-      candidate("MERCHANT_CONFIRMED"),
+      candidate("OUTCOME_CONFIRMED"),
       "2026-08-15T12:00:05.000Z"
     );
     expect(result.status).toBe("VERIFIED");

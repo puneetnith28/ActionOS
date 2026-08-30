@@ -1,6 +1,6 @@
-import { acceptUpload } from "@dueback/channel-adapters/upload";
-import { stableHash } from "@dueback/domain";
-import type { IntakeService } from "@dueback/runtime/intake-service";
+import { acceptUpload } from "@actionos/channel-adapters/upload";
+import { stableHash } from "@actionos/domain";
+import type { IntakeService } from "@actionos/runtime/intake-service";
 import { redactedPublicError } from "./security-limits";
 
 export interface IntakeControllerDependencies {
@@ -55,7 +55,7 @@ export async function handleIntake(
     );
     return Response.json(
       {
-        caseId: result.draft.caseId,
+        missionId: result.draft.missionId,
         duplicate: result.duplicate,
         activationBlocked: result.draft.activationBlocked,
         blockingFields: result.draft.blockingFields

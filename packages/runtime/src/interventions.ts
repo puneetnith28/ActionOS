@@ -1,4 +1,4 @@
-import { stableHash } from "@dueback/domain";
+import { stableHash } from "@actionos/domain";
 import {
   notificationRecord,
   type NotificationDeliveryService,
@@ -13,7 +13,7 @@ export type InterventionKind =
 export interface InterventionRecord {
   readonly interventionId: string;
   readonly dedupeKey: string;
-  readonly caseId: string;
+  readonly missionId: string;
   readonly ownerId: string;
   readonly correlationId: string;
   readonly kind: InterventionKind;
@@ -30,11 +30,11 @@ export interface InterventionStore {
   createInterventionIfAbsent(
     record: InterventionRecord
   ): Promise<{ record: InterventionRecord; duplicate: boolean }>;
-  listInterventions(caseId: string): Promise<readonly InterventionRecord[]>;
+  listInterventions(missionId: string): Promise<readonly InterventionRecord[]>;
 }
 
 export function interventionRecord(input: {
-  caseId: string;
+  missionId: string;
   ownerId: string;
   correlationId: string;
   kind: InterventionKind;
@@ -44,14 +44,14 @@ export function interventionRecord(input: {
 }): InterventionRecord {
   const dedupeKey = stableHash({
     namespace: "dueback/intervention/v1",
-    caseId: input.caseId,
+    missionId: input.missionId,
     kind: input.kind,
     reasonCodes: [...input.reasonCodes].sort()
   });
   return {
     interventionId: `intervention_${dedupeKey.slice(7, 31)}`,
     dedupeKey,
-    caseId: input.caseId,
+    missionId: input.missionId,
     ownerId: input.ownerId,
     correlationId: input.correlationId,
     kind: input.kind,
@@ -85,7 +85,7 @@ export class InterventionService {
   ) {}
 
   async raise(input: {
-    caseId: string;
+    missionId: string;
     ownerId: string;
     correlationId: string;
     kind: InterventionKind;
@@ -99,7 +99,7 @@ export class InterventionService {
       this.interventions.createInterventionIfAbsent(intervention),
       this.notifications.createIfAbsent(
         notificationRecord({
-          caseId: input.caseId,
+          missionId: input.missionId,
           ownerId: input.ownerId,
           correlationId: input.correlationId,
           kind: "NEEDS_ATTENTION",

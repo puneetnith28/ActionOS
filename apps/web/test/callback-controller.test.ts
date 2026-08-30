@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { signCallback } from "@dueback/channel-adapters/callback-signature";
+import { signCallback } from "@actionos/channel-adapters/callback-signature";
 import { handleMerchantCallback, type CallbackRecordStore } from "../lib/callback-controller";
 
 class Callbacks implements CallbackRecordStore {
@@ -22,9 +22,9 @@ class Callbacks implements CallbackRecordStore {
 const now = "2026-08-15T12:00:00.000Z";
 const secret = "callback-secret";
 const payload = {
-  evidenceId: "evidence_12345678",
-  caseId: "case_12345678",
-  level: "MERCHANT_CONFIRMED",
+  outcomeId: "evidence_12345678",
+  missionId: "mission_12345678",
+  status: "OUTCOME_CONFIRMED",
   amountMinor: 7900,
   currency: "USD",
   transactionRef: "ORDER-79",
@@ -33,12 +33,12 @@ const payload = {
 };
 
 function callback(body = JSON.stringify(payload), signature = signCallback(body, now, secret)) {
-  return new Request("https://dueback.test/api/callbacks/merchant", {
+  return new Request("https://actionos.test/api/callbacks/merchant", {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      "x-dueback-timestamp": now,
-      "x-dueback-signature": signature
+      "x-actionos-timestamp": now,
+      "x-actionos-signature": signature
     },
     body
   });
@@ -52,7 +52,7 @@ describe("merchant callback controller", () => {
         status: "VERIFIED" as const,
         verification: {
           accepted: true,
-          level: "MERCHANT_CONFIRMED" as const,
+          status: "OUTCOME_CONFIRMED" as const,
           reasonCodes: ["ACCEPTED" as const]
         }
       })

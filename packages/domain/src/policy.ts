@@ -1,6 +1,6 @@
-import type { ApprovalBoundary } from "./types";
+import type { ExecutionBoundary } from "./types";
 
-export interface ApprovedActionPolicy {
+export interface ExecutionPolicy {
   readonly ownerId: string;
   readonly planVersion: number;
   readonly planHash: string;
@@ -8,7 +8,7 @@ export interface ApprovedActionPolicy {
   readonly allowedRecipient: string;
   readonly allowedChannel?: string;
   readonly sharedFields: readonly string[];
-  readonly approval: ApprovalBoundary;
+  readonly boundary: ExecutionBoundary;
 }
 
 export interface ProposedAction {
@@ -27,7 +27,7 @@ export type AuthorizationReason =
   | "AUTHORIZED"
   | "OWNER_MISMATCH"
   | "PLAN_MISMATCH"
-  | "APPROVAL_EXPIRED"
+  | "BOUNDARY_EXPIRED"
   | "ACTION_NOT_ALLOWED"
   | "RECIPIENT_NOT_ALLOWED"
   | "CHANNEL_NOT_ALLOWED"
@@ -39,27 +39,27 @@ export interface AuthorizationDecision {
 }
 
 export function authorizeAction(
-  policy: ApprovedActionPolicy,
+  policy: ExecutionPolicy,
   proposal: ProposedAction,
   now: string
 ): AuthorizationDecision {
   const reasons: AuthorizationReason[] = [];
-  if (proposal.ownerId !== policy.ownerId || policy.approval.ownerId !== policy.ownerId) {
+  if (proposal.ownerId !== policy.ownerId || policy.boundary.ownerId !== policy.ownerId) {
     reasons.push("OWNER_MISMATCH");
   }
   if (
     proposal.planVersion !== policy.planVersion ||
     proposal.planHash !== policy.planHash ||
-    policy.approval.planVersion !== policy.planVersion ||
-    policy.approval.planHash !== policy.planHash
+    policy.boundary.planVersion !== policy.planVersion ||
+    policy.boundary.planHash !== policy.planHash
   ) {
     reasons.push("PLAN_MISMATCH");
   }
   if (
-    Date.parse(policy.approval.expiresAt) <= Date.parse(now) ||
-    policy.approval.revokedAt !== undefined
+    Date.parse(policy.boundary.expiresAt) <= Date.parse(now) ||
+    policy.boundary.revokedAt !== undefined
   ) {
-    reasons.push("APPROVAL_EXPIRED");
+    reasons.push("BOUNDARY_EXPIRED");
   }
   if (!policy.allowedActions.includes(proposal.actionType)) reasons.push("ACTION_NOT_ALLOWED");
   if (proposal.recipient !== policy.allowedRecipient) reasons.push("RECIPIENT_NOT_ALLOWED");

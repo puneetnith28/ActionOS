@@ -1,4 +1,4 @@
-import type { NotificationRecord } from "@dueback/runtime/notifications";
+import type { NotificationRecord } from "@actionos/runtime/notifications";
 
 export function notificationPresentation(record: NotificationRecord) {
   const inAppOnly = record.deliveryChannel === "IN_APP";

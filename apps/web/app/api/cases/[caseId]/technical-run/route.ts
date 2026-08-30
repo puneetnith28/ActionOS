@@ -1,14 +1,14 @@
-import { FirestoreRuntimeStore } from "@dueback/persistence/runtime-store";
+import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
 import { authenticatedOwner } from "../../../../../lib/authz";
 import { firestore } from "../../../../../lib/firebase-admin";
 import { handleTechnicalRun } from "../../../../../lib/technical-run-controller";
 
 export const runtime = "nodejs";
-type Context = { params: Promise<{ caseId: string }> };
+type Context = { params: Promise<{ missionId: string }> };
 
 export async function GET(request: Request, context: Context) {
-  const { caseId } = await context.params;
-  return handleTechnicalRun(request, caseId, {
+  const { missionId } = await context.params;
+  return handleTechnicalRun(request, missionId, {
     authenticate: authenticatedOwner,
     store: new FirestoreRuntimeStore(firestore)
   });

@@ -1,4 +1,4 @@
-import type { PlanService, TrustedChannelSelection } from "@dueback/runtime/plan-service";
+import type { PlanService, TrustedChannelSelection } from "@actionos/runtime/plan-service";
 
 export interface PlanControllerDependencies {
   readonly authenticate: (request: Request) => Promise<{
@@ -19,13 +19,13 @@ export interface PlanControllerDependencies {
 
 export async function handlePlanRequest(
   request: Request,
-  caseId: string,
+  missionId: string,
   dependencies: PlanControllerDependencies
 ): Promise<Response> {
   try {
     const owner = await dependencies.authenticate(request);
     if (request.method === "GET") {
-      return Response.json(await dependencies.service.inspect(caseId, owner.uid));
+      return Response.json(await dependencies.service.inspect(missionId, owner.uid));
     }
     const body = (await request.json()) as {
       action?: string;
@@ -34,7 +34,7 @@ export async function handlePlanRequest(
       revision?: Record<string, unknown>;
     };
     if (body.action === "simulate") {
-      return Response.json(await dependencies.service.simulate(caseId, owner.uid));
+      return Response.json(await dependencies.service.simulate(missionId, owner.uid));
     }
     if (body.action === "select-channel" && body.expectedPlanVersion !== undefined) {
       const channelType = body.revision?.channelType;
@@ -45,7 +45,7 @@ export async function handlePlanRequest(
         return Response.json({ error: "CONTACT_CHANNEL_UNAVAILABLE" }, { status: 409 });
       }
       return Response.json(await dependencies.service.selectChannel(
-        caseId,
+        missionId,
         owner.uid,
         body.expectedPlanVersion,
         selected
@@ -54,7 +54,7 @@ export async function handlePlanRequest(
     if (body.action === "revise" && body.expectedPlanVersion !== undefined) {
       return Response.json(
         await dependencies.service.revise(
-          caseId,
+          missionId,
           owner.uid,
           body.expectedPlanVersion,
           body.revision ?? {}
@@ -66,7 +66,7 @@ export async function handlePlanRequest(
       body.expectedPlanVersion !== undefined &&
       body.expectedPlanHash
     ) {
-      const draft = await dependencies.service.inspect(caseId, owner.uid);
+      const draft = await dependencies.service.inspect(missionId, owner.uid);
       if (dependencies.isChannelAvailable && !dependencies.isChannelAvailable(draft.plan.channelType)) {
         return Response.json({ error: "CONTACT_CHANNEL_UNAVAILABLE" }, { status: 409 });
       }
@@ -89,7 +89,7 @@ export async function handlePlanRequest(
       }
       return Response.json(
         await dependencies.service.approve({
-          caseId,
+          missionId,
           ownerId: owner.uid,
           expectedPlanVersion: body.expectedPlanVersion,
           expectedPlanHash: body.expectedPlanHash,
@@ -99,11 +99,11 @@ export async function handlePlanRequest(
     }
     if (body.action === "reject" && body.expectedPlanVersion !== undefined) {
       return Response.json(
-        await dependencies.service.reject(caseId, owner.uid, body.expectedPlanVersion)
+        await dependencies.service.reject(missionId, owner.uid, body.expectedPlanVersion)
       );
     }
     if (body.action === "delete") {
-      await dependencies.service.deleteDraft(caseId, owner.uid);
+      await dependencies.service.deleteDraft(missionId, owner.uid);
       return Response.json({ status: "DRAFT_DELETED" }, { status: 202 });
     }
     return Response.json({ error: "INVALID_PLAN_COMMAND" }, { status: 400 });

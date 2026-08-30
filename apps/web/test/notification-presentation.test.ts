@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { NotificationRecord } from "@dueback/runtime/notifications";
+import type { NotificationRecord } from "@actionos/runtime/notifications";
 import { notificationPresentation } from "../lib/notification-presentation";
 
 describe("notification presentation", () => {

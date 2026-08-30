@@ -1,5 +1,5 @@
 import { CloudTasksClient, protos } from "@google-cloud/tasks";
-import { stableHash } from "@dueback/domain";
+import { stableHash } from "@actionos/domain";
 
 export interface TaskSchedulerConfig {
   readonly projectId: string;
@@ -19,7 +19,7 @@ export class TaskScheduler {
   ) {}
 
   async scheduleCase(input: {
-    readonly caseId: string;
+    readonly missionId: string;
     readonly expectedVersion: number;
     readonly wakeAt: string;
     readonly correlationId?: string;
@@ -31,12 +31,12 @@ export class TaskScheduler {
     );
     const correlationId =
       input.correlationId ??
-      `corr_${stableHash({ namespace: "dueback/correlation/v1", caseId: input.caseId }).slice(7, 31)}`;
+      `corr_${stableHash({ namespace: "dueback/correlation/v1", missionId: input.missionId }).slice(7, 31)}`;
     const stableName = stableHash({ namespace: "dueback/task/v1", ...input }).slice(7, 39);
     const taskName = `${parent}/tasks/case-${stableName}`;
     const body = Buffer.from(
       JSON.stringify({
-        caseId: input.caseId,
+        missionId: input.missionId,
         expectedVersion: input.expectedVersion,
         correlationId
       })

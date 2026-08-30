@@ -4,7 +4,7 @@ import { handleIntake } from "../lib/intake-controller";
 describe("intake API contract", () => {
   it("requires a promise source", async () => {
     const response = await handleIntake(
-      new Request("https://dueback.test/api/intake", { method: "POST", body: new FormData() }),
+      new Request("https://actionos.test/api/intake", { method: "POST", body: new FormData() }),
       {
         authenticate: () => Promise.resolve({ uid: "person_12345678" }),
         service: { intake: () => Promise.reject(new Error("must not run")) } as never,
@@ -21,7 +21,7 @@ describe("intake API contract", () => {
       void receivedAt;
       return Promise.resolve({
         draft: {
-          caseId: "case_combined",
+          missionId: "mission_combined",
           activationBlocked: false,
           blockingFields: []
         },
@@ -44,7 +44,7 @@ describe("intake API contract", () => {
       )
     );
     const response = await handleIntake(
-      new Request("https://dueback.test/api/intake", { method: "POST", body: form }),
+      new Request("https://actionos.test/api/intake", { method: "POST", body: form }),
       {
         authenticate: () => Promise.resolve({ uid: "person_12345678" }),
         service: { intake } as never,

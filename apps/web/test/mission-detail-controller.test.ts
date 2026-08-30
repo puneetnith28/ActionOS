@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
-import { managedEmailProjectionFixture, weakAcknowledgementFixture } from "@dueback/test-fixtures/case-projections";
-import { handleCaseDetail } from "../lib/case-detail-controller";
-import type { FollowThroughCase } from "@dueback/runtime/case-runner";
-import type { EvidenceRecord } from "@dueback/runtime/evidence-service";
+import { managedEmailProjectionFixture, weakAcknowledgementFixture } from "@actionos/test-fixtures/mission-projections";
+import { handleCaseDetail } from "../lib/mission-detail-controller";
+import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { EvidenceRecord } from "@actionos/runtime/evidence-service";
 
 const item = managedEmailProjectionFixture as unknown as FollowThroughCase;
 const evidence = weakAcknowledgementFixture as unknown as EvidenceRecord;
 
-describe("case detail controller", () => {
+describe("mission detail controller", () => {
   it("returns only the owner-safe projection", async () => {
-    const response = await handleCaseDetail(new Request("https://dueback.test/detail"), item.caseId, {
+    const response = await handleCaseDetail(new Request("https://actionos.test/detail"), item.missionId, {
       authenticate: () => Promise.resolve({ uid: item.ownerId }),
       store: { get: () => Promise.resolve(item), listEvidence: () => Promise.resolve([evidence]) }
     });
@@ -23,7 +23,7 @@ describe("case detail controller", () => {
 
   it("uses an indistinguishable 404 before reading subordinate records", async () => {
     const listEvidence = vi.fn();
-    const response = await handleCaseDetail(new Request("https://dueback.test/detail"), item.caseId, {
+    const response = await handleCaseDetail(new Request("https://actionos.test/detail"), item.missionId, {
       authenticate: () => Promise.resolve({ uid: "person_other_12345678" }),
       store: { get: () => Promise.resolve(item), listEvidence }
     });

@@ -17,11 +17,11 @@ export const inboundInterpretationSchema = z.object({
     "UNKNOWN"
   ]),
   evidenceLevel: z.enum([
-    "PROMISE_RECORDED",
-    "REQUEST_ACKNOWLEDGED",
-    "MERCHANT_COMMITTED",
-    "MERCHANT_CONFIRMED",
-    "FUNDS_SETTLED"
+    "PLANNED",
+    "ACTION_ATTEMPTED",
+    "SYSTEM_ACKNOWLEDGED",
+    "OUTCOME_CONFIRMED",
+    "STATE_VERIFIED"
   ]),
   transactionRef: z.string().max(200).optional(),
   amountMinor: z.number().int().nonnegative().optional(),

@@ -8,7 +8,7 @@
     "./promise-manifests": "./src/promise-manifests.ts",
     "./evaluation-corpus": "./src/evaluation-corpus.ts",
     "./email-events": "./src/email-events.ts",
-    "./case-projections": "./src/case-projections.ts"
+    "./mission-projections": "./src/mission-projections.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

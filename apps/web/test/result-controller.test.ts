@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { FollowThroughCase } from "@dueback/runtime/case-runner";
-import type { RuntimeTimelineEvent } from "@dueback/runtime/timeline";
+import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { RuntimeTimelineEvent } from "@actionos/runtime/timeline";
 import { handleCaseResult } from "../lib/result-controller";
 
 const item = {
-  caseId: "case_result_12345678",
+  missionId: "mission_result_12345678",
   ownerId: "person_owner_12345678",
   state: "DONE",
   version: 4
@@ -13,7 +13,7 @@ const item = {
 const events: RuntimeTimelineEvent[] = [
   {
     eventId: "000001-plan-approved",
-    caseId: item.caseId,
+    missionId: item.missionId,
     sequence: 1,
     type: "PLAN_APPROVED",
     actor: "PERSON",
@@ -24,7 +24,7 @@ const events: RuntimeTimelineEvent[] = [
   },
   {
     eventId: "000002-action-result",
-    caseId: item.caseId,
+    missionId: item.missionId,
     sequence: 2,
     type: "ACTION_RESULT",
     actor: "SYSTEM",
@@ -40,8 +40,8 @@ const events: RuntimeTimelineEvent[] = [
 describe("result controller timeline", () => {
   it("returns persisted actor/time/reason/correlation events for the owner", async () => {
     const response = await handleCaseResult(
-      new Request("https://dueback.test/result"),
-      item.caseId,
+      new Request("https://actionos.test/result"),
+      item.missionId,
       {
         authenticate: () => Promise.resolve({ uid: item.ownerId }),
         store: {
@@ -58,8 +58,8 @@ describe("result controller timeline", () => {
 
   it("does not expose the ledger across owners", async () => {
     const response = await handleCaseResult(
-      new Request("https://dueback.test/result"),
-      item.caseId,
+      new Request("https://actionos.test/result"),
+      item.missionId,
       {
         authenticate: () => Promise.resolve({ uid: "person_attacker_1234" }),
         store: {

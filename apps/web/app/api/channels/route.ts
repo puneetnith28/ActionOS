@@ -1,4 +1,4 @@
-import { publicChannelCapabilities } from "@dueback/runtime/channel-registry";
+import { publicChannelCapabilities } from "@actionos/runtime/channel-registry";
 
 export const runtime = "nodejs";
 

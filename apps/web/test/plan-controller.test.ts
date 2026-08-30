@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { PlanService } from "@dueback/runtime/plan-service";
-import type { DraftCase } from "@dueback/runtime/intake-service";
+import { PlanService } from "@actionos/runtime/plan-service";
+import type { DraftMission } from "@actionos/runtime/intake-service";
 import { handlePlanRequest } from "../lib/plan-controller";
 
 describe("plan API contract", () => {
@@ -10,8 +10,8 @@ describe("plan API contract", () => {
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(
-      new Request("https://dueback.test/api/cases/case_12345678/plan"),
-      "case_12345678",
+      new Request("https://actionos.test/api/cases/mission_12345678/plan"),
+      "mission_12345678",
       {
         authenticate: () => Promise.resolve({ uid: "person_attacker" }),
         service,
@@ -21,7 +21,7 @@ describe("plan API contract", () => {
     expect(response.status).toBe(403);
   });
 
-  it("refuses approval when the persisted channel is unavailable", async () => {
+  it("refuses boundary.when the persisted channel is unavailable", async () => {
     const service = new PlanService({
       get: () => Promise.resolve({
         ownerId: "person_12345678",
@@ -30,7 +30,7 @@ describe("plan API contract", () => {
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(
-      new Request("https://dueback.test/api/cases/case_12345678/plan", {
+      new Request("https://actionos.test/api/cases/mission_12345678/plan", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -39,7 +39,7 @@ describe("plan API contract", () => {
           expectedPlanHash: `sha256:${"a".repeat(64)}`
         })
       }),
-      "case_12345678",
+      "mission_12345678",
       {
         authenticate: () => Promise.resolve({ uid: "person_12345678" }),
         service,
@@ -60,7 +60,7 @@ describe("plan API contract", () => {
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(
-      new Request("https://dueback.test/api/cases/case_12345678/plan", {
+      new Request("https://actionos.test/api/cases/mission_12345678/plan", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -69,7 +69,7 @@ describe("plan API contract", () => {
           expectedPlanHash: `sha256:${"a".repeat(64)}`
         })
       }),
-      "case_12345678",
+      "mission_12345678",
       {
         authenticate: () => Promise.resolve({
           uid: "person_12345678",
@@ -97,7 +97,7 @@ describe("plan API contract", () => {
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(
-      new Request("https://dueback.test/api/cases/case_12345678/plan", {
+      new Request("https://actionos.test/api/cases/mission_12345678/plan", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -105,7 +105,7 @@ describe("plan API contract", () => {
           expectedPlanHash: `sha256:${"a".repeat(64)}`
         })
       }),
-      "case_12345678",
+      "mission_12345678",
       {
         authenticate: () => Promise.resolve({
           uid: "person_12345678", email: "owner@example.test", email_verified: true,
@@ -129,8 +129,8 @@ describe("plan API contract", () => {
       artifactId: "artifact_12345678", locator: "text:0-100", excerptHash: hash,
       confidence: "HIGH" as const
     }];
-    let draft: DraftCase = {
-      caseId: "case_12345678", ownerId: "person_12345678", artifactId: "artifact_12345678",
+    let draft: DraftMission = {
+      missionId: "mission_12345678", ownerId: "person_12345678", artifactId: "artifact_12345678",
       dedupeKey: hash, state: "AWAITING_APPROVAL" as const,
       promiseDraft: {
         promisor: { value: "Northstar", provenance, uncertainty: "NONE" as const },
@@ -139,16 +139,16 @@ describe("plan API contract", () => {
         currency: { value: "USD", provenance, uncertainty: "NONE" as const },
         transactionRef: { value: "ORDER-79", provenance, uncertainty: "NONE" as const },
         dueAt: { value: "2026-08-20T00:00:00.000Z", provenance, uncertainty: "NONE" as const },
-        proposedEvidenceLevel: "MERCHANT_CONFIRMED" as const
+        proposedVerificationStatus: "OUTCOME_CONFIRMED" as const
       },
       plan: {
-        planId: "plan_12345678", caseId: "case_12345678", ownerId: "person_12345678",
+        planId: "plan_12345678", missionId: "mission_12345678", ownerId: "person_12345678",
         version: 1, planHash: hash, goal: "USD 79 refund",
         allowedActions: ["SEND_FOLLOW_UP" as const], allowedRecipient: "merchant@controlled.test",
         channelType: "CONTROLLED_SANDBOX" as const,
         sharedFields: ["transactionRef", "amountMinor", "currency"],
         evidenceRequirements: [{
-          minimumLevel: "MERCHANT_CONFIRMED" as const, amountMinor: 7900, currency: "USD",
+          minimumStatus: "OUTCOME_CONFIRMED" as const, amountMinor: 7900, currency: "USD",
           transactionRef: "ORDER-79", maxAgeSeconds: 3600, trustedIssuer: "merchant-sandbox"
         }],
         expiresAt: "2026-08-22T00:00:00.000Z"
@@ -158,14 +158,14 @@ describe("plan API contract", () => {
     const scheduleCase = () => Promise.resolve({});
     const service = new PlanService({
       get: () => Promise.resolve(draft),
-      replace: (_caseId, _version, next) => { draft = next; return Promise.resolve(); }
+      replace: (_missionId, _version, next) => { draft = next; return Promise.resolve(); }
     }, { scheduleCase });
     const response = await handlePlanRequest(new Request(
-      "https://dueback.test/api/cases/case_12345678/plan",
+      "https://actionos.test/api/cases/mission_12345678/plan",
       { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({
         action: "approve", expectedPlanVersion: 1, expectedPlanHash: hash
       }) }
-    ), "case_12345678", {
+    ), "mission_12345678", {
       authenticate: () => Promise.resolve({ uid: "person_12345678" }),
       service,
       now: () => "2026-08-16T12:00:00.000Z",
@@ -181,12 +181,12 @@ describe("plan API contract", () => {
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(new Request(
-      "https://dueback.test/api/cases/case_12345678/plan",
+      "https://actionos.test/api/cases/mission_12345678/plan",
       { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({
         action: "select-channel", expectedPlanVersion: 1,
         revision: { channelType: "MANAGED_EMAIL", senderIdentity: "attacker@example.test" }
       }) }
-    ), "case_12345678", {
+    ), "mission_12345678", {
       authenticate: () => Promise.resolve({ uid: "person_12345678" }),
       service,
       now: () => "2026-08-16T12:00:00.000Z",

@@ -11,7 +11,7 @@ describe("default intake channel", () => {
   it("stays in the controlled demo even when managed email is configured", () => {
     process.env.COMPANY_CONTACT_MODE = "email";
     expect(defaultIntakeChannel()).toMatchObject({
-      recipient: "merchant@controlled.dueback.test",
+      recipient: "merchant@controlled.actionos.test",
       channel: { channelType: "CONTROLLED_SANDBOX" }
     });
   });

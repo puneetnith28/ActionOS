@@ -1,12 +1,12 @@
 import type { FollowThroughCase } from "./case-runner";
-import { stableHash } from "@dueback/domain";
+import { stableHash } from "@actionos/domain";
 import { wakeIntent, type WakeIntent } from "./wake-outbox";
 
 export type CaseControlAction = "STOP" | "REVOKE" | "EXPIRE" | "REOPEN" | "RESUME" | "REVISE" | "DELETE";
 
 export interface ControlScheduler {
   scheduleCase(input: {
-    caseId: string;
+    missionId: string;
     expectedVersion: number;
     wakeAt: string;
     correlationId?: string;
@@ -14,7 +14,7 @@ export interface ControlScheduler {
 }
 
 export interface DeletionReceipt {
-  readonly caseId: string;
+  readonly missionId: string;
   readonly status: "DELETION_ACCEPTED";
   readonly requestedAt: string;
   readonly tombstoneId: string;
@@ -23,13 +23,13 @@ export interface DeletionReceipt {
 export interface CaseControlStore {
   getCommandResult?(input: {
     idempotencyKey: string;
-    caseId: string;
+    missionId: string;
     ownerId: string;
     action: CaseControlAction;
   }): Promise<FollowThroughCase | DeletionReceipt | undefined>;
-  get(caseId: string): Promise<FollowThroughCase | undefined>;
+  get(missionId: string): Promise<FollowThroughCase | undefined>;
   transition(input: {
-    caseId: string;
+    missionId: string;
     ownerId: string;
     expectedVersion: number;
     action: Exclude<CaseControlAction, "DELETE" | "REVISE">;
@@ -39,14 +39,14 @@ export interface CaseControlStore {
     wake?: WakeIntent;
   }): Promise<FollowThroughCase>;
   requestDeletion(input: {
-    caseId: string;
+    missionId: string;
     ownerId: string;
     expectedVersion: number;
     now: string;
     idempotencyKey: string;
   }): Promise<DeletionReceipt>;
   beginReapproval(input: {
-    caseId: string;
+    missionId: string;
     ownerId: string;
     expectedVersion: number;
     reason: string;
@@ -62,7 +62,7 @@ export class CaseControlService {
   ) {}
 
   async command(input: {
-    caseId: string;
+    missionId: string;
     ownerId: string;
     expectedVersion: number;
     action: CaseControlAction;
@@ -72,20 +72,20 @@ export class CaseControlService {
   }): Promise<FollowThroughCase | DeletionReceipt> {
     const idempotencyKey = input.idempotencyKey ?? stableHash({
       namespace: "dueback/case-control/v1",
-      caseId: input.caseId,
+      missionId: input.missionId,
       ownerId: input.ownerId,
       expectedVersion: input.expectedVersion,
       action: input.action,
       reason: input.reason?.trim() ?? ""
     });
     const prior = await this.store.getCommandResult?.({
-      idempotencyKey, caseId: input.caseId, ownerId: input.ownerId, action: input.action
+      idempotencyKey, missionId: input.missionId, ownerId: input.ownerId, action: input.action
     });
     if (prior) {
       if (input.action === "RESUME" && "state" in prior) {
         if (!this.scheduler) throw new Error("CONTROL_SCHEDULER_REQUIRED");
         await this.scheduler.scheduleCase({
-          caseId: prior.caseId,
+          missionId: prior.missionId,
           expectedVersion: prior.version,
           wakeAt: prior.nextWakeAt ?? prior.controlledAt ?? input.now,
           ...(prior.correlationId ? { correlationId: prior.correlationId } : {})
@@ -93,7 +93,7 @@ export class CaseControlService {
       }
       return prior;
     }
-    const item = await this.store.get(input.caseId);
+    const item = await this.store.get(input.missionId);
     if (!item) throw new Error("CASE_NOT_FOUND");
     if (item.ownerId !== input.ownerId) throw new Error("CASE_OWNERSHIP_REQUIRED");
     if (item.version !== input.expectedVersion) throw new Error("VERSION_CONFLICT");
@@ -104,7 +104,7 @@ export class CaseControlService {
       if (["DONE", "CANCELLED", "EXPIRED"].includes(item.state))
         throw new Error("REAPPROVAL_NOT_AVAILABLE");
       return this.store.beginReapproval({
-        caseId: input.caseId,
+        missionId: input.missionId,
         ownerId: input.ownerId,
         expectedVersion: input.expectedVersion,
         reason: input.reason?.trim() || "OWNER_REQUESTED_AUTHORITY_REVISION",
@@ -118,9 +118,9 @@ export class CaseControlService {
     }
     if (
       input.action === "RESUME" &&
-      (item.approval.revokedAt || Date.parse(item.approval.expiresAt) <= Date.parse(input.now))
+      (item.boundary.revokedAt || Date.parse(item.boundary.expiresAt) <= Date.parse(input.now))
     ) {
-      throw new Error("NEW_APPROVAL_REQUIRED");
+      throw new Error("NEW_BOUNDARY_REQUIRED");
     }
     if (["STOP", "REVOKE", "EXPIRE"].includes(input.action) && item.state === "DONE") {
       throw new Error("TERMINAL_CASE_CONTROL_DENIED");
@@ -128,14 +128,14 @@ export class CaseControlService {
     if (input.action === "REOPEN" && !input.reason?.trim())
       throw new Error("REOPEN_REASON_REQUIRED");
     const wake = input.action === "RESUME" ? wakeIntent({
-      caseId: input.caseId,
+      missionId: input.missionId,
       expectedVersion: input.expectedVersion + 1,
       wakeAt: input.now,
       createdAt: input.now,
       ...(item.correlationId ? { correlationId: item.correlationId } : {})
     }) : undefined;
     const next = await this.store.transition({
-      caseId: input.caseId,
+      missionId: input.missionId,
       ownerId: input.ownerId,
       expectedVersion: input.expectedVersion,
       action: input.action,
@@ -147,7 +147,7 @@ export class CaseControlService {
     if (input.action === "RESUME") {
       if (!this.scheduler) throw new Error("CONTROL_SCHEDULER_REQUIRED");
       await this.scheduler.scheduleCase({
-        caseId: next.caseId,
+        missionId: next.missionId,
         expectedVersion: next.version,
         wakeAt: input.now,
         ...(next.correlationId ? { correlationId: next.correlationId } : {})

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { firstRunDueAt } from "../src/intake-store";
-import type { DraftCase } from "@dueback/runtime/intake-service";
+import type { DraftCase } from "@actionos/runtime/intake-service";
 
 describe("first run scheduling", () => {
   it("uses the approved follow-up time instead of the company's later promise date", () => {

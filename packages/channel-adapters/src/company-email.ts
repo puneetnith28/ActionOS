@@ -1,10 +1,10 @@
-import { stableHash } from "@dueback/domain";
-import type { ProposedAction } from "@dueback/domain";
+import { stableHash } from "@actionos/domain";
+import type { ProposedAction } from "@actionos/domain";
 import {
   ActionOutcomeUnknownError,
   type ActionReceipt,
   type ClosedActionAdapter
-} from "@dueback/runtime/action-broker";
+} from "@actionos/runtime/action-broker";
 
 export interface CompanyEmailConfig {
   readonly apiKey: string;
@@ -13,8 +13,8 @@ export interface CompanyEmailConfig {
   readonly request?: typeof globalThis.fetch;
 }
 
-function messageFor(proposal: ProposedAction, caseId: string) {
-  const reference = proposal.sharedFields.transactionRef ?? caseId;
+function messageFor(proposal: ProposedAction, missionId: string) {
+  const reference = proposal.sharedFields.transactionRef ?? missionId;
   const amount = proposal.sharedFields.amountMinor;
   const currency = proposal.sharedFields.currency;
   const amountLine = amount && currency
@@ -31,7 +31,7 @@ function messageFor(proposal: ProposedAction, caseId: string) {
       "Please reply with the current status and verifiable confirmation when the outcome is complete.",
       "An acknowledgement that the request was received will not be treated as completion.",
       "",
-      `DueBack case: ${caseId}`
+      `DueBack case: ${missionId}`
     ].filter(Boolean).join("\n")
   };
 }
@@ -46,17 +46,17 @@ export class CompanyEmailActionAdapter implements ClosedActionAdapter {
   async execute(
     proposal: ProposedAction,
     idempotencyKey: string,
-    context: { readonly caseId: string; readonly correlationId?: string }
+    context: { readonly missionId: string; readonly correlationId?: string }
   ): Promise<ActionReceipt> {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(proposal.recipient)) {
       throw new Error("COMPANY_EMAIL_RECIPIENT_INVALID");
     }
     const message = proposal.subject && proposal.body
       ? { subject: proposal.subject, text: proposal.body }
-      : messageFor(proposal, context.caseId);
+      : messageFor(proposal, context.missionId);
     const routeToken = stableHash({
       namespace: "dueback/email-reply-route/v1",
-      caseId: context.caseId,
+      missionId: context.missionId,
       idempotencyKey
     }).slice(7, 39);
     const replyRoute = `case+${routeToken}@${this.config.replyDomain}`;
@@ -89,7 +89,7 @@ export class CompanyEmailActionAdapter implements ClosedActionAdapter {
     return {
       receiptId: result.id,
       providerMessageId: result.id,
-      caseId: context.caseId,
+      missionId: context.missionId,
       channelType: "MANAGED_EMAIL",
       replyRoute,
       recipientFingerprint: stableHash({

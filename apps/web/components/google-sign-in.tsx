@@ -21,7 +21,7 @@ export function GoogleSignIn({
       setBusy(true); setError(undefined);
       void signInWithExistingGoogle().then(() => { onSignedIn(); }).catch((cause: unknown) => {
         setError(cause instanceof Error && cause.message === "RECOVERABLE_SIGN_IN_CANCELLED"
-          ? tr("Sign-in was cancelled. No case was changed.", "Se canceló el inicio de sesión. Ningún caso cambió.", "O login foi cancelado. Nenhum caso foi alterado.")
+          ? tr("Sign-in was cancelled. No mission was changed.", "Se canceló el inicio de sesión. Ningún caso cambió.", "O login foi cancelado. Nenhum caso foi alterado.")
           : tr("Google sign-in did not finish. Check that popups are allowed and try again.", "El inicio con Google no terminó. Permití ventanas emergentes e intentá nuevamente.", "O login com Google não terminou. Permita pop-ups e tente novamente."));
       }).finally(() => { setBusy(false); });
     }}>{busy ? tr("Signing in…", "Iniciando sesión…", "Entrando…") : tr("Sign in with Google", "Iniciar sesión con Google", "Entrar com Google")}</button>

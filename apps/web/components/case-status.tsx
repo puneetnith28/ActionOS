@@ -1,4 +1,4 @@
-import type { ConsumerCaseDetail } from "../lib/case-projection";
+import type { ConsumerCaseDetail } from "../lib/mission-projection";
 
 export function CaseStatus({ detail }: { readonly detail: ConsumerCaseDetail }) {
   const futureNextCheck = detail.nextCheckAt && Date.parse(detail.nextCheckAt) > Date.now()

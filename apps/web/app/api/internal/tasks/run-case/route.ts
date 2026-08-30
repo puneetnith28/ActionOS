@@ -1,18 +1,18 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
-import { MerchantSandboxAdapter } from "@dueback/channel-adapters/merchant-sandbox";
-import { CompanyEmailActionAdapter } from "@dueback/channel-adapters/company-email";
-import { PartnerApiFixtureAdapter } from "@dueback/channel-adapters/partner-api";
+import { MerchantSandboxAdapter } from "@actionos/channel-adapters/merchant-sandbox";
+import { CompanyEmailActionAdapter } from "@actionos/channel-adapters/company-email";
+import { PartnerApiFixtureAdapter } from "@actionos/channel-adapters/partner-api";
 import {
   ChannelRegistry,
   publicChannelCapabilities,
   RoutingChannelAdapter
-} from "@dueback/runtime/channel-registry";
-import { FirestoreRuntimeStore } from "@dueback/persistence/runtime-store";
-import { ActionBroker } from "@dueback/runtime/action-broker";
-import { CaseRunner } from "@dueback/runtime/case-runner";
-import { InterventionService } from "@dueback/runtime/interventions";
-import { CaseNotificationService } from "@dueback/runtime/notifications";
-import { TaskScheduler } from "@dueback/runtime/task-scheduler";
+} from "@actionos/runtime/channel-registry";
+import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
+import { ActionBroker } from "@actionos/runtime/action-broker";
+import { CaseRunner } from "@actionos/runtime/case-runner";
+import { InterventionService } from "@actionos/runtime/interventions";
+import { CaseNotificationService } from "@actionos/runtime/notifications";
+import { TaskScheduler } from "@actionos/runtime/task-scheduler";
 import { firestore } from "../../../../../lib/firebase-admin";
 import { handleRunCaseTask } from "../../../../../lib/task-controller";
 import {
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
   const scheduler = durableCaseScheduler(new TaskScheduler(new CloudTasksClient(), {
     projectId,
     location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
-    queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
+    queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-cases",
     workerUrl,
     serviceAccountEmail,
     ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE

@@ -6,16 +6,16 @@ import type {
   ClosedActionAdapter,
   Reservation
 } from "../src/action-broker";
-import type { ApprovedActionPolicy, ProposedAction } from "@dueback/domain";
+import type { ExecutionPolicy, ProposedAction } from "@actionos/domain";
 
-const policy: ApprovedActionPolicy = {
+const policy: ExecutionPolicy = {
   ownerId: "person_1",
   planVersion: 1,
   planHash: "sha256:plan",
   allowedActions: ["SEND_FOLLOW_UP"],
   allowedRecipient: "merchant@example.test",
   sharedFields: ["transactionRef"],
-  approval: {
+  boundary: {
     ownerId: "person_1",
     planVersion: 1,
     planHash: "sha256:plan",
@@ -65,7 +65,7 @@ describe("ActionBroker", () => {
     };
     const broker = new ActionBroker(new MemoryActionStore(), adapter);
     const input = {
-      caseId: "case_1",
+      missionId: "case_1",
       actionOrdinal: 1,
       policy,
       proposal,
@@ -89,7 +89,7 @@ describe("ActionBroker", () => {
     const broker = new ActionBroker(new MemoryActionStore(), adapter);
     await expect(
       broker.execute({
-        caseId: "case_1",
+        missionId: "case_1",
         actionOrdinal: 1,
         policy,
         proposal: { ...proposal, recipient: "attacker@example.test" },
@@ -105,7 +105,7 @@ describe("ActionBroker", () => {
     );
     const broker = new ActionBroker(new MemoryActionStore(), { execute });
     const input = {
-      caseId: "case_1",
+      missionId: "case_1",
       actionOrdinal: 1,
       policy,
       proposal,
@@ -123,11 +123,11 @@ describe("ActionBroker", () => {
       execute: () => Promise.reject(new ActionOutcomeUnknownError("TRANSPORT_UNKNOWN"))
     });
     await expect(broker.execute({
-      caseId: "case_1", actionOrdinal: 1, policy, proposal,
+      missionId: "case_1", actionOrdinal: 1, policy, proposal,
       now: "2026-08-15T12:00:00.000Z", correlationId: "corr_12345678"
     })).rejects.toThrow("TRANSPORT_UNKNOWN");
     expect(markUnknown).toHaveBeenCalledWith(expect.objectContaining({
-      caseId: "case_1", channelType: "UNKNOWN",
+      missionId: "case_1", channelType: "UNKNOWN",
       correlationId: "corr_12345678", reasonCode: "TRANSPORT_UNKNOWN"
     }));
     expect(JSON.stringify(markUnknown.mock.calls)).toContain('"recipientFingerprint":"sha256:');
@@ -142,7 +142,7 @@ describe("ActionBroker", () => {
     }));
     const broker = new ActionBroker(new MemoryActionStore(), { execute }, { reserveExternalSend });
     const input = {
-      caseId: "case_1",
+      missionId: "case_1",
       actionOrdinal: 1,
       policy,
       proposal,
@@ -163,7 +163,7 @@ describe("ActionBroker", () => {
       reserveExternalSend: () => Promise.reject(new Error("EXTERNAL_SEND_BUDGET_EXHAUSTED"))
     });
     await expect(broker.execute({
-      caseId: "case_1",
+      missionId: "case_1",
       actionOrdinal: 1,
       policy,
       proposal,

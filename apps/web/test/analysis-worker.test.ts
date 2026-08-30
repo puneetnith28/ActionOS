@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import type { AnalysisJob } from "@dueback/contracts";
+import type { AnalysisJob } from "@actionos/contracts";
 import { handleAnalysisWorker } from "../lib/analysis-worker";
 
 const job: AnalysisJob = {
   jobId: "analysis_worker123",
-  caseId: "case_worker123",
+  missionId: "mission_worker123",
   ownerId: "owner_worker123",
   artifactId: "artifact_worker123",
   artifactPath: "analysis/owner/source",
@@ -20,11 +20,11 @@ const job: AnalysisJob = {
 
 const verified = vi.fn().mockResolvedValue({
   taskName: "analysis-task",
-  serviceAccountEmail: "dueback-tasks@example.test"
+  serviceAccountEmail: "actionos-tasks@example.test"
 });
 
 function taskRequest() {
-  return new Request("https://dueback.test/internal", {
+  return new Request("https://actionos.test/internal", {
     method: "POST",
     headers: { "x-cloudtasks-taskname": "analysis-task" },
     body: JSON.stringify({ jobId: job.jobId })
@@ -33,7 +33,7 @@ function taskRequest() {
 
 describe("analysis worker", () => {
   it("requires Cloud Tasks identity", async () => {
-    const response = await handleAnalysisWorker(new Request("https://dueback.test/internal"), {
+    const response = await handleAnalysisWorker(new Request("https://actionos.test/internal"), {
       identityVerifier: vi.fn().mockRejectedValue(new Error("missing identity"))
     } as never);
     expect(response.status).toBe(401);
@@ -59,7 +59,7 @@ describe("analysis worker", () => {
     const markReady = vi.fn();
     const remove = vi.fn().mockResolvedValue(undefined);
     const markAttemptFailed = vi.fn().mockResolvedValue({ ...job, status: "QUEUED" });
-    const intake = vi.fn().mockResolvedValue({ draft: { caseId: job.caseId }, duplicate: false });
+    const intake = vi.fn().mockResolvedValue({ draft: { missionId: job.missionId }, duplicate: false });
     const response = await handleAnalysisWorker(taskRequest(), {
       store: {
         start: () => Promise.resolve({ status: "STARTED" as const, job }),
@@ -76,7 +76,7 @@ describe("analysis worker", () => {
     });
     expect(response.status).toBe(200);
     expect(markAttemptFailed).not.toHaveBeenCalled();
-    expect(intake).toHaveBeenCalledWith(expect.objectContaining({ caseId: job.caseId }), job.createdAt);
+    expect(intake).toHaveBeenCalledWith(expect.objectContaining({ missionId: job.missionId }), job.createdAt);
     expect(markReady).toHaveBeenCalledWith(job.jobId, "2026-08-18T12:00:02.000Z");
     expect(remove).toHaveBeenCalledWith(job.artifactPath);
   });

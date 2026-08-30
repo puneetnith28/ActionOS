@@ -1,14 +1,14 @@
-import type { FollowThroughCase } from "@dueback/runtime/case-runner";
-import { technicalRunProjection, type TechnicalRunSource } from "@dueback/runtime/technical-run";
+import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import { technicalRunProjection, type TechnicalRunSource } from "@actionos/runtime/technical-run";
 
 export interface TechnicalRunStore {
-  get(caseId: string): Promise<FollowThroughCase | undefined>;
-  technicalRunSource(caseId: string): Promise<TechnicalRunSource>;
+  get(missionId: string): Promise<FollowThroughMission | undefined>;
+  technicalRunSource(missionId: string): Promise<TechnicalRunSource>;
 }
 
 export async function handleTechnicalRun(
   request: Request,
-  caseId: string,
+  missionId: string,
   dependencies: {
     authenticate: (request: Request) => Promise<{ uid: string }>;
     store: TechnicalRunStore;
@@ -17,11 +17,11 @@ export async function handleTechnicalRun(
   const headers = { "Cache-Control": "private, no-store" };
   try {
     const owner = await dependencies.authenticate(request);
-    const item = await dependencies.store.get(caseId);
+    const item = await dependencies.store.get(missionId);
     if (!item || item.ownerId !== owner.uid) return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404, headers });
     if (item.plan.executionMode !== "ACCELERATED_DEMO")
       return Response.json({ error: "TECHNICAL_RUN_NOT_ELIGIBLE" }, { status: 403, headers });
-    const source = await dependencies.store.technicalRunSource(caseId);
+    const source = await dependencies.store.technicalRunSource(missionId);
     return Response.json({ steps: technicalRunProjection(source) }, { headers });
   } catch (error) {
     const code = error instanceof Error ? error.message : "TECHNICAL_RUN_FAILED";

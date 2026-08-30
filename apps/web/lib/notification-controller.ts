@@ -1,14 +1,14 @@
-import type { FollowThroughCase } from "@dueback/runtime/case-runner";
-import type { NotificationDeliveryService, NotificationRecord } from "@dueback/runtime/notifications";
+import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { NotificationDeliveryService, NotificationRecord } from "@actionos/runtime/notifications";
 
 export interface NotificationRetryStore {
-  get(caseId: string): Promise<FollowThroughCase | undefined>;
-  listNotifications(caseId: string): Promise<readonly NotificationRecord[]>;
+  get(missionId: string): Promise<FollowThroughMission | undefined>;
+  listNotifications(missionId: string): Promise<readonly NotificationRecord[]>;
 }
 
 export async function handleNotificationRetry(
   request: Request,
-  caseId: string,
+  missionId: string,
   dependencies: {
     authenticate: (request: Request) => Promise<{ uid: string }>;
     store: NotificationRetryStore;
@@ -18,10 +18,10 @@ export async function handleNotificationRetry(
   const headers = { "Cache-Control": "private, no-store" };
   try {
     const owner = await dependencies.authenticate(request);
-    const item = await dependencies.store.get(caseId);
+    const item = await dependencies.store.get(missionId);
     if (!item || item.ownerId !== owner.uid) return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404, headers });
     const body = await request.json() as { notificationId?: string };
-    const notifications = await dependencies.store.listNotifications(caseId);
+    const notifications = await dependencies.store.listNotifications(missionId);
     const record = body.notificationId
       ? notifications.find((candidate) => candidate.notificationId === body.notificationId)
       : notifications.at(-1);

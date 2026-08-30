@@ -10,7 +10,7 @@ describe("public error copy", () => {
 
   it("redacts unknown internal errors", () => {
     expect(errorCopy("database connection string")).toBe(
-      "DueBack could not complete that request. Please try again."
+      "ActionOS could not complete that request. Please try again."
     );
   });
 });

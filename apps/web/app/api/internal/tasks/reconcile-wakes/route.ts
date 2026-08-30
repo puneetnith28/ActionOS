@@ -1,7 +1,7 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
-import { TaskScheduler } from "@dueback/runtime/task-scheduler";
-import { DurableWakeScheduler } from "@dueback/runtime/wake-outbox";
-import { FirestoreWakeOutboxStore } from "@dueback/persistence/wake-outbox-store";
+import { TaskScheduler } from "@actionos/runtime/task-scheduler";
+import { DurableWakeScheduler } from "@actionos/runtime/wake-outbox";
+import { FirestoreWakeOutboxStore } from "@actionos/persistence/wake-outbox-store";
 import { requireCloudTaskIdentity } from "../../../../../lib/cloud-task-identity";
 import { firestore } from "../../../../../lib/firebase-admin";
 
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   const tasks = new TaskScheduler(new CloudTasksClient(), {
     projectId,
     location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
-    queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
+    queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-cases",
     workerUrl,
     serviceAccountEmail,
     ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE

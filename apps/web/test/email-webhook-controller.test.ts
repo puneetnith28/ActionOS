@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { signEmailWebhook } from "@dueback/channel-adapters/email-webhook";
+import { signEmailWebhook } from "@actionos/channel-adapters/email-webhook";
 import { handleEmailWebhook } from "../lib/email-webhook-controller";
 
 const now = "2026-08-16T12:00:00.000Z";
@@ -14,7 +14,7 @@ describe("email webhook controller", () => {
       markProviderEvent: vi.fn(() => Promise.resolve())
     };
     const scheduler = { scheduleInbound: vi.fn(() => Promise.reject(new Error("QUEUE_UNAVAILABLE"))) };
-    const response = await handleEmailWebhook(new Request("https://dueback.test/webhook", {
+    const response = await handleEmailWebhook(new Request("https://actionos.test/webhook", {
       method: "POST",
       headers: { "content-type": "application/json", "svix-id": "event_failed_123",
         "svix-timestamp": timestamp,
@@ -33,7 +33,7 @@ describe("email webhook controller", () => {
       markProviderEvent: vi.fn(() => Promise.resolve())
     };
     const scheduler = { scheduleInbound: vi.fn(() => Promise.resolve({ taskName: "task", duplicate: false })) };
-    const response = await handleEmailWebhook(new Request("https://dueback.test/api/webhooks/email", {
+    const response = await handleEmailWebhook(new Request("https://actionos.test/api/webhooks/email", {
       method: "POST",
       headers: {
         "svix-id": "event_123",
@@ -52,7 +52,7 @@ describe("email webhook controller", () => {
       reserveProviderEvent: vi.fn(),
       markProviderEvent: vi.fn()
     };
-    const response = await handleEmailWebhook(new Request("https://dueback.test/api/webhooks/email", {
+    const response = await handleEmailWebhook(new Request("https://actionos.test/api/webhooks/email", {
       method: "POST",
       headers: { "svix-id": "event_123", "svix-timestamp": timestamp, "svix-signature": "v1,bad" },
       body
@@ -67,7 +67,7 @@ describe("email webhook controller", () => {
       markProviderEvent: vi.fn()
     };
     const scheduler = { scheduleInbound: vi.fn() };
-    const response = await handleEmailWebhook(new Request("https://dueback.test/api/webhooks/email", {
+    const response = await handleEmailWebhook(new Request("https://actionos.test/api/webhooks/email", {
       method: "POST",
       headers: {
         "svix-id": "event_123",

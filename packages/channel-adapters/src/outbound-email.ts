@@ -1,5 +1,5 @@
-import { stableHash } from "@dueback/domain";
-import type { NotificationRecord } from "@dueback/runtime/notifications";
+import { stableHash } from "@actionos/domain";
+import type { NotificationRecord } from "@actionos/runtime/notifications";
 
 export interface EmailDeliveryReceipt {
   readonly deliveryId: string;

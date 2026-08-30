@@ -1,10 +1,10 @@
-import type { EvidenceCandidateContract, ResolutionPlan } from "@dueback/contracts";
+import type { ExecutionOutcomeContract, ExecutionPlan } from "@actionos/contracts";
 import {
   stableHash,
-  verifyEvidence,
-  type CaseState,
+  verifyOutcome,
+  type MissionState,
   type VerificationResult
-} from "@dueback/domain";
+} from "@actionos/domain";
 import {
   notificationRecord,
   type NotificationRecord,
@@ -19,28 +19,28 @@ import {
 import { wakeIntent, type WakeIntent } from "./wake-outbox";
 
 export interface EvidenceCase {
-  readonly caseId: string;
+  readonly missionId: string;
   readonly ownerId: string;
-  readonly state: CaseState;
+  readonly state: MissionState;
   readonly version: number;
-  readonly plan: ResolutionPlan;
+  readonly plan: ExecutionPlan;
   readonly correlationId?: string;
   readonly nextWakeAt?: string | undefined;
 }
 
 export interface EvidenceRecord {
-  readonly candidate: EvidenceCandidateContract;
+  readonly candidate: ExecutionOutcomeContract;
   readonly verification: VerificationResult;
   readonly recordedAt: string;
   readonly correlationId: string;
 }
 
 export interface EvidenceCaseStore {
-  get(caseId: string): Promise<EvidenceCase | undefined>;
+  get(missionId: string): Promise<EvidenceCase | undefined>;
   record(input: {
-    caseId: string;
+    missionId: string;
     expectedVersion: number;
-    nextState: CaseState;
+    nextState: MissionState;
     nextWakeAt?: string;
     evidence: EvidenceRecord;
     wake?: WakeIntent;
@@ -49,7 +49,7 @@ export interface EvidenceCaseStore {
 
 export interface EvidenceScheduler {
   scheduleCase(input: {
-    caseId: string;
+    missionId: string;
     expectedVersion: number;
     wakeAt: string;
     correlationId?: string;
@@ -66,7 +66,7 @@ export class EvidenceService {
   ) {}
 
   async reconcile(
-    candidate: EvidenceCandidateContract,
+    candidate: ExecutionOutcomeContract,
     now: string,
     requestedCorrelationId?: string
   ): Promise<{
@@ -75,32 +75,32 @@ export class EvidenceService {
     notification?: NotificationRecord;
     intervention?: InterventionRecord;
   }> {
-    const item = await this.cases.get(candidate.caseId);
+    const item = await this.cases.get(candidate.missionId);
     if (!item) throw new Error("CASE_NOT_FOUND");
     if (!["RUNNING", "WAITING_EXTERNAL"].includes(item.state)) {
       throw new Error("EVIDENCE_NOT_ACCEPTED_IN_STATE");
     }
     const requirement = item.plan.evidenceRequirements[0];
     if (!requirement) throw new Error("EVIDENCE_REQUIREMENT_MISSING");
-    const verification = verifyEvidence({ caseId: item.caseId, requirement, candidate, now });
+    const verification = verifyOutcome({ missionId: item.missionId, requirement, candidate, now });
     const correlationId =
       requestedCorrelationId ??
       item.correlationId ??
-      `corr_${stableHash({ namespace: "dueback/correlation/v1", caseId: item.caseId }).slice(7, 31)}`;
+      `corr_${stableHash({ namespace: "dueback/correlation/v1", missionId: item.missionId }).slice(7, 31)}`;
     const accepted = verification.accepted;
-    const conflict = !accepted && !verification.reasonCodes.includes("INSUFFICIENT_LEVEL");
+    const conflict = !accepted && !verification.reasonCodes.includes("INSUFFICIENT_STATUS");
     const nextWakeAt = !accepted && !conflict
       ? new Date(Date.parse(now) + (item.plan.followUpIntervalSeconds ?? 2 * 24 * 60 * 60) * 1000).toISOString()
       : undefined;
     const wake = nextWakeAt ? wakeIntent({
-        caseId: item.caseId,
+        missionId: item.missionId,
         expectedVersion: item.version + 1,
         wakeAt: nextWakeAt,
         correlationId,
         createdAt: now
       }) : undefined;
     const recorded = await this.cases.record({
-      caseId: item.caseId,
+      missionId: item.missionId,
       expectedVersion: item.version,
       nextState: accepted ? "DONE" : conflict ? "NEEDS_ATTENTION" : "WAITING_EXTERNAL",
       ...(nextWakeAt ? { nextWakeAt } : {}),
@@ -113,7 +113,7 @@ export class EvidenceService {
         return { status: "INSUFFICIENT", verification };
       }
       const notification = notificationRecord({
-        caseId: item.caseId,
+        missionId: item.missionId,
         ownerId: item.ownerId,
         kind: "NEEDS_ATTENTION",
         createdAt: now,
@@ -121,7 +121,7 @@ export class EvidenceService {
       });
       const persistedNotification = await this.notifications.createIfAbsent(notification);
       const intervention = interventionRecord({
-        caseId: item.caseId,
+        missionId: item.missionId,
         ownerId: item.ownerId,
         correlationId,
         kind: "EVIDENCE_CONFLICT",
@@ -149,7 +149,7 @@ export class EvidenceService {
       };
     }
     const record = notificationRecord({
-      caseId: item.caseId,
+      missionId: item.missionId,
       ownerId: item.ownerId,
       kind: "CASE_COMPLETED",
       createdAt: now,

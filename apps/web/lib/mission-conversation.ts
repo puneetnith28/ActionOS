@@ -1,5 +1,5 @@
-import type { FollowThroughCase } from "@dueback/runtime/case-runner";
-import type { EvidenceRecord } from "@dueback/runtime/evidence-service";
+import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { EvidenceRecord } from "@actionos/runtime/evidence-service";
 
 export interface ConversationEntry {
   id: string;
@@ -28,7 +28,7 @@ function explicitFacts(record: EvidenceRecord): string {
   return facts.length ? facts.join(" · ") : "No outcome facts were explicitly stated.";
 }
 
-export function caseConversation(
+export function missionConversation(
   item: FollowThroughCase,
   evidence: readonly EvidenceRecord[],
   channelEvents: readonly { acceptedAt: string; transportStatus: string }[]
@@ -36,24 +36,24 @@ export function caseConversation(
   const outbound = channelEvents.map((event, index) => ({
     id: `outbound-${String(index)}-${event.acceptedAt}`,
     direction: "OUTBOUND" as const,
-    title: index === 0 ? "DueBack sent the approved follow-up" : "DueBack sent an approved follow-up",
+    title: index === 0 ? "ActionOS sent the approved follow-up" : "ActionOS sent an approved follow-up",
     occurredAt: event.acceptedAt,
     safeBody: `Requested outcome: ${item.plan.goal}`,
     status: event.transportStatus,
     reason: "Provider transport status only; this does not prove the outcome."
   }));
   const inbound = evidence.map((record) => ({
-    id: `inbound-${record.candidate.evidenceId}`,
+    id: `inbound-${record.candidate.outcomeId}`,
     direction: "INBOUND" as const,
-    title: record.candidate.level === "REQUEST_ACKNOWLEDGED"
+    title: record.candidate.level === "ACTION_ATTEMPTED"
       ? "The company acknowledged the request"
-      : "DueBack checked a company reply",
+      : "ActionOS checked a company reply",
     occurredAt: record.recordedAt,
     safeBody: explicitFacts(record),
     status: record.verification.accepted ? "PROOF_ACCEPTED" : "NOT_RESOLVED",
     reason: record.verification.accepted
       ? "The explicit facts met the approved evidence contract."
-      : record.verification.reasonCodes.includes("INSUFFICIENT_LEVEL")
+      : record.verification.reasonCodes.includes("INSUFFICIENT_STATUS")
         ? "Acknowledgement is not proof that the promised outcome happened."
         : `Still needs review: ${record.verification.reasonCodes.join(", ").toLowerCase().replaceAll("_", " ")}.`
   }));

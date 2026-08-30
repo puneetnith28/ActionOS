@@ -1,4 +1,4 @@
-import { technicalStepSchema, type TechnicalStep } from "@dueback/contracts";
+import { technicalStepSchema, type TechnicalStep } from "@actionos/contracts";
 import type { EvidenceRecord } from "./evidence-service";
 import type { NotificationRecord } from "./notifications";
 import type { RuntimeTimelineEvent } from "./timeline";
@@ -73,7 +73,7 @@ export function technicalRunProjection(source: TechnicalRunSource): TechnicalSte
   }
   for (const record of source.evidence) {
     steps.push(technicalStepSchema.parse({
-      stepId: `step_verify_${record.candidate.evidenceId.slice(-16)}`,
+      stepId: `step_verify_${record.candidate.outcomeId.slice(-16)}`,
       stage: "VERIFIER",
       status: record.verification.accepted ? "SUCCEEDED" : "REJECTED",
       systemLabel: "Deterministic evidence policy",

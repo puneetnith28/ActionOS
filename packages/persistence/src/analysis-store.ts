@@ -1,6 +1,6 @@
 import { FieldValue, type Firestore } from "firebase-admin/firestore";
-import { analysisJobSchema, type AnalysisJob } from "@dueback/contracts";
-import { stableHash } from "@dueback/domain";
+import { analysisJobSchema, type AnalysisJob } from "@actionos/contracts";
+import { stableHash } from "@actionos/domain";
 import { firestoreDeleteAt } from "./expiry";
 
 export type AnalysisStartResult =
@@ -42,7 +42,7 @@ export class FirestoreAnalysisStore {
       transaction.set(dedupeRef, {
         ownerId: job.ownerId,
         jobId: job.jobId,
-        caseId: job.caseId,
+        missionId: job.missionId,
         createdAt: job.createdAt,
         deleteAt
       });
@@ -55,9 +55,9 @@ export class FirestoreAnalysisStore {
     return snapshot.exists ? parseAnalysisDocument(snapshot.data()) : undefined;
   }
 
-  async getOwnedCase(caseId: string, ownerId: string): Promise<AnalysisJob | undefined> {
+  async getOwnedCase(missionId: string, ownerId: string): Promise<AnalysisJob | undefined> {
     const snapshot = await this.db.collection("analysisJobs")
-      .where("caseId", "==", caseId)
+      .where("missionId", "==", missionId)
       .limit(1)
       .get();
     const document = snapshot.docs[0];
@@ -161,8 +161,8 @@ export class FirestoreAnalysisStore {
     }, { merge: true });
   }
 
-  async retryOwned(caseId: string, ownerId: string, now: string): Promise<AnalysisJob> {
-    const existing = await this.getOwnedCase(caseId, ownerId);
+  async retryOwned(missionId: string, ownerId: string, now: string): Promise<AnalysisJob> {
+    const existing = await this.getOwnedCase(missionId, ownerId);
     if (!existing) throw new Error("ANALYSIS_JOB_NOT_FOUND");
     if (existing.status !== "FAILED") return existing;
     const next = analysisJobSchema.parse({

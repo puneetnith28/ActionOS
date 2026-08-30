@@ -1,6 +1,6 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
-import { FirestoreRuntimeStore } from "@dueback/persistence/runtime-store";
-import { TaskScheduler } from "@dueback/runtime/task-scheduler";
+import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
+import { TaskScheduler } from "@actionos/runtime/task-scheduler";
 import { firestore } from "../../../../lib/firebase-admin";
 import { handleEmailWebhook } from "../../../../lib/email-webhook-controller";
 
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   const scheduler = new TaskScheduler(new CloudTasksClient(), {
     projectId,
     location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
-    queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
+    queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-cases",
     workerUrl: `${baseUrl}/api/internal/tasks/run-case`,
     inboundWorkerUrl: `${baseUrl}/api/internal/tasks/process-inbound`,
     serviceAccountEmail,

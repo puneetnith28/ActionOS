@@ -17,7 +17,7 @@ export function LanguageSwitcher() {
         value={locale}
         onChange={(event) => {
           const next = event.target.value as Locale;
-          document.cookie = `dueback-locale=${next}; Max-Age=31536000; Path=/; SameSite=Lax`;
+          document.cookie = `actionos-locale=${next}; Max-Age=31536000; Path=/; SameSite=Lax`;
           window.location.assign(localizePath(pathname, next));
         }}
       >

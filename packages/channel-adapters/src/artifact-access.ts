@@ -2,7 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 export interface ArtifactGrant {
   readonly artifactId: string;
-  readonly caseId: string;
+  readonly missionId: string;
   readonly ownerId: string;
   readonly expiresAt: string;
 }
@@ -25,7 +25,7 @@ export function issueArtifactGrant(
   }
   const grant: ArtifactGrant = {
     artifactId: input.artifactId,
-    caseId: input.caseId,
+    missionId: input.missionId,
     ownerId: input.ownerId,
     expiresAt: new Date(Date.parse(input.now) + ttlSeconds * 1000).toISOString()
   };
@@ -37,7 +37,7 @@ export function verifyArtifactGrant(input: {
   token: string;
   secret: string;
   ownerId: string;
-  caseId: string;
+  missionId: string;
   artifactId: string;
   now: string;
 }): ArtifactGrant {
@@ -55,7 +55,7 @@ export function verifyArtifactGrant(input: {
   const grant = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as ArtifactGrant;
   if (
     grant.ownerId !== input.ownerId ||
-    grant.caseId !== input.caseId ||
+    grant.missionId !== input.missionId ||
     grant.artifactId !== input.artifactId
   ) {
     throw new Error("ARTIFACT_GRANT_SCOPE_MISMATCH");

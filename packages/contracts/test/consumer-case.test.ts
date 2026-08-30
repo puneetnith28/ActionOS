@@ -12,7 +12,7 @@ const at = "2026-08-17T18:00:00.000Z";
 describe("consumer case contracts", () => {
   it("accepts bounded consumer projections", () => {
     expect(caseSummarySchema.parse({
-      caseId: "case_12345678", companyName: "Example", outcomeLabel: "USD 59 refund",
+      missionId: "case_12345678", companyName: "Example", outcomeLabel: "USD 59 refund",
       bucket: "WORKING", statusLabel: "Waiting for the company", lastActivityAt: at,
       nextStepLabel: "DueBack will evaluate the next reply", attentionRequired: false,
       channelLabel: "Email"
@@ -24,7 +24,7 @@ describe("consumer case contracts", () => {
       evidenceDecision: "INSUFFICIENT", reasonSummary: "The amount and reference are missing."
     })).toBeTruthy();
     expect(outcomeComparisonSchema.parse({
-      evidenceLevel: "REQUEST_ACKNOWLEDGED", accepted: false,
+      verificationStatus: "ACTION_ATTEMPTED", accepted: false,
       limitation: "A request acknowledgement does not prove the refund.",
       fields: [{ label: "Amount", promised: "USD 59", status: "MISSING" }]
     })).toBeTruthy();
@@ -37,7 +37,7 @@ describe("consumer case contracts", () => {
       evidenceDecision: "INSUFFICIENT", rawBody: "private original email"
     })).toThrow();
     expect(() => caseSummarySchema.parse({
-      caseId: "case_12345678", companyName: "person@example.com", outcomeLabel: "Refund",
+      missionId: "case_12345678", companyName: "person@example.com", outcomeLabel: "Refund",
       bucket: "WORKING", statusLabel: "Waiting", lastActivityAt: at, nextStepLabel: "Wait",
       attentionRequired: false, channelLabel: "Email"
     })).toThrow();
@@ -45,7 +45,7 @@ describe("consumer case contracts", () => {
 
   it("stores identity claims and technical steps without bearer credentials or raw payloads", () => {
     const claim = {
-      claimId: "claim_12345678", caseId: "case_12345678",
+      claimId: "claim_12345678", missionId: "case_12345678",
       sourceOwnerFingerprint: `sha256:${"a".repeat(64)}`,
       targetOwnerFingerprint: `sha256:${"b".repeat(64)}`,
       operation: "CLAIM_DRAFT", status: "COLLISION",
@@ -57,7 +57,7 @@ describe("consumer case contracts", () => {
     expect(technicalStepSchema.parse({
       stepId: "step_12345678", stage: "VERIFIER", status: "REJECTED",
       systemLabel: "Deterministic evidence policy", occurredAt: at,
-      correlationSuffix: "abcd1234", reasonCodes: ["INSUFFICIENT_LEVEL"]
+      correlationSuffix: "abcd1234", reasonCodes: ["INSUFFICIENT_STATUS"]
     })).toBeTruthy();
     expect(() => technicalStepSchema.parse({
       stepId: "step_12345678", stage: "INBOUND", status: "SUCCEEDED",

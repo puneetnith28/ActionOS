@@ -6,9 +6,9 @@ import { PlanReviewPreview } from "../../../../components/plan-review-preview";
 export default async function ReviewPage({
   params
 }: {
-  readonly params: Promise<{ caseId: string }>;
+  readonly params: Promise<{ missionId: string }>;
 }) {
-  const { caseId } = await params;
+  const { missionId } = await params;
   const copy = (await getRequestMessages()).steps;
   return (
     <main className="shell">
@@ -20,7 +20,7 @@ export default async function ReviewPage({
           <p>{copy.reviewText}</p>
         </div>
       </section>
-      {caseId === "demo-review" && process.env.NODE_ENV === "development" ? <PlanReviewPreview /> : <PlanReview caseId={caseId} contactMode={process.env.COMPANY_CONTACT_MODE === "email" ? "email" : "sandbox"} />}
+      {missionId === "demo-review" && process.env.NODE_ENV === "development" ? <PlanReviewPreview /> : <PlanReview missionId={missionId} contactMode={process.env.COMPANY_CONTACT_MODE === "email" ? "email" : "sandbox"} />}
     </main>
   );
 }

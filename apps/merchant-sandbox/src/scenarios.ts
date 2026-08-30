@@ -8,32 +8,32 @@ export type ScenarioName =
 
 export interface ScenarioStep {
   readonly status: number;
-  readonly outcome: "REQUEST_ACKNOWLEDGED" | "MERCHANT_CONFIRMED";
+  readonly outcome: "ACTION_ATTEMPTED" | "OUTCOME_CONFIRMED";
   readonly mismatch?: "amount" | "reference";
   readonly delayMs?: number;
   readonly replayCount?: number;
-  readonly followupOutcome?: "MERCHANT_CONFIRMED";
+  readonly followupOutcome?: "OUTCOME_CONFIRMED";
   readonly followupDelayMs?: number;
 }
 
 export const merchantScenarios: Readonly<Record<ScenarioName, readonly ScenarioStep[]>> = {
-  acknowledgement: [{ status: 202, outcome: "REQUEST_ACKNOWLEDGED" }],
+  acknowledgement: [{ status: 202, outcome: "ACTION_ATTEMPTED" }],
   "retry-once": [
-    { status: 503, outcome: "REQUEST_ACKNOWLEDGED" },
-    { status: 202, outcome: "REQUEST_ACKNOWLEDGED" },
-    { status: 200, outcome: "MERCHANT_CONFIRMED" }
+    { status: 503, outcome: "ACTION_ATTEMPTED" },
+    { status: 202, outcome: "ACTION_ATTEMPTED" },
+    { status: 200, outcome: "OUTCOME_CONFIRMED" }
   ],
-  mismatch: [{ status: 200, outcome: "MERCHANT_CONFIRMED", mismatch: "reference" }],
+  mismatch: [{ status: 200, outcome: "OUTCOME_CONFIRMED", mismatch: "reference" }],
   "signed-completion": [
     {
       status: 202,
-      outcome: "REQUEST_ACKNOWLEDGED",
-      followupOutcome: "MERCHANT_CONFIRMED",
+      outcome: "ACTION_ATTEMPTED",
+      followupOutcome: "OUTCOME_CONFIRMED",
       followupDelayMs: 8_000
     }
   ],
-  replay: [{ status: 200, outcome: "MERCHANT_CONFIRMED", replayCount: 2 }],
-  latency: [{ status: 200, outcome: "MERCHANT_CONFIRMED", delayMs: 250 }]
+  replay: [{ status: 200, outcome: "OUTCOME_CONFIRMED", replayCount: 2 }],
+  latency: [{ status: 200, outcome: "OUTCOME_CONFIRMED", delayMs: 250 }]
 };
 
 export function scenarioStep(name: ScenarioName, attempt: number): ScenarioStep {

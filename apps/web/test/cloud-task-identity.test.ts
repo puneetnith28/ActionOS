@@ -9,23 +9,23 @@ describe("Cloud Tasks OIDC boundary", () => {
     expect(() => assertExpectedCloudTaskClaims({
       email: "attacker@example.test",
       email_verified: true
-    }, "dueback-tasks@example.test")).toThrow("CLOUD_TASK_IDENTITY_INVALID");
+    }, "actionos-tasks@example.test")).toThrow("CLOUD_TASK_IDENTITY_INVALID");
     expect(() => assertExpectedCloudTaskClaims({
-      email: "dueback-tasks@example.test",
+      email: "actionos-tasks@example.test",
       email_verified: false
-    }, "dueback-tasks@example.test")).toThrow("CLOUD_TASK_IDENTITY_INVALID");
+    }, "actionos-tasks@example.test")).toThrow("CLOUD_TASK_IDENTITY_INVALID");
   });
 
   it("accepts only the configured verified service account claim", () => {
     expect(assertExpectedCloudTaskClaims({
-      email: "dueback-tasks@example.test",
+      email: "actionos-tasks@example.test",
       email_verified: true
-    }, "dueback-tasks@example.test")).toBe("dueback-tasks@example.test");
+    }, "actionos-tasks@example.test")).toBe("actionos-tasks@example.test");
   });
 
   it("fails closed when cryptographic verification fails", async () => {
     const response = await requireCloudTaskIdentity(
-      new Request("https://dueback.test/internal", {
+      new Request("https://actionos.test/internal", {
         headers: { "x-cloudtasks-taskname": "spoofed" }
       }),
       vi.fn().mockRejectedValue(new Error("invalid audience"))

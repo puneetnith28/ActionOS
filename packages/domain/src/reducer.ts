@@ -28,30 +28,30 @@ export class DomainTransitionError extends Error {
     readonly code:
       | "VERSION_CONFLICT"
       | "ILLEGAL_TRANSITION"
-      | "APPROVAL_REQUIRED"
-      | "APPROVAL_MISMATCH"
+      | "BOUNDARY_REQUIRED"
+      | "BOUNDARY_MISMATCH"
       | "VERIFICATION_REQUIRED"
   ) {
     super(message);
   }
 }
 
-function assertApproval(snapshot: MissionSnapshot, command: TransitionCommand): void {
-  const approval = command.approval ?? snapshot.approval;
-  if (!approval)
-    throw new DomainTransitionError("Current plan has no approval", "APPROVAL_REQUIRED");
+function assertBoundary(snapshot: MissionSnapshot, command: TransitionCommand): void {
+  const boundary = command.boundary ?? snapshot.boundary;
+  if (!boundary)
+    throw new DomainTransitionError("Current plan has no boundary", "BOUNDARY_REQUIRED");
   if (
-    approval.ownerId !== snapshot.ownerId ||
-    approval.planVersion !== snapshot.planVersion ||
-    approval.planHash !== snapshot.planHash
+    boundary.ownerId !== snapshot.ownerId ||
+    boundary.planVersion !== snapshot.planVersion ||
+    boundary.planHash !== snapshot.planHash
   ) {
     throw new DomainTransitionError(
       "Approval does not match owner and current plan",
-      "APPROVAL_MISMATCH"
+      "BOUNDARY_MISMATCH"
     );
   }
-  if (Date.parse(approval.expiresAt) <= Date.now() || approval.revokedAt) {
-    throw new DomainTransitionError("Approval is expired or revoked", "APPROVAL_MISMATCH");
+  if (Date.parse(boundary.expiresAt) <= Date.now() || boundary.revokedAt) {
+    throw new DomainTransitionError("Approval is expired or revoked", "BOUNDARY_MISMATCH");
   }
 }
 
@@ -69,7 +69,7 @@ export function reduceMission(
     );
   }
   if (["READY", "RUNNING", "WAITING_EXTERNAL", "WAITING_RETRY", "DONE"].includes(command.target)) {
-    assertApproval(snapshot, command);
+    assertBoundary(snapshot, command);
   }
   if (command.target === "DONE" && !command.verification?.accepted) {
     throw new DomainTransitionError(
@@ -82,7 +82,7 @@ export function reduceMission(
     ...snapshot,
     state: command.target,
     version: snapshot.version + 1,
-    ...(command.approval ? { approval: command.approval } : {}),
+    ...(command.boundary ? { boundary: command.boundary } : {}),
     ...(command.target === "DONE" && command.verification?.status
       ? { completedStatus: command.verification.status }
       : {})

@@ -36,7 +36,7 @@ export const transportStatusSchema = z.enum([
 
 export const actionReceiptSchema = z.object({
   receiptId: opaqueIdSchema,
-  caseId: opaqueIdSchema.optional(),
+  missionId: opaqueIdSchema.optional(),
   channelType: channelTypeSchema.optional(),
   providerMessageId: z.string().min(1).max(300).optional(),
   replyRoute: z.string().min(1).max(320).optional(),
@@ -51,7 +51,7 @@ export const actionReceiptSchema = z.object({
 
 export const messageThreadSchema = z.object({
   threadId: opaqueIdSchema,
-  caseId: opaqueIdSchema,
+  missionId: opaqueIdSchema,
   channelType: channelTypeSchema,
   replyRouteFingerprint: sha256Schema,
   providerMessageId: z.string().min(1).max(300),
@@ -63,7 +63,7 @@ export const deliveryEventSchema = z.object({
   deliveryEventId: opaqueIdSchema,
   providerEventId: opaqueIdSchema,
   providerMessageId: z.string().min(1).max(300),
-  caseId: opaqueIdSchema.optional(),
+  missionId: opaqueIdSchema.optional(),
   channelType: channelTypeSchema,
   status: transportStatusSchema,
   observedAt: isoDateSchema,
@@ -87,7 +87,7 @@ export const inboundEnvelopeSchema = z.object({
   providerEventId: opaqueIdSchema,
   providerEmailId: opaqueIdSchema,
   channelType: channelTypeSchema,
-  caseId: opaqueIdSchema.optional(),
+  missionId: opaqueIdSchema.optional(),
   correlationStatus: z.enum(["EXACT", "AMBIGUOUS", "UNKNOWN", "REJECTED"]),
   senderFingerprint: sha256Schema,
   recipientRouteFingerprints: z.array(sha256Schema).min(1).max(10),
@@ -100,12 +100,12 @@ export const inboundEnvelopeSchema = z.object({
   receivedAt: isoDateSchema
 });
 
-export const evidenceLevelSchema = z.enum([
-  "PROMISE_RECORDED",
-  "REQUEST_ACKNOWLEDGED",
-  "MERCHANT_COMMITTED",
-  "MERCHANT_CONFIRMED",
-  "FUNDS_SETTLED"
+export const verificationStatusSchema = z.enum([
+  "PLANNED",
+  "ACTION_ATTEMPTED",
+  "SYSTEM_ACKNOWLEDGED",
+  "OUTCOME_CONFIRMED",
+  "STATE_VERIFIED"
 ]);
 
 export const fieldProvenanceSchema = z.object({
@@ -132,7 +132,7 @@ export const promiseDraftSchema = z.object({
   transactionRef: extractedFieldSchema(z.string().min(1).max(200)),
   dueAt: extractedFieldSchema(isoDateSchema).optional(),
   dueCondition: extractedFieldSchema(z.string().min(1).max(300)).optional(),
-  proposedEvidenceLevel: evidenceLevelSchema
+  proposedVerificationStatus: verificationStatusSchema
 });
 
 const outcomeContractBaseSchema = z.object({
@@ -189,7 +189,7 @@ const safeDisplayTextSchema = (maximum: number) => z.string().min(1).max(maximum
 export const resolutionPlanSchema = z
   .object({
     planId: opaqueIdSchema,
-    caseId: opaqueIdSchema,
+    missionId: opaqueIdSchema,
     ownerId: opaqueIdSchema,
     version: z.int().positive(),
     planHash: sha256Schema,
@@ -218,13 +218,13 @@ export const resolutionPlanSchema = z
     evidenceRequirements: z
       .array(
         z.object({
-          minimumLevel: evidenceLevelSchema,
+          minimumStatus: verificationStatusSchema,
           amountMinor: z.int().nonnegative().optional(),
           currency: currencySchema.optional(),
           transactionRef: z.string().min(1).max(200),
           subject: z.string().min(1).max(300).optional(),
           billPeriod: z.string().min(1).max(100).optional(),
-          requiredEvidenceFields: z
+          requiredOutcomeFields: z
             .array(z.enum(["amountMinor", "currency", "subject", "billPeriod", "trackingNumber"]))
             .max(5)
             .optional(),
@@ -257,7 +257,7 @@ export const resolutionPlanSchema = z
       }
       if (
         promiseType === "REPLACEMENT" &&
-        (!requirement.subject || !requirement.requiredEvidenceFields?.includes("trackingNumber"))
+        (!requirement.subject || !requirement.requiredOutcomeFields?.includes("trackingNumber"))
       ) {
         context.addIssue({
           code: "custom",
@@ -268,12 +268,12 @@ export const resolutionPlanSchema = z
     }
   });
 
-// ConversationPlan is the channel-complete name for the backwards-compatible ResolutionPlan.
+// ConversationPlan is the channel-complete name for the backwards-compatible ExecutionPlan.
 export const conversationPlanSchema = resolutionPlanSchema;
 
 export const analysisJobSchema = z.object({
   jobId: opaqueIdSchema,
-  caseId: opaqueIdSchema,
+  missionId: opaqueIdSchema,
   ownerId: opaqueIdSchema,
   artifactId: opaqueIdSchema,
   artifactPath: z.string().min(1).max(500),
@@ -293,7 +293,7 @@ export const analysisJobSchema = z.object({
 export const actionEnvelopeSchema = z.object({
   actionId: opaqueIdSchema,
   idempotencyKey: sha256Schema,
-  caseId: opaqueIdSchema,
+  missionId: opaqueIdSchema,
   ownerId: opaqueIdSchema,
   planVersion: z.int().positive(),
   planHash: sha256Schema,
@@ -305,9 +305,9 @@ export const actionEnvelopeSchema = z.object({
 });
 
 export const evidenceCandidateSchema = z.object({
-  evidenceId: opaqueIdSchema,
-  caseId: opaqueIdSchema,
-  level: evidenceLevelSchema,
+  outcomeId: opaqueIdSchema,
+  missionId: opaqueIdSchema,
+  status: verificationStatusSchema,
   amountMinor: z.int().nonnegative().optional(),
   currency: currencySchema.optional(),
   transactionRef: z.string().min(1).max(200).optional(),
@@ -321,7 +321,7 @@ export const evidenceCandidateSchema = z.object({
 
 export const caseEventSchema = z.object({
   eventId: opaqueIdSchema,
-  caseId: opaqueIdSchema,
+  missionId: opaqueIdSchema,
   sequence: z.int().positive(),
   type: z.string().min(1).max(100),
   actor: z.enum(["PERSON", "SYSTEM", "MODEL", "ADAPTER", "SANDBOX"]),
@@ -334,9 +334,9 @@ export const caseEventSchema = z.object({
 export const notificationSchema = z.object({
   notificationId: opaqueIdSchema,
   dedupeKey: sha256Schema,
-  caseId: opaqueIdSchema,
+  missionId: opaqueIdSchema,
   correlationId: opaqueIdSchema,
-  kind: z.enum(["APPROVAL_REQUIRED", "NEEDS_ATTENTION", "CASE_COMPLETED", "CASE_FAILED"]),
+  kind: z.enum(["BOUNDARY_REQUIRED", "NEEDS_ATTENTION", "CASE_COMPLETED", "CASE_FAILED"]),
   deepLinkPath: z.string().startsWith("/cases/"),
   createdAt: isoDateSchema,
   deliveryChannel: z.enum(["IN_APP", "EMAIL"]).optional(),
@@ -357,7 +357,7 @@ export const notificationSchema = z.object({
 
 export const identityClaimSchema = z.object({
   claimId: opaqueIdSchema,
-  caseId: opaqueIdSchema,
+  missionId: opaqueIdSchema,
   sourceOwnerFingerprint: sha256Schema,
   targetOwnerFingerprint: sha256Schema,
   operation: z.enum(["LINK_CURRENT", "CLAIM_DRAFT"]),
@@ -369,7 +369,7 @@ export const identityClaimSchema = z.object({
 }).strict();
 
 export const caseSummarySchema = z.object({
-  caseId: opaqueIdSchema,
+  missionId: opaqueIdSchema,
   companyName: safeDisplayTextSchema(120),
   outcomeLabel: safeDisplayTextSchema(300),
   bucket: z.enum(["NEEDS_YOU", "WORKING", "DONE"]),
@@ -394,7 +394,7 @@ export const conversationEntrySchema = z.object({
 }).strict();
 
 export const outcomeComparisonSchema = z.object({
-  evidenceLevel: evidenceLevelSchema.optional(),
+  verificationStatus: verificationStatusSchema.optional(),
   accepted: z.boolean(),
   limitation: safeDisplayTextSchema(500),
   fields: z.array(z.object({
@@ -425,11 +425,11 @@ export type DeliveryEvent = z.infer<typeof deliveryEventSchema>;
 export type ProviderEvent = z.infer<typeof providerEventSchema>;
 export type InboundEnvelope = z.infer<typeof inboundEnvelopeSchema>;
 export type OutcomeContract = z.infer<typeof outcomeContractSchema>;
-export type ResolutionPlan = z.infer<typeof resolutionPlanSchema>;
+export type ExecutionPlan = z.infer<typeof resolutionPlanSchema>;
 export type AnalysisJob = z.infer<typeof analysisJobSchema>;
 export type ConversationPlan = z.infer<typeof conversationPlanSchema>;
 export type ActionEnvelope = z.infer<typeof actionEnvelopeSchema>;
-export type EvidenceCandidateContract = z.infer<typeof evidenceCandidateSchema>;
+export type ExecutionOutcomeContract = z.infer<typeof evidenceCandidateSchema>;
 export type IdentityClaim = z.infer<typeof identityClaimSchema>;
 export type CaseSummaryContract = z.infer<typeof caseSummarySchema>;
 export type ConversationEntry = z.infer<typeof conversationEntrySchema>;

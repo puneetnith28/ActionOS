@@ -6,9 +6,9 @@ import { getRequestMessages } from "../../../../lib/i18n-server";
 export default async function ResultPage({
   params
 }: {
-  readonly params: Promise<{ caseId: string }>;
+  readonly params: Promise<{ missionId: string }>;
 }) {
-  const { caseId } = await params;
+  const { missionId } = await params;
   const copy = (await getRequestMessages()).steps;
   return (
     <main className="shell">
@@ -20,10 +20,10 @@ export default async function ResultPage({
           <p>{copy.resultText}</p>
         </div>
       </section>
-      {caseId === "demo-verified" && process.env.NODE_ENV === "development" ? (
+      {missionId === "demo-verified" && process.env.NODE_ENV === "development" ? (
         <CaseResultPreview />
       ) : (
-        <CaseResult caseId={caseId} />
+        <CaseResult missionId={missionId} />
       )}
     </main>
   );

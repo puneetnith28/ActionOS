@@ -1,5 +1,5 @@
-import type { ProposedAction } from "@dueback/domain";
-import type { ActionReceipt, ClosedActionAdapter } from "@dueback/runtime/action-broker";
+import type { ProposedAction } from "@actionos/domain";
+import type { ActionReceipt, ClosedActionAdapter } from "@actionos/runtime/action-broker";
 
 export interface MerchantSandboxAdapterConfig {
   readonly baseUrl: string;
@@ -18,7 +18,7 @@ export class MerchantSandboxAdapter implements ClosedActionAdapter {
   async execute(
     proposal: ProposedAction,
     idempotencyKey: string,
-    context: { readonly caseId: string; readonly correlationId?: string }
+    context: { readonly missionId: string; readonly correlationId?: string }
   ): Promise<ActionReceipt> {
     const response = await this.request(`${this.config.baseUrl}/v1/follow-ups`, {
       method: "POST",
@@ -29,7 +29,7 @@ export class MerchantSandboxAdapter implements ClosedActionAdapter {
         ...(context.correlationId ? { "x-dueback-correlation-id": context.correlationId } : {}),
         ...(this.config.actionSecret ? { authorization: `Bearer ${this.config.actionSecret}` } : {})
       },
-      body: JSON.stringify({ caseId: context.caseId, proposal })
+      body: JSON.stringify({ missionId: context.missionId, proposal })
     });
     if (!response.ok) throw new Error(`MERCHANT_SANDBOX_${String(response.status)}`);
     const receipt = (await response.json()) as ActionReceipt;

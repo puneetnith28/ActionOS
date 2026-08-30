@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { anonymousIdToken, recoverableIdentity } from "../lib/firebase-client";
-import type { CaseSummary } from "../lib/cases-controller";
+import type { CaseSummary } from "../lib/missions-controller";
 import { emptyInboxPresentation, type InboxIdentity } from "../lib/inbox-presentation";
 import { GoogleSignIn } from "./google-sign-in";
 import { useLocale } from "../lib/use-locale";
@@ -39,7 +39,7 @@ export function CaseInbox() {
     <div className="case-loading-steps" aria-hidden="true"><span /><span /><span /></div>
   </section>;
   const empty = identity ? emptyInboxPresentation(identity) : undefined;
-  return <div className="case-inbox">
+  return <div className="mission-inbox">
     {items && items.length > 0 ? <section className="inbox-summary" aria-label={tr("Follow-up summary", "Resumen de seguimientos", "Resumo dos acompanhamentos")}>
       <p><strong>{items.filter((item) => item.bucket === "WORKING").length}</strong><span>{tr("Working", "Trabajando", "Trabalhando")}</span></p>
       <p><strong>{items.filter((item) => item.bucket === "NEEDS_YOU").length}</strong><span>{tr("Need you", "Te necesitan", "Precisam de você")}</span></p>
@@ -48,7 +48,7 @@ export function CaseInbox() {
     </section> : null}
     {error ? <section className="card error" role="alert"><p>{error}</p>{identity?.isAnonymous !== false ? <GoogleSignIn compact onSignedIn={() => { void load(); }} /> : null}<button type="button" onClick={() => void load()}>{tr("Try again", "Intentar nuevamente", "Tentar novamente")}</button></section> : null}
     {items?.length === 0 && empty ? <section className="card empty-state"><h2>{empty.heading}</h2><p>{empty.message}</p>{empty.showSignIn ? <GoogleSignIn onSignedIn={() => { void load(); }} /> : <p className="identity-confirmation"><span aria-hidden="true">✓</span> {tr("Google access is active on this device.", "El acceso con Google está activo en este dispositivo.", "O acesso do Google está ativo neste dispositivo.")}</p>}<a className="button-link" href={localize("/intake")}>{tr("Add a promise", "Agregar una promesa", "Adicionar uma promessa")}</a></section> : null}
-    {items?.map((item) => <a className={`case-inbox-card ${item.attentionRequired ? "needs-you" : ""}`} href={localize(item.detailPath ?? `/cases/${item.caseId}/result`)} key={item.caseId}>
+    {items?.map((item) => <a className={`mission-inbox-card ${item.attentionRequired ? "needs-you" : ""}`} href={localize(item.detailPath ?? `/cases/${item.missionId}/result`)} key={item.missionId}>
       <div><span className="case-bucket">{item.bucket === "NEEDS_YOU" ? tr("Needs you", "Te necesita", "Precisa de você") : item.bucket === "DONE" ? tr("Done", "Terminado", "Concluído") : tr("Working", "Trabajando", "Trabalhando")}</span><small>{item.channelLabel}</small></div>
       <h2>{item.companyName}</h2><p className="case-outcome">{item.outcomeLabel}</p>
       <strong>{item.statusLabel}</strong><p>{item.nextStepLabel}</p>

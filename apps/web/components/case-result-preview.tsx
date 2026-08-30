@@ -1,9 +1,9 @@
-import type { ConsumerCaseDetail } from "../lib/case-projection";
+import type { ConsumerCaseDetail } from "../lib/mission-projection";
 import { CaseDecisionStory } from "./case-decision-story";
 import { ResultVerdict } from "./result-verdict";
 
 const previewDetail: ConsumerCaseDetail = {
-  caseId: "demo-verified",
+  missionId: "demo-verified",
   version: 7,
   state: "DONE",
   statusLabel: "Company evidence accepted",
@@ -20,7 +20,7 @@ const previewDetail: ConsumerCaseDetail = {
     reply: "Signed merchant callback",
     recipientHint: "Controlled endpoint"
   },
-  returnPath: "Durable case page",
+  returnPath: "Durable mission page",
   outcome: {
     accepted: true,
     acknowledgementOnly: true,

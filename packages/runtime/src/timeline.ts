@@ -1,6 +1,6 @@
 export interface RuntimeTimelineEvent {
   readonly eventId: string;
-  readonly caseId: string;
+  readonly missionId: string;
   readonly sequence: number;
   readonly type: "PLAN_APPROVED" | "ACTION_RESULT" | "EVIDENCE_RESULT" | "CASE_CONTROL";
   readonly actor: "PERSON" | "SYSTEM" | "COUNTERPARTY";
@@ -10,5 +10,5 @@ export interface RuntimeTimelineEvent {
   readonly state: string;
   readonly receiptId?: string;
   readonly idempotencyKey?: string;
-  readonly evidenceId?: string;
+  readonly outcomeId?: string;
 }

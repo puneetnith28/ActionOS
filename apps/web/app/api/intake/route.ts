@@ -1,4 +1,4 @@
-import { FirestoreAnalysisStore } from "@dueback/persistence/analysis-store";
+import { FirestoreAnalysisStore } from "@actionos/persistence/analysis-store";
 import { authenticatedOwner, assertSameOrigin } from "../../../lib/authz";
 import { firestore, artifactBucket } from "../../../lib/firebase-admin";
 import { consumeNewCaseBudget } from "../../../lib/security-limits";

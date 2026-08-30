@@ -22,7 +22,7 @@ describe("outbound email", () => {
     const notification = {
       notificationId: "notification_12345678",
       dedupeKey: `sha256:${"a".repeat(64)}`,
-      caseId: "case_12345678",
+      missionId: "case_12345678",
       correlationId: "corr_12345678",
       ownerId: "person_12345678",
       kind: "CASE_COMPLETED" as const,

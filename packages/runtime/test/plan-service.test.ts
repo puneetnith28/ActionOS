@@ -15,7 +15,7 @@ const provenance = [
 
 function caseDraft(): DraftCase {
   return {
-    caseId: "case_12345678",
+    missionId: "case_12345678",
     ownerId: "person_12345678",
     artifactId: "artifact_12345678",
     dedupeKey: hash,
@@ -27,11 +27,11 @@ function caseDraft(): DraftCase {
       currency: { value: "USD", provenance, uncertainty: "NONE" },
       transactionRef: { value: "ORDER-79", provenance, uncertainty: "NONE" },
       dueAt: { value: "2026-08-20T00:00:00.000Z", provenance, uncertainty: "NONE" },
-      proposedEvidenceLevel: "MERCHANT_CONFIRMED"
+      proposedVerificationStatus: "OUTCOME_CONFIRMED"
     },
     plan: {
       planId: "plan_12345678",
-      caseId: "case_12345678",
+      missionId: "case_12345678",
       ownerId: "person_12345678",
       version: 1,
       planHash: hash,
@@ -41,7 +41,7 @@ function caseDraft(): DraftCase {
       sharedFields: ["transactionRef", "amountMinor", "currency"],
       evidenceRequirements: [
         {
-          minimumLevel: "MERCHANT_CONFIRMED",
+          minimumStatus: "OUTCOME_CONFIRMED",
           amountMinor: 7900,
           currency: "USD",
           transactionRef: "ORDER-79",
@@ -62,13 +62,13 @@ class MemoryPlanStore implements PlanStore {
   get(): Promise<DraftCase> {
     return Promise.resolve(this.draft);
   }
-  replace(_caseId: string, expectedPlanVersion: number, next: DraftCase): Promise<void> {
+  replace(_missionId: string, expectedPlanVersion: number, next: DraftCase): Promise<void> {
     if (this.draft.plan.version !== expectedPlanVersion)
       return Promise.reject(new Error("CONFLICT"));
     this.draft = next;
     return Promise.resolve();
   }
-  deleteDraft(_caseId: string, ownerId: string): Promise<void> {
+  deleteDraft(_missionId: string, ownerId: string): Promise<void> {
     if (this.draft.ownerId !== ownerId) return Promise.reject(new Error("CASE_OWNERSHIP_REQUIRED"));
     this.draft = undefined as unknown as DraftCase;
     return Promise.resolve();
@@ -79,7 +79,7 @@ describe("PlanService", () => {
   it("simulates without performing an external action", async () => {
     const service = new PlanService(new MemoryPlanStore());
     await expect(service.simulate("case_12345678", "person_12345678")).resolves.toMatchObject({
-      completionLevel: "MERCHANT_CONFIRMED",
+      completionLevel: "OUTCOME_CONFIRMED",
       externalActionPerformed: false
     });
   });
@@ -196,17 +196,17 @@ describe("PlanService", () => {
     const service = new PlanService(new MemoryPlanStore({
       ...initial,
       state: "READY",
-      approval: {
+      boundary: {
         approvalId: "approval_12345678",
         ownerId: initial.ownerId,
-        caseId: initial.caseId,
+        missionId: initial.missionId,
         planVersion: 1,
         planHash: hash,
         approvedAt: "2026-08-15T12:00:00.000Z",
         expiresAt: initial.plan.expiresAt
       }
     }));
-    await expect(service.revise(initial.caseId, initial.ownerId, 1, {
+    await expect(service.revise(initial.missionId, initial.ownerId, 1, {
       allowedRecipient: "other@example.test"
     })).rejects.toThrow("PLAN_NOT_EDITABLE");
   });
@@ -257,20 +257,20 @@ describe("PlanService", () => {
     const scheduleCase = vi.fn(() => Promise.resolve({}));
     const service = new PlanService(new MemoryPlanStore(), { scheduleCase });
     const approved = await service.approve({
-      caseId: "case_12345678",
+      missionId: "case_12345678",
       ownerId: "person_12345678",
       expectedPlanVersion: 1,
       expectedPlanHash: hash,
       now: "2026-08-15T12:00:00.000Z"
     });
     expect(approved.state).toBe("READY");
-    expect(approved.approval).toMatchObject({
+    expect(approved.boundary).toMatchObject({
       ownerId: "person_12345678",
       planVersion: 1,
       planHash: hash
     });
     expect(scheduleCase).toHaveBeenCalledWith(expect.objectContaining({
-      caseId: "case_12345678",
+      missionId: "case_12345678",
       expectedVersion: 1,
       wakeAt: "2026-08-20T00:00:00.000Z"
     }));
@@ -280,7 +280,7 @@ describe("PlanService", () => {
     const service = new PlanService(new MemoryPlanStore());
     await expect(
       service.approve({
-        caseId: "case_12345678",
+        missionId: "case_12345678",
         ownerId: "person_12345678",
         expectedPlanVersion: 1,
         expectedPlanHash: "sha256:stale",

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ClosedActionAdapter } from "@dueback/runtime/action-broker";
+import type { ClosedActionAdapter } from "@actionos/runtime/action-broker";
 import { CompanyEmailActionAdapter } from "../src/company-email";
 import { MerchantSandboxAdapter } from "../src/merchant-sandbox";
 import { PartnerApiFixtureAdapter } from "../src/partner-api";
@@ -41,7 +41,7 @@ function cases(): readonly [string, ClosedActionAdapter][] {
 describe("common channel adapter contract", () => {
   it.each(cases())("%s consumes one authorized proposal and returns a receipt", async (_name, adapter) => {
     const receipt = await adapter.execute(proposal, "action/case/1", {
-      caseId: "case_12345678",
+      missionId: "case_12345678",
       correlationId: "corr_12345678"
     });
     expect(typeof receipt.receiptId).toBe("string");

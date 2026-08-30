@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { DomainTransitionError, reduceMission } from "../src/reducer";
-import type { ApprovalBoundary, MissionSnapshot } from "../src/types";
+import type { ExecutionBoundary, MissionSnapshot } from "../src/types";
 
-const approval: ApprovalBoundary = {
+const boundary: ExecutionBoundary = {
   ownerId: "person_1",
   planVersion: 1,
   planHash: "sha256:plan",
@@ -16,7 +16,7 @@ const running: MissionSnapshot = {
   version: 3,
   planVersion: 1,
   planHash: "sha256:plan",
-  approval
+  boundary
 };
 
 describe("reduceMission", () => {
@@ -63,7 +63,7 @@ describe("reduceMission", () => {
     ).toThrow(new DomainTransitionError("Mission version changed", "VERSION_CONFLICT"));
   });
 
-  it("rejects an approval for another owner or plan", () => {
+  it("rejects a boundary for another owner or plan", () => {
     const awaitingApproval: MissionSnapshot = {
       missionId: running.missionId,
       ownerId: running.ownerId,
@@ -78,7 +78,7 @@ describe("reduceMission", () => {
         target: "READY",
         reasonCode: "PLAN_APPROVED",
         actor: "PERSON",
-        approval: { ...approval, ownerId: "attacker" }
+        boundary: { ...boundary, ownerId: "attacker" }
       })
     ).toThrow(/Approval does not match/);
   });

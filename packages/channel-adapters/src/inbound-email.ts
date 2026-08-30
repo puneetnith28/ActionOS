@@ -1,4 +1,4 @@
-import { stableHash } from "@dueback/domain";
+import { stableHash } from "@actionos/domain";
 
 export interface NormalizedInboundEmail {
   readonly providerEmailId: string;

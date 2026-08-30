@@ -1,5 +1,5 @@
-import type { EvidenceCandidateContract } from "@dueback/contracts";
-import { stableHash } from "@dueback/domain";
+import type { ExecutionOutcomeContract } from "@actionos/contracts";
+import { stableHash } from "@actionos/domain";
 import type { FollowThroughStore } from "./case-runner";
 import type { EvidenceService } from "./evidence-service";
 import type { InterventionService } from "./interventions";
@@ -21,7 +21,7 @@ export interface NormalizedInboundEmail {
 
 export interface InboundInterpretation {
   readonly replyType: "ACKNOWLEDGEMENT" | "STATUS" | "PROPOSAL_CHANGE" | "EVIDENCE" | "AUTO_REPLY" | "UNKNOWN";
-  readonly evidenceLevel: EvidenceCandidateContract["level"];
+  readonly evidenceLevel: ExecutionOutcomeContract["level"];
   readonly transactionRef?: string | undefined;
   readonly amountMinor?: number | undefined;
   readonly currency?: string | undefined;
@@ -58,32 +58,32 @@ export class InboundService {
   }> {
     const correlations = (await Promise.all(email.to.map((recipient) =>
       this.cases.caseForReplyRoute(address(recipient))
-    ))).filter((caseId): caseId is string => Boolean(caseId));
+    ))).filter((missionId): missionId is string => Boolean(missionId));
     const uniqueCases = [...new Set(correlations)];
     if (uniqueCases.length !== 1) {
       return { status: "REJECTED", reasonCodes: [uniqueCases.length ? "AMBIGUOUS_CASE" : "UNKNOWN_CASE"] };
     }
-    const caseId = uniqueCases[0];
-    if (!caseId) return { status: "REJECTED", reasonCodes: ["UNKNOWN_CASE"] };
+    const missionId = uniqueCases[0];
+    if (!missionId) return { status: "REJECTED", reasonCodes: ["UNKNOWN_CASE"] };
     if (email.inReplyTo && this.cases.caseForProviderMessageId) {
       const threadedCaseId = await this.cases.caseForProviderMessageId(email.inReplyTo);
       // Provider delivery IDs and RFC Message-IDs are different namespaces.
       // An indexed thread may veto an opaque route, but absence of an index
       // must not reject an otherwise exact case-specific reply address.
-      if (threadedCaseId && threadedCaseId !== caseId) {
+      if (threadedCaseId && threadedCaseId !== missionId) {
         return { status: "REJECTED", reasonCodes: ["THREAD_CORRELATION_MISMATCH"] };
       }
     }
-    const item = await this.cases.get(caseId);
+    const item = await this.cases.get(missionId);
     if (!item) return { status: "REJECTED", reasonCodes: ["CASE_NOT_FOUND"] };
     if (!["RUNNING", "WAITING_EXTERNAL"].includes(item.state)) {
       return { status: "REJECTED", reasonCodes: ["CASE_NOT_ACCEPTING_INBOUND"] };
     }
-    const correlationId = item.correlationId ?? `corr_${stableHash({ caseId }).slice(7, 31)}`;
+    const correlationId = item.correlationId ?? `corr_${stableHash({ missionId }).slice(7, 31)}`;
     const expectedSender = address(item.plan.allowedRecipient);
     if (address(email.from) !== expectedSender) {
       await this.interventions.raise({
-        caseId,
+        missionId,
         ownerId: item.ownerId,
         correlationId,
         kind: "EVIDENCE_CONFLICT",
@@ -103,7 +103,7 @@ export class InboundService {
     });
     if (interpretation.replyType === "PROPOSAL_CHANGE" || interpretation.uncertainty !== "NONE") {
       await this.interventions.raise({
-        caseId,
+        missionId,
         ownerId: item.ownerId,
         correlationId,
         kind: "EVIDENCE_CONFLICT",
@@ -120,9 +120,9 @@ export class InboundService {
     }
     const requirement = item.plan.evidenceRequirements[0];
     if (!requirement) throw new Error("EVIDENCE_REQUIREMENT_MISSING");
-    const candidate: EvidenceCandidateContract = {
-      evidenceId: `evidence_${stableHash({ namespace: "dueback/inbound-evidence/v1", id: email.providerEmailId }).slice(7, 31)}`,
-      caseId,
+    const candidate: ExecutionOutcomeContract = {
+      outcomeId: `evidence_${stableHash({ namespace: "dueback/inbound-evidence/v1", id: email.providerEmailId }).slice(7, 31)}`,
+      missionId,
       level: interpretation.evidenceLevel,
       ...(interpretation.amountMinor === undefined ? {} : { amountMinor: interpretation.amountMinor }),
       ...(interpretation.currency === undefined ? {} : { currency: interpretation.currency }),

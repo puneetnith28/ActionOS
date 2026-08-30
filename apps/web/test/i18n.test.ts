@@ -9,7 +9,7 @@ describe("localized routing", () => {
   });
 
   it("adds or replaces a locale without changing the product path", () => {
-    expect(localizePath("/cases/case_1/review", "es")).toBe("/es/cases/case_1/review");
+    expect(localizePath("/cases/mission_1/review", "es")).toBe("/es/cases/mission_1/review");
     expect(localizePath("/en/privacy", "pt")).toBe("/pt/privacy");
     expect(localizePath("/", "en")).toBe("/en");
   });
@@ -20,7 +20,7 @@ describe("localized routing", () => {
     expect(Object.keys(getMessages("pt"))).toEqual(keys);
   });
 
-  it("ships the same approval-consent keys in all three languages", () => {
+  it("ships the same boundary.consent keys in all three languages", () => {
     const keys = Object.keys(getReviewCopy("en"));
     expect(Object.keys(getReviewCopy("es"))).toEqual(keys);
     expect(Object.keys(getReviewCopy("pt"))).toEqual(keys);

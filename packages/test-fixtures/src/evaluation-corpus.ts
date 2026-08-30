@@ -15,7 +15,7 @@ export type EvaluationScenario =
   | "WRONG_AMOUNT"
   | "WRONG_CURRENCY"
   | "WRONG_REFERENCE"
-  | "WRONG_CASE"
+  | "WRONG_MISSION"
   | "UNSIGNED_CALLBACK"
   | "OVERDUE"
   | "MISSING_REFERENCE"
@@ -149,7 +149,7 @@ export const evaluationCorpus: readonly EvaluationCase[] = [
     description: "Request received is not completion",
     expected: {
       acceptedEvidence: false,
-      reasonCodes: ["INSUFFICIENT_LEVEL"],
+      reasonCodes: ["INSUFFICIENT_STATUS"],
       state: "WAITING_EXTERNAL",
       externalActionMaximum: 1,
       interventionCount: 0
@@ -162,7 +162,7 @@ export const evaluationCorpus: readonly EvaluationCase[] = [
     description: "Request approved but refund not issued",
     expected: {
       acceptedEvidence: false,
-      reasonCodes: ["INSUFFICIENT_LEVEL"],
+      reasonCodes: ["INSUFFICIENT_STATUS"],
       state: "WAITING_EXTERNAL",
       externalActionMaximum: 1,
       interventionCount: 0
@@ -281,7 +281,7 @@ export const evaluationCorpus: readonly EvaluationCase[] = [
     description: "Authenticated email acknowledgement remains open",
     expected: {
       acceptedEvidence: false,
-      reasonCodes: ["INSUFFICIENT_LEVEL"],
+      reasonCodes: ["INSUFFICIENT_STATUS"],
       state: "WAITING_EXTERNAL",
       externalActionMaximum: 1,
       interventionCount: 0
@@ -311,11 +311,11 @@ export const evaluationCorpus: readonly EvaluationCase[] = [
   evaluationCase({
     id: "ADV-02",
     group: "ADVERSARIAL",
-    scenario: "WRONG_CASE",
+    scenario: "WRONG_MISSION",
     description: "Signed evidence targets another case",
     expected: {
       acceptedEvidence: false,
-      reasonCodes: ["WRONG_CASE"],
+      reasonCodes: ["WRONG_MISSION"],
       state: "NEEDS_ATTENTION",
       externalActionMaximum: 1,
       interventionCount: 1

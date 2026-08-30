@@ -25,7 +25,7 @@ export function examplePromises(now = new Date()) {
     },
     {
       label: "Missing document",
-      text: `Northstar Insurance promised to email the coverage certificate for case CASE-441 by ${pastDate(3, now)}.`
+      text: `Northstar Insurance promised to email the coverage certificate for mission CASE-441 by ${pastDate(3, now)}.`
     }
   ] as const;
 }

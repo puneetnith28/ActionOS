@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import type { TechnicalStep } from "@dueback/contracts";
+import type { TechnicalStep } from "@actionos/contracts";
 import { anonymousIdToken } from "../lib/firebase-client";
 
-export function TechnicalRun({ caseId }: { readonly caseId: string }) {
+export function TechnicalRun({ missionId }: { readonly missionId: string }) {
   const [open, setOpen] = useState(false);
   const [steps, setSteps] = useState<TechnicalStep[]>();
   const [error, setError] = useState<string>();
@@ -14,7 +14,7 @@ export function TechnicalRun({ caseId }: { readonly caseId: string }) {
     setError(undefined);
     void anonymousIdToken()
       .then((token) =>
-        fetch(`/api/cases/${caseId}/technical-run`, {
+        fetch(`/api/cases/${missionId}/technical-run`, {
           headers: { Authorization: `Bearer ${token}` },
           cache: "no-store"
         })
@@ -34,7 +34,7 @@ export function TechnicalRun({ caseId }: { readonly caseId: string }) {
   };
   return (
     <section className="card technical-run">
-      <h2>How DueBack ran</h2>
+      <h2>How ActionOS ran</h2>
       <p>Inspect persisted, redacted steps. Missing telemetry stays labeled missing.</p>
       <button
         type="button"

@@ -1,6 +1,6 @@
-import { OutboundEmailAdapter, ResendEmailTransport } from "@dueback/channel-adapters/outbound-email";
-import type { FirestoreRuntimeStore } from "@dueback/persistence/runtime-store";
-import { NotificationDeliveryService } from "@dueback/runtime/notifications";
+import { OutboundEmailAdapter, ResendEmailTransport } from "@actionos/channel-adapters/outbound-email";
+import type { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
+import { NotificationDeliveryService } from "@actionos/runtime/notifications";
 
 export function notificationDelivery(store: FirestoreRuntimeStore): NotificationDeliveryService {
   const apiKey = process.env.RESEND_API_KEY;

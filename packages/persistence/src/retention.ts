@@ -1,9 +1,9 @@
 import { FieldValue, type Firestore } from "firebase-admin/firestore";
-import { stableHash } from "@dueback/domain";
-import type { CaseControlStore, DeletionReceipt } from "@dueback/runtime/case-control";
-import type { FollowThroughCase } from "@dueback/runtime/case-runner";
+import { stableHash } from "@actionos/domain";
+import type { CaseControlStore, DeletionReceipt } from "@actionos/runtime/case-control";
+import type { FollowThroughCase } from "@actionos/runtime/case-runner";
 import { firestoreDeleteAt } from "./expiry";
-import type { WakeIntent } from "@dueback/runtime/wake-outbox";
+import type { WakeIntent } from "@actionos/runtime/wake-outbox";
 import { persistWakeIntent } from "./wake-outbox-store";
 
 export class FirestoreCaseControlStore implements CaseControlStore {
@@ -15,24 +15,24 @@ export class FirestoreCaseControlStore implements CaseControlStore {
 
   async getCommandResult(input: {
     idempotencyKey: string;
-    caseId: string;
+    missionId: string;
     ownerId: string;
-    action: import("@dueback/runtime/case-control").CaseControlAction;
+    action: import("@actionos/runtime/case-control").CaseControlAction;
   }): Promise<FollowThroughCase | DeletionReceipt | undefined> {
     const document = await this.commandReference(input.idempotencyKey).get();
     if (!document.exists) return undefined;
-    if (document.get("caseId") !== input.caseId || document.get("ownerId") !== input.ownerId || document.get("action") !== input.action)
+    if (document.get("missionId") !== input.missionId || document.get("ownerId") !== input.ownerId || document.get("action") !== input.action)
       throw new Error("IDEMPOTENCY_KEY_REUSED");
     return document.get("result") as FollowThroughCase | DeletionReceipt;
   }
 
-  async get(caseId: string): Promise<FollowThroughCase | undefined> {
-    const document = await this.db.collection("caseRuns").doc(caseId).get();
+  async get(missionId: string): Promise<FollowThroughCase | undefined> {
+    const document = await this.db.collection("caseRuns").doc(missionId).get();
     return document.exists ? (document.data() as FollowThroughCase) : undefined;
   }
 
   async transition(input: {
-    caseId: string;
+    missionId: string;
     ownerId: string;
     expectedVersion: number;
     action: "STOP" | "REVOKE" | "EXPIRE" | "REOPEN" | "RESUME";
@@ -41,12 +41,12 @@ export class FirestoreCaseControlStore implements CaseControlStore {
     idempotencyKey: string;
     wake?: WakeIntent;
   }): Promise<FollowThroughCase> {
-    const reference = this.db.collection("caseRuns").doc(input.caseId);
+    const reference = this.db.collection("caseRuns").doc(input.missionId);
     const commandRef = this.commandReference(input.idempotencyKey);
     return this.db.runTransaction(async (transaction) => {
       const [snapshot, prior] = await Promise.all([transaction.get(reference), transaction.get(commandRef)]);
       if (prior.exists) {
-        if (prior.get("caseId") !== input.caseId || prior.get("ownerId") !== input.ownerId || prior.get("action") !== input.action)
+        if (prior.get("missionId") !== input.missionId || prior.get("ownerId") !== input.ownerId || prior.get("action") !== input.action)
           throw new Error("IDEMPOTENCY_KEY_REUSED");
         return prior.get("result") as FollowThroughCase;
       }
@@ -72,7 +72,7 @@ export class FirestoreCaseControlStore implements CaseControlStore {
         ...(input.action === "RESUME" ? { nextWakeAt: input.now } : {}),
         ...(["REOPEN", "RESUME"].includes(input.action)
           ? {}
-          : { approval: { ...current.approval, revokedAt: input.now } })
+          : { boundary: { ...current.boundary, revokedAt: input.now } })
       };
       transaction.set(reference, {
         ...next,
@@ -80,13 +80,13 @@ export class FirestoreCaseControlStore implements CaseControlStore {
       });
       persistWakeIntent(transaction, this.db, input.wake);
       transaction.create(commandRef, {
-        idempotencyKeyHash: stableHash(input.idempotencyKey), caseId: input.caseId,
+        idempotencyKeyHash: stableHash(input.idempotencyKey), missionId: input.missionId,
         ownerId: input.ownerId, action: input.action, result: next,
         createdAt: input.now, deleteAt: firestoreDeleteAt(input.now)
       });
       transaction.create(reference.collection("events").doc(`control-${String(next.version)}`), {
         eventId: `control-${String(next.version)}`,
-        caseId: input.caseId,
+        missionId: input.missionId,
         sequence: next.version,
         type: "CASE_CONTROL",
         actor: "PERSON",
@@ -101,22 +101,22 @@ export class FirestoreCaseControlStore implements CaseControlStore {
   }
 
   async beginReapproval(input: {
-    caseId: string;
+    missionId: string;
     ownerId: string;
     expectedVersion: number;
     reason: string;
     now: string;
     idempotencyKey: string;
   }): Promise<FollowThroughCase> {
-    const runRef = this.db.collection("caseRuns").doc(input.caseId);
-    const draftRef = this.db.collection("caseDrafts").doc(input.caseId);
+    const runRef = this.db.collection("caseRuns").doc(input.missionId);
+    const draftRef = this.db.collection("caseDrafts").doc(input.missionId);
     const commandRef = this.commandReference(input.idempotencyKey);
     return this.db.runTransaction(async (transaction) => {
       const [runSnapshot, draftSnapshot, prior] = await Promise.all([
         transaction.get(runRef), transaction.get(draftRef), transaction.get(commandRef)
       ]);
       if (prior.exists) {
-        if (prior.get("caseId") !== input.caseId || prior.get("ownerId") !== input.ownerId || prior.get("action") !== "REVISE")
+        if (prior.get("missionId") !== input.missionId || prior.get("ownerId") !== input.ownerId || prior.get("action") !== "REVISE")
           throw new Error("IDEMPOTENCY_KEY_REUSED");
         return prior.get("result") as FollowThroughCase;
       }
@@ -129,7 +129,7 @@ export class FirestoreCaseControlStore implements CaseControlStore {
         ...current,
         state: "CANCELLED",
         version: current.version + 1,
-        approval: { ...current.approval, revokedAt: input.now },
+        boundary: { ...current.boundary, revokedAt: input.now },
         controlReason: input.reason,
         controlledAt: input.now,
         updatedAt: input.now
@@ -137,17 +137,17 @@ export class FirestoreCaseControlStore implements CaseControlStore {
       transaction.set(runRef, next);
       transaction.update(draftRef, {
         state: "AWAITING_APPROVAL",
-        approval: FieldValue.delete()
+        boundary: FieldValue.delete()
       });
       transaction.create(commandRef, {
-        idempotencyKeyHash: stableHash(input.idempotencyKey), caseId: input.caseId,
+        idempotencyKeyHash: stableHash(input.idempotencyKey), missionId: input.missionId,
         ownerId: input.ownerId, action: "REVISE", result: next,
         createdAt: input.now, deleteAt: firestoreDeleteAt(input.now)
       });
       const eventId = `control-${String(next.version)}`;
       transaction.create(runRef.collection("events").doc(eventId), {
         eventId,
-        caseId: input.caseId,
+        missionId: input.missionId,
         sequence: next.version,
         type: "AUTHORITY_REVISION_REQUESTED",
         actor: "PERSON",
@@ -162,22 +162,22 @@ export class FirestoreCaseControlStore implements CaseControlStore {
   }
 
   async requestDeletion(input: {
-    caseId: string;
+    missionId: string;
     ownerId: string;
     expectedVersion: number;
     now: string;
     idempotencyKey: string;
   }): Promise<DeletionReceipt> {
-    const runRef = this.db.collection("caseRuns").doc(input.caseId);
-    const draftRef = this.db.collection("caseDrafts").doc(input.caseId);
+    const runRef = this.db.collection("caseRuns").doc(input.missionId);
+    const draftRef = this.db.collection("caseDrafts").doc(input.missionId);
     const tombstoneId = stableHash({
       namespace: "dueback/deletion/v1",
-      caseId: input.caseId
+      missionId: input.missionId
     }).slice(7, 39);
     const tombstoneRef = this.db.collection("deletionTombstones").doc(tombstoneId);
     const commandRef = this.commandReference(input.idempotencyKey);
     const receipt: DeletionReceipt = {
-      caseId: input.caseId,
+      missionId: input.missionId,
       status: "DELETION_ACCEPTED",
       requestedAt: input.now,
       tombstoneId
@@ -190,7 +190,7 @@ export class FirestoreCaseControlStore implements CaseControlStore {
       if (current.ownerId !== input.ownerId) throw new Error("CASE_OWNERSHIP_REQUIRED");
       if (current.version !== input.expectedVersion) throw new Error("VERSION_CONFLICT");
       transaction.create(tombstoneRef, {
-        caseHash: stableHash(input.caseId),
+        caseHash: stableHash(input.missionId),
         ownerHash: stableHash(input.ownerId),
         reason: "USER_REQUESTED_DELETION",
         requestedAt: input.now,
@@ -198,7 +198,7 @@ export class FirestoreCaseControlStore implements CaseControlStore {
         deleteAt: firestoreDeleteAt(input.now)
       });
       transaction.create(commandRef, {
-        idempotencyKeyHash: stableHash(input.idempotencyKey), caseId: input.caseId,
+        idempotencyKeyHash: stableHash(input.idempotencyKey), missionId: input.missionId,
         ownerId: input.ownerId, action: "DELETE", result: receipt,
         createdAt: input.now, deleteAt: firestoreDeleteAt(input.now)
       });
@@ -207,8 +207,8 @@ export class FirestoreCaseControlStore implements CaseControlStore {
     });
 
     const [notifications, dedupe] = await Promise.all([
-      this.db.collection("notifications").where("caseId", "==", input.caseId).get(),
-      this.db.collection("intakeDedupe").where("caseId", "==", input.caseId).get()
+      this.db.collection("notifications").where("missionId", "==", input.missionId).get(),
+      this.db.collection("intakeDedupe").where("missionId", "==", input.missionId).get()
     ]);
     const cleanup = this.db.batch();
     for (const document of [...notifications.docs, ...dedupe.docs]) cleanup.delete(document.ref);

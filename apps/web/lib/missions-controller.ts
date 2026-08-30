@@ -1,10 +1,10 @@
-import type { FollowThroughCase } from "@dueback/runtime/case-runner";
-import type { AnalysisJob } from "@dueback/contracts";
+import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { AnalysisJob } from "@actionos/contracts";
 
 export type CaseBucket = "NEEDS_YOU" | "WORKING" | "DONE";
 
 export interface CaseSummary {
-  caseId: string;
+  missionId: string;
   companyName: string;
   outcomeLabel: string;
   bucket: CaseBucket;
@@ -22,7 +22,7 @@ export interface OwnerCaseStore {
 
 function analysisSummary(job: AnalysisJob): CaseSummary {
   return {
-    caseId: job.caseId,
+    missionId: job.missionId,
     companyName: "New promise",
     outcomeLabel: job.mediaType === "text/plain" ? "Reading pasted promise" : "Reading uploaded promise",
     bucket: job.status === "FAILED" ? "NEEDS_YOU" : "WORKING",
@@ -30,16 +30,16 @@ function analysisSummary(job: AnalysisJob): CaseSummary {
     lastActivityAt: job.updatedAt,
     nextStepLabel: job.status === "FAILED"
       ? "Open this promise and retry safely"
-      : "You can leave — DueBack will keep working",
+      : "You can leave — ActionOS will keep working",
     attentionRequired: job.status === "FAILED",
     channelLabel: "Private analysis",
-    detailPath: `/cases/${job.caseId}/analyzing`
+    detailPath: `/cases/${job.missionId}/analyzing`
   };
 }
 
 interface CaseCursor {
   version: 1;
-  caseId: string;
+  missionId: string;
   lastActivityAt: string;
   bucket: CaseBucket | null;
 }
@@ -47,7 +47,7 @@ interface CaseCursor {
 function encodeCursor(item: CaseSummary, requestedBucket: CaseBucket | null): string {
   return Buffer.from(JSON.stringify({
     version: 1,
-    caseId: item.caseId,
+    missionId: item.missionId,
     lastActivityAt: item.lastActivityAt,
     bucket: requestedBucket
   } satisfies CaseCursor)).toString("base64url");
@@ -57,8 +57,8 @@ function decodeCursor(value: string, requestedBucket: CaseBucket | null): CaseCu
   try {
     if (value.length > 512) throw new Error("CURSOR_INVALID");
     const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as Partial<CaseCursor>;
-    if (parsed.version !== 1 || typeof parsed.caseId !== "string" ||
-      !parsed.caseId.startsWith("case_") || typeof parsed.lastActivityAt !== "string" ||
+    if (parsed.version !== 1 || typeof parsed.missionId !== "string" ||
+      !parsed.missionId.startsWith("mission_") || typeof parsed.lastActivityAt !== "string" ||
       Number.isNaN(Date.parse(parsed.lastActivityAt)) || (parsed.bucket ?? null) !== requestedBucket) {
       throw new Error("CURSOR_INVALID");
     }
@@ -91,10 +91,10 @@ const status: Record<FollowThroughCase["state"], string> = {
 function nextStep(item: FollowThroughCase): string {
   if (item.state === "NEEDS_ATTENTION") return "Review one decision";
   if (item.state === "DONE") return "Review the proof and limitation";
-  if (item.state === "FAILED") return "Review why DueBack stopped";
+  if (item.state === "FAILED") return "Review why ActionOS stopped";
   if (["CANCELLED", "EXPIRED"].includes(item.state)) return "No further action is authorized";
   if (item.state === "AWAITING_APPROVAL" || item.state === "DRAFT") return "Review and approve the plan";
-  return "DueBack will keep this open until there is proof";
+  return "ActionOS will keep this open until there is proof";
 }
 
 function companyName(item: FollowThroughCase): string {
@@ -104,7 +104,7 @@ function companyName(item: FollowThroughCase): string {
 export function caseSummary(item: FollowThroughCase): CaseSummary {
   const requirement = item.plan.evidenceRequirements[0];
   return {
-    caseId: item.caseId,
+    missionId: item.missionId,
     companyName: companyName(item).replace(/(^|[-_])\w/g, (value) => value.replace(/[-_]/, " ").toUpperCase()),
     outcomeLabel: requirement?.subject ?? item.plan.messageSubject ?? "Company promise",
     bucket: bucket(item.state),
@@ -139,19 +139,19 @@ export async function handleCases(
       dependencies.store.listByOwner(owner.uid, 50),
       dependencies.analysisStore?.listByOwner(owner.uid, 50) ?? Promise.resolve([])
     ]);
-    const runtimeIds = new Set(runtimeCases.map((item) => item.caseId));
+    const runtimeIds = new Set(runtimeCases.map((item) => item.missionId));
     const ordered = [
       ...runtimeCases.map(caseSummary),
       ...analysisJobs
-        .filter((job) => job.status !== "READY" && !runtimeIds.has(job.caseId))
+        .filter((job) => job.status !== "READY" && !runtimeIds.has(job.missionId))
         .map(analysisSummary)
     ]
       .filter((item) => !requestedBucket || item.bucket === requestedBucket)
-      .sort((left, right) => right.lastActivityAt.localeCompare(left.lastActivityAt) || left.caseId.localeCompare(right.caseId));
+      .sort((left, right) => right.lastActivityAt.localeCompare(left.lastActivityAt) || left.missionId.localeCompare(right.missionId));
     const cursorParam = url.searchParams.get("cursor");
     const cursor = cursorParam ? decodeCursor(cursorParam, requestedBucket) : undefined;
     const start = cursor
-      ? ordered.findIndex((item) => item.caseId === cursor.caseId && item.lastActivityAt === cursor.lastActivityAt) + 1
+      ? ordered.findIndex((item) => item.missionId === cursor.missionId && item.lastActivityAt === cursor.lastActivityAt) + 1
       : 0;
     if (cursor && start === 0) throw new Error("CURSOR_INVALID");
     const items = ordered.slice(start, start + limit);

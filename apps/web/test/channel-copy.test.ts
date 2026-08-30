@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { activeCaseChannel, channelCopy } from "../lib/channel-copy";
 
-describe("case channel copy", () => {
+describe("mission channel copy", () => {
   it("never projects sandbox or callback language onto managed email", () => {
     const copy = Object.values(channelCopy(activeCaseChannel("MANAGED_EMAIL"))).join(" ");
     expect(copy).toContain("email");

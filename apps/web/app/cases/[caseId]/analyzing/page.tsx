@@ -5,9 +5,9 @@ import { getRequestMessages } from "../../../../lib/i18n-server";
 export default async function AnalyzingPage({
   params
 }: {
-  readonly params: Promise<{ caseId: string }>;
+  readonly params: Promise<{ missionId: string }>;
 }) {
-  const { caseId } = await params;
+  const { missionId } = await params;
   const copy = (await getRequestMessages()).steps;
   return <main className="shell">
     <AppHeader />
@@ -19,8 +19,8 @@ export default async function AnalyzingPage({
       </div>
     </section>
     <AnalysisProgress
-      caseId={caseId}
-      {...(caseId === "demo-analysis" && process.env.NODE_ENV === "development" ? { preview: {
+      missionId={missionId}
+      {...(missionId === "demo-analysis" && process.env.NODE_ENV === "development" ? { preview: {
         status: "ANALYZING",
         stage: "GEMINI_EXTRACTION",
         attemptCount: 1,

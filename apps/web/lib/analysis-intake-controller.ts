@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { analysisJobSchema } from "@dueback/contracts";
-import { acceptUpload } from "@dueback/channel-adapters/upload";
-import { stableHash } from "@dueback/domain";
-import type { FirestoreAnalysisStore } from "@dueback/persistence/analysis-store";
+import { analysisJobSchema } from "@actionos/contracts";
+import { acceptUpload } from "@actionos/channel-adapters/upload";
+import { stableHash } from "@actionos/domain";
+import type { FirestoreAnalysisStore } from "@actionos/persistence/analysis-store";
 import type { PrivateArtifactStorage } from "./artifact-storage";
 import { redactedPublicError } from "./security-limits";
 
@@ -48,12 +48,12 @@ export async function handleAnalysisIntake(
     const artifactId = contextText && hasFile
       ? `artifact_${sourceIdentity.slice(7, 31)}`
       : accepted.artifactId;
-    const ownerPath = stableHash({ namespace: "dueback/artifact-owner/v1", ownerId: owner.uid })
+    const ownerPath = stableHash({ namespace: "actionos/artifact-owner/v1", ownerId: owner.uid })
       .slice(7, 31);
     const artifactPath = `analysis/${ownerPath}/${sourceIdentity.slice(7)}`;
     const job = analysisJobSchema.parse({
       jobId: `analysis_${randomUUID()}`,
-      caseId: `case_${randomUUID()}`,
+      missionId: `mission_${randomUUID()}`,
       ownerId: owner.uid,
       artifactId,
       artifactPath,
@@ -91,7 +91,7 @@ export async function handleAnalysisIntake(
       await dependencies.schedule(persisted.job.jobId, receivedAt);
     }
     return Response.json({
-      caseId: persisted.job.caseId,
+      missionId: persisted.job.missionId,
       status: persisted.job.status,
       duplicate: persisted.duplicate
     }, { status: persisted.job.status === "READY" || persisted.duplicate ? 200 : 202 });

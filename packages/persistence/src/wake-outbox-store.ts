@@ -1,5 +1,5 @@
 import { FieldValue, type Firestore, type Transaction } from "firebase-admin/firestore";
-import type { WakeIntent, WakeOutboxStore } from "@dueback/runtime/wake-outbox";
+import type { WakeIntent, WakeOutboxStore } from "@actionos/runtime/wake-outbox";
 import { firestoreDeleteAt } from "./expiry";
 
 export function persistWakeIntent(

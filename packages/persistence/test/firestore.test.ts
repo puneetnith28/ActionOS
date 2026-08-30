@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
 import type { Firestore } from "firebase-admin/firestore";
-import type { CaseSnapshot } from "@dueback/domain";
+import type { MissionSnapshot } from "@actionos/domain";
 import { FirestoreCaseRepository } from "../src/firestore";
 
 describe("FirestoreCaseRepository", () => {
   it("creates and retrieves a case without changing its version", async () => {
-    let stored: CaseSnapshot | undefined;
+    let stored: MissionSnapshot | undefined;
     const fakeFirestore = {
       collection: () => ({
         doc: () => ({
-          create: (snapshot: CaseSnapshot) => {
+          create: (snapshot: MissionSnapshot) => {
             stored = snapshot;
             return Promise.resolve();
           },
@@ -23,8 +23,8 @@ describe("FirestoreCaseRepository", () => {
     } as unknown as Firestore;
 
     const repository = new FirestoreCaseRepository(fakeFirestore);
-    const snapshot: CaseSnapshot = {
-      caseId: "case_12345678",
+    const snapshot: MissionSnapshot = {
+      missionId: "case_12345678",
       ownerId: "person_12345678",
       state: "DRAFT",
       version: 0,
@@ -33,6 +33,6 @@ describe("FirestoreCaseRepository", () => {
     };
 
     await repository.create(snapshot);
-    await expect(repository.get(snapshot.caseId)).resolves.toEqual(snapshot);
+    await expect(repository.get(snapshot.missionId)).resolves.toEqual(snapshot);
   });
 });

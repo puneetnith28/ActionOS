@@ -26,8 +26,8 @@ describe("controlled partner API fixture", () => {
       signingSecret: "fixture-secret",
       request
     });
-    await expect(adapter.execute(proposal, "action/case/1", { caseId: "case_12345678" }))
-      .resolves.toMatchObject({ channelType: "PARTNER_API", caseId: "case_12345678" });
+    await expect(adapter.execute(proposal, "action/case/1", { missionId: "case_12345678" }))
+      .resolves.toMatchObject({ channelType: "PARTNER_API", missionId: "case_12345678" });
     const [, init] = request.mock.calls[0] ?? [];
     const headers = init?.headers as Record<string, string> | undefined;
     expect(headers?.["idempotency-key"]).toBe("action/case/1");

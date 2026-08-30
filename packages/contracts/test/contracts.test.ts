@@ -25,7 +25,7 @@ describe("boundary contracts", () => {
     expect(() =>
       actionEnvelopeSchema.parse({
         actionId: "action_123",
-        caseId: "case_123"
+        missionId: "case_123"
       })
     ).toThrow();
   });
@@ -33,7 +33,7 @@ describe("boundary contracts", () => {
   it("accepts legacy plans while validating multichannel plans", () => {
     const base = {
       planId: "plan_12345678",
-      caseId: "case_12345678",
+      missionId: "case_12345678",
       ownerId: "person_12345678",
       version: 1,
       planHash: `sha256:${"a".repeat(64)}`,
@@ -42,7 +42,7 @@ describe("boundary contracts", () => {
       allowedRecipient: "support@example.test",
       sharedFields: ["transactionRef", "amountMinor", "currency"],
       evidenceRequirements: [{
-        minimumLevel: "MERCHANT_CONFIRMED",
+        minimumStatus: "OUTCOME_CONFIRMED",
         amountMinor: 7900,
         currency: "USD",
         transactionRef: "ORDER-79",
@@ -87,7 +87,7 @@ describe("boundary contracts", () => {
     const hash = `sha256:${"b".repeat(64)}`;
     expect(actionReceiptSchema.parse({
       receiptId: "receipt_12345678",
-      caseId: "case_12345678",
+      missionId: "case_12345678",
       channelType: "MANAGED_EMAIL",
       providerMessageId: "email_12345678",
       recipientFingerprint: hash,
@@ -97,7 +97,7 @@ describe("boundary contracts", () => {
     }).transportStatus).toBe("ACCEPTED");
     expect(messageThreadSchema.parse({
       threadId: "thread_12345678",
-      caseId: "case_12345678",
+      missionId: "case_12345678",
       channelType: "MANAGED_EMAIL",
       replyRouteFingerprint: hash,
       providerMessageId: "email_12345678",

@@ -1,12 +1,12 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
-import { FirestoreIntakeStore } from "@dueback/persistence/intake-store";
-import { PlanService } from "@dueback/runtime/plan-service";
-import { TaskScheduler } from "@dueback/runtime/task-scheduler";
+import { FirestoreIntakeStore } from "@actionos/persistence/intake-store";
+import { PlanService } from "@actionos/runtime/plan-service";
+import { TaskScheduler } from "@actionos/runtime/task-scheduler";
 import { authenticatedOwner, assertSameOrigin } from "../../../../../lib/authz";
 import { firestore } from "../../../../../lib/firebase-admin";
 import { handlePlanRequest } from "../../../../../lib/plan-controller";
-import { publicChannelCapabilities } from "@dueback/runtime/channel-registry";
-import { stableHash } from "@dueback/domain";
+import { publicChannelCapabilities } from "@actionos/runtime/channel-registry";
+import { stableHash } from "@actionos/domain";
 import { durableCaseScheduler } from "../../../../../lib/durable-case-scheduler";
 
 export const runtime = "nodejs";
@@ -19,7 +19,7 @@ function planService() {
       ? durableCaseScheduler(new TaskScheduler(new CloudTasksClient(), {
           projectId,
           location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
-          queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
+          queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-cases",
           workerUrl,
           serviceAccountEmail,
           ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
@@ -63,13 +63,13 @@ function isChannelAvailable(channelType: string | undefined): boolean {
 function resolveChannel(channelType: string) {
   if (channelType === "CONTROLLED_SANDBOX") return {
     channelType,
-    allowedRecipient: process.env.MERCHANT_SANDBOX_RECIPIENT ?? "merchant@controlled.dueback.test",
-    senderIdentity: "DueBack controlled demo",
+    allowedRecipient: process.env.MERCHANT_SANDBOX_RECIPIENT ?? "merchant@controlled.actionos.test",
+    senderIdentity: "ActionOS controlled demo",
     replyRoute: "Signed callback",
     trustedIssuer: "merchant-sandbox"
   } as const;
   if (channelType === "MANAGED_EMAIL") {
-    const recipient = process.env.COMPANY_EMAIL_DEFAULT_RECIPIENT ?? "recipient-required@dueback.invalid";
+    const recipient = process.env.COMPANY_EMAIL_DEFAULT_RECIPIENT ?? "recipient-required@actionos.invalid";
     const replyDomain = process.env.COMPANY_EMAIL_REPLY_DOMAIN;
     const senderIdentity = process.env.COMPANY_EMAIL_FROM;
     if (!replyDomain || !senderIdentity) return undefined;
@@ -78,16 +78,16 @@ function resolveChannel(channelType: string) {
       allowedRecipient: recipient,
       senderIdentity,
       replyRoute: `case-specific@${replyDomain}`,
-      trustedIssuer: `managed-email:${stableHash({ namespace: "dueback/recipient/v1", recipient: recipient.toLowerCase() }).slice(7, 31)}`
+      trustedIssuer: `managed-email:${stableHash({ namespace: "actionos/recipient/v1", recipient: recipient.toLowerCase() }).slice(7, 31)}`
     } as const;
   }
   return undefined;
 }
-type Context = { params: Promise<{ caseId: string }> };
+type Context = { params: Promise<{ missionId: string }> };
 
 export async function GET(request: Request, context: Context) {
-  const { caseId } = await context.params;
-  return handlePlanRequest(request, caseId, {
+  const { missionId } = await context.params;
+  return handlePlanRequest(request, missionId, {
     authenticate: authenticatedOwner,
     service: planService(),
     now: () => new Date().toISOString(),
@@ -99,8 +99,8 @@ export async function GET(request: Request, context: Context) {
 
 export async function POST(request: Request, context: Context) {
   assertSameOrigin(request);
-  const { caseId } = await context.params;
-  return handlePlanRequest(request, caseId, {
+  const { missionId } = await context.params;
+  return handlePlanRequest(request, missionId, {
     authenticate: authenticatedOwner,
     service: planService(),
     now: () => new Date().toISOString(),

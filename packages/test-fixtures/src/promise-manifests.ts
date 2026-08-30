@@ -1,8 +1,8 @@
-import type { EvidenceCandidateContract, ResolutionPlan } from "@dueback/contracts";
-import { stableHash } from "@dueback/domain";
-import { promiseTypeManifests } from "@dueback/domain/promise-types";
+import type { ExecutionOutcomeContract, ExecutionPlan } from "@actionos/contracts";
+import { stableHash } from "@actionos/domain";
+import { promiseTypeManifests } from "@actionos/domain/promise-types";
 
-function plan(input: Omit<ResolutionPlan, "planHash">): ResolutionPlan {
+function plan(input: Omit<ExecutionPlan, "planHash">): ExecutionPlan {
   return { ...input, planHash: stableHash(input) };
 }
 
@@ -10,7 +10,7 @@ export const billCreditFixture = {
   manifest: promiseTypeManifests.BILL_CREDIT,
   plan: plan({
     planId: "plan_bill_credit_1234",
-    caseId: "case_bill_credit_1234",
+    missionId: "case_bill_credit_1234",
     ownerId: "person_portability_1",
     version: 1,
     goal: "Apply the promised USD 25 credit to the September 2026 bill",
@@ -20,12 +20,12 @@ export const billCreditFixture = {
     sharedFields: ["transactionRef", "amountMinor", "currency", "billPeriod"],
     evidenceRequirements: [
       {
-        minimumLevel: "MERCHANT_CONFIRMED",
+        minimumStatus: "OUTCOME_CONFIRMED",
         amountMinor: 2500,
         currency: "USD",
         transactionRef: "ACCOUNT-44",
         billPeriod: "2026-09",
-        requiredEvidenceFields: ["amountMinor", "currency", "billPeriod"],
+        requiredOutcomeFields: ["amountMinor", "currency", "billPeriod"],
         maxAgeSeconds: 2_592_000,
         trustedIssuer: "merchant-sandbox"
       }
@@ -33,9 +33,9 @@ export const billCreditFixture = {
     expiresAt: "2026-09-30T23:59:59.000Z"
   }),
   acceptedEvidence: {
-    evidenceId: "evidence_bill_credit_ok",
-    caseId: "case_bill_credit_1234",
-    level: "MERCHANT_CONFIRMED",
+    outcomeId: "evidence_bill_credit_ok",
+    missionId: "case_bill_credit_1234",
+    level: "OUTCOME_CONFIRMED",
     amountMinor: 2500,
     currency: "USD",
     transactionRef: "ACCOUNT-44",
@@ -43,14 +43,14 @@ export const billCreditFixture = {
     issuedAt: "2026-09-01T12:00:00.000Z",
     issuer: "merchant-sandbox",
     signatureValid: true
-  } satisfies EvidenceCandidateContract
+  } satisfies ExecutionOutcomeContract
 };
 
 export const replacementFixture = {
   manifest: promiseTypeManifests.REPLACEMENT,
   plan: plan({
     planId: "plan_replacement_1234",
-    caseId: "case_replacement_1234",
+    missionId: "case_replacement_1234",
     ownerId: "person_portability_1",
     version: 1,
     goal: "Ship the promised replacement headphones with tracking",
@@ -60,10 +60,10 @@ export const replacementFixture = {
     sharedFields: ["transactionRef", "subject"],
     evidenceRequirements: [
       {
-        minimumLevel: "MERCHANT_CONFIRMED",
+        minimumStatus: "OUTCOME_CONFIRMED",
         transactionRef: "RMA-808",
         subject: "Noise-cancelling headphones",
-        requiredEvidenceFields: ["subject", "trackingNumber"],
+        requiredOutcomeFields: ["subject", "trackingNumber"],
         maxAgeSeconds: 2_592_000,
         trustedIssuer: "merchant-sandbox"
       }
@@ -71,14 +71,14 @@ export const replacementFixture = {
     expiresAt: "2026-09-30T23:59:59.000Z"
   }),
   acceptedEvidence: {
-    evidenceId: "evidence_replacement_ok",
-    caseId: "case_replacement_1234",
-    level: "MERCHANT_CONFIRMED",
+    outcomeId: "evidence_replacement_ok",
+    missionId: "case_replacement_1234",
+    level: "OUTCOME_CONFIRMED",
     transactionRef: "RMA-808",
     subject: "Noise-cancelling headphones",
     trackingNumber: "TRACK-123456",
     issuedAt: "2026-09-01T12:00:00.000Z",
     issuer: "merchant-sandbox",
     signatureValid: true
-  } satisfies EvidenceCandidateContract
+  } satisfies ExecutionOutcomeContract
 };

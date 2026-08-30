@@ -1,4 +1,4 @@
-import type { CaseRunner } from "@dueback/runtime/case-runner";
+import type { CaseRunner } from "@actionos/runtime/case-runner";
 import {
   requireCloudTaskIdentity,
   type CloudTaskIdentityVerifier
@@ -14,15 +14,15 @@ export async function handleRunCaseTask(
   if (unauthorized) return unauthorized;
   try {
     const body = (await request.json()) as {
-      caseId?: string;
+      missionId?: string;
       expectedVersion?: number;
       correlationId?: string;
     };
     const expectedVersion = body.expectedVersion;
-    if (!body.caseId || typeof expectedVersion !== "number" || !Number.isInteger(expectedVersion))
+    if (!body.missionId || typeof expectedVersion !== "number" || !Number.isInteger(expectedVersion))
       return Response.json({ error: "INVALID_TASK" }, { status: 400 });
     const result = await runner.run({
-        caseId: body.caseId,
+        missionId: body.missionId,
         expectedVersion,
         now: now(),
         ...(body.correlationId ? { correlationId: body.correlationId } : {})

@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
-import type { ProposedAction } from "@dueback/domain";
-import type { ActionReceipt, ClosedActionAdapter } from "@dueback/runtime/action-broker";
+import type { ProposedAction } from "@actionos/domain";
+import type { ActionReceipt, ClosedActionAdapter } from "@actionos/runtime/action-broker";
 
 export interface PartnerApiFixtureConfig {
   readonly endpoint: string;
@@ -25,11 +25,11 @@ export class PartnerApiFixtureAdapter implements ClosedActionAdapter {
   async execute(
     proposal: ProposedAction,
     idempotencyKey: string,
-    context: { readonly caseId: string; readonly correlationId?: string }
+    context: { readonly missionId: string; readonly correlationId?: string }
   ): Promise<ActionReceipt> {
     const body = JSON.stringify({
       schemaVersion: "dueback.partner-action.v1",
-      caseId: context.caseId,
+      missionId: context.missionId,
       correlationId: context.correlationId,
       proposal
     });
@@ -47,6 +47,6 @@ export class PartnerApiFixtureAdapter implements ClosedActionAdapter {
     const receipt = (await response.json()) as Partial<ActionReceipt>;
     if (!receipt.receiptId || !receipt.acceptedAt) throw new Error("PARTNER_RECEIPT_INVALID");
     return { ...receipt, receiptId: receipt.receiptId, acceptedAt: receipt.acceptedAt,
-      caseId: context.caseId, channelType: "PARTNER_API" };
+      missionId: context.missionId, channelType: "PARTNER_API" };
   }
 }

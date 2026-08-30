@@ -5,9 +5,9 @@ import { getRequestMessages } from "../../../../lib/i18n-server";
 export default async function ExceptionPage({
   params
 }: {
-  readonly params: Promise<{ caseId: string }>;
+  readonly params: Promise<{ missionId: string }>;
 }) {
-  const { caseId } = await params;
+  const { missionId } = await params;
   const copy = (await getRequestMessages()).steps;
   return (
     <main className="shell">
@@ -15,7 +15,7 @@ export default async function ExceptionPage({
       <section className="hero compact">
         <div className="eyebrow">{copy.exceptionEye}</div><h1>{copy.exceptionTitle}</h1>
       </section>
-      <CaseException caseId={caseId} />
+      <CaseException missionId={missionId} />
     </main>
   );
 }

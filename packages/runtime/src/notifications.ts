@@ -1,11 +1,11 @@
-import { stableHash } from "@dueback/domain";
+import { stableHash } from "@actionos/domain";
 
 export type NotificationKind = "NEEDS_ATTENTION" | "CASE_COMPLETED" | "CASE_FAILED";
 
 export interface NotificationRecord {
   readonly notificationId: string;
   readonly dedupeKey: string;
-  readonly caseId: string;
+  readonly missionId: string;
   readonly correlationId: string;
   readonly ownerId: string;
   readonly kind: NotificationKind;
@@ -41,7 +41,7 @@ export interface NotificationStore {
       lastAttemptAt?: string;
     }
   ): Promise<void>;
-  listNotifications?(caseId: string): Promise<readonly NotificationRecord[]>;
+  listNotifications?(missionId: string): Promise<readonly NotificationRecord[]>;
 }
 
 export interface NotificationDeliveryAdapter {
@@ -105,7 +105,7 @@ export class CaseNotificationService {
   ) {}
 
   async notify(input: {
-    caseId: string;
+    missionId: string;
     ownerId: string;
     kind: NotificationKind;
     createdAt: string;
@@ -119,7 +119,7 @@ export class CaseNotificationService {
 }
 
 export function notificationRecord(input: {
-  caseId: string;
+  missionId: string;
   ownerId: string;
   kind: NotificationKind;
   createdAt: string;
@@ -127,18 +127,18 @@ export function notificationRecord(input: {
 }): NotificationRecord {
   const dedupeKey = stableHash({
     namespace: "dueback/notification/v1",
-    caseId: input.caseId,
+    missionId: input.missionId,
     correlationId: input.correlationId,
     kind: input.kind
   });
   return {
     notificationId: `notification_${dedupeKey.slice(7, 31)}`,
     dedupeKey,
-    caseId: input.caseId,
+    missionId: input.missionId,
     correlationId: input.correlationId,
     ownerId: input.ownerId,
     kind: input.kind,
-    deepLinkPath: `/cases/${input.caseId}/result`,
+    deepLinkPath: `/cases/${input.missionId}/result`,
     createdAt: input.createdAt,
     deliveryChannel: "IN_APP",
     deliveryStatus: "RECORDED"

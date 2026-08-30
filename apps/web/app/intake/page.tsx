@@ -14,7 +14,7 @@ export default async function IntakePage() {
           <div className="use-case-row" aria-label={copy.useCases}>
             <span data-live="true">{copy.followup}</span><span>{copy.appointments}</span><span>{copy.documents}</span>
           </div>
-          <details className="after-approval intake-process">
+          <details className="after-boundary.intake-process">
             <summary>{copy.after}</summary>
             <ol>
               <li><span>1</span><p><b>{copy.contactTitle}</b> {copy.contactText}</p></li>

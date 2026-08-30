@@ -1,6 +1,6 @@
 export interface TraceContext {
   readonly runId: string;
-  readonly caseId: string;
+  readonly missionId: string;
   readonly correlationId: string;
   readonly actionId?: string;
 }

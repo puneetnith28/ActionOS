@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { defaultLocale, isLocale, localizePath, type Locale } from "./lib/i18n";
 
 function preferredLocale(request: NextRequest): Locale {
-  const saved = request.cookies.get("dueback-locale")?.value;
+  const saved = request.cookies.get("actionos-locale")?.value;
   if (isLocale(saved)) return saved;
   const languages = request.headers.get("accept-language")?.toLowerCase() ?? "";
   if (languages.includes("pt")) return "pt";
@@ -23,9 +23,9 @@ export function proxy(request: NextRequest) {
   const target = request.nextUrl.clone();
   target.pathname = pathname.slice(locale.length + 1) || "/";
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-dueback-locale", locale);
+  requestHeaders.set("x-actionos-locale", locale);
   const response = NextResponse.rewrite(target, { request: { headers: requestHeaders } });
-  response.cookies.set("dueback-locale", locale, { maxAge: 60 * 60 * 24 * 365, sameSite: "lax", path: "/" });
+  response.cookies.set("actionos-locale", locale, { maxAge: 60 * 60 * 24 * 365, sameSite: "lax", path: "/" });
   return response;
 }
 

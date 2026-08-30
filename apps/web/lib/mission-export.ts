@@ -1,5 +1,5 @@
-import type { FollowThroughCase } from "@dueback/runtime/case-runner";
-import type { EvidenceRecord } from "@dueback/runtime/evidence-service";
+import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { EvidenceRecord } from "@actionos/runtime/evidence-service";
 import { outcomeComparison } from "./outcome-comparison";
 
 function redactReference(value: string): string {
@@ -26,7 +26,7 @@ export function caseExportText(item: FollowThroughCase, evidence: readonly Evide
     `Channel: ${item.plan.channelType === "MANAGED_EMAIL" ? "Managed email (controlled pilot)" : "Controlled demo"}`,
     "",
     "COMPANY STATEMENT",
-    latest ? `Evidence level: ${latest.candidate.level}` : "No company evidence recorded.",
+    latest ? `Evidence status: ${latest.candidate.level}` : "No company evidence recorded.",
     "",
     "DUEBACK DECISION",
     latest ? (accepted ? "The explicit evidence met the approved contract." : `Not resolved: ${latest.verification.reasonCodes.join(", ")}.`) : "No evidence decision yet.",
@@ -39,6 +39,6 @@ export function caseExportText(item: FollowThroughCase, evidence: readonly Evide
       ? "Company-confirmed refund evidence is not bank settlement. Check the payment account."
       : "Company evidence is not independent fulfillment. Check that the promised outcome arrived.",
     "",
-    "This static summary grants no DueBack access or control."
+    "This static summary grants no ActionOS access or control."
   ].join("\n");
 }

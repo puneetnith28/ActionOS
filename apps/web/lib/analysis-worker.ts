@@ -1,5 +1,5 @@
-import type { FirestoreAnalysisStore } from "@dueback/persistence/analysis-store";
-import type { IntakeService } from "@dueback/runtime/intake-service";
+import type { FirestoreAnalysisStore } from "@actionos/persistence/analysis-store";
+import type { IntakeService } from "@actionos/runtime/intake-service";
 import type { PrivateArtifactStorage } from "./artifact-storage";
 import {
   requireCloudTaskIdentity,
@@ -47,7 +47,7 @@ export async function handleAnalysisWorker(
           ...(job.contextText ? { contextText: job.contextText } : {})
         };
     const result = await dependencies.service(jobId).intake({
-      caseId: job.caseId,
+      missionId: job.missionId,
       artifactId: job.artifactId,
       ownerId: job.ownerId,
       sourceChannel: job.sourceChannel,
@@ -56,7 +56,7 @@ export async function handleAnalysisWorker(
     }, job.createdAt);
     await dependencies.store.markReady(jobId, dependencies.now());
     await dependencies.storage.delete(job.artifactPath).catch(() => undefined);
-    return Response.json({ status: "READY", caseId: result.draft.caseId, duplicate: result.duplicate });
+    return Response.json({ status: "READY", missionId: result.draft.missionId, duplicate: result.duplicate });
   } catch (error) {
     const reason = error instanceof Error && /^[A-Z0-9_:,-]{1,120}$/.test(error.message)
       ? error.message

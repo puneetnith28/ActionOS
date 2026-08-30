@@ -1,8 +1,8 @@
-import { stableHash } from "@dueback/domain";
+import { stableHash } from "@actionos/domain";
 
 export interface WakeIntent {
   readonly intentId: string;
-  readonly caseId: string;
+  readonly missionId: string;
   readonly expectedVersion: number;
   readonly wakeAt: string;
   readonly correlationId?: string;
@@ -15,7 +15,7 @@ export interface WakeIntent {
 }
 
 export function wakeIntent(input: {
-  caseId: string;
+  missionId: string;
   expectedVersion: number;
   wakeAt: string;
   correlationId?: string;
@@ -23,13 +23,13 @@ export function wakeIntent(input: {
 }): WakeIntent {
   const intentId = stableHash({
     namespace: "dueback/wake-intent/v1",
-    caseId: input.caseId,
+    missionId: input.missionId,
     expectedVersion: input.expectedVersion,
     wakeAt: input.wakeAt
   }).slice(7, 39);
   return {
     intentId,
-    caseId: input.caseId,
+    missionId: input.missionId,
     expectedVersion: input.expectedVersion,
     wakeAt: input.wakeAt,
     ...(input.correlationId ? { correlationId: input.correlationId } : {}),
@@ -48,7 +48,7 @@ export interface WakeOutboxStore {
 
 export interface WakeTaskScheduler {
   scheduleCase(input: {
-    caseId: string;
+    missionId: string;
     expectedVersion: number;
     wakeAt: string;
     correlationId?: string;
@@ -63,7 +63,7 @@ export class DurableWakeScheduler implements WakeTaskScheduler {
   ) {}
 
   async scheduleCase(input: {
-    caseId: string;
+    missionId: string;
     expectedVersion: number;
     wakeAt: string;
     correlationId?: string;
@@ -90,7 +90,7 @@ export class DurableWakeScheduler implements WakeTaskScheduler {
     for (const intent of pending) {
       try {
         await this.scheduleCase({
-          caseId: intent.caseId,
+          missionId: intent.missionId,
           expectedVersion: intent.expectedVersion,
           wakeAt: intent.wakeAt,
           ...(intent.correlationId ? { correlationId: intent.correlationId } : {})

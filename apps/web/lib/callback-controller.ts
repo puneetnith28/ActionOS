@@ -1,7 +1,7 @@
-import { evidenceCandidateSchema } from "@dueback/contracts";
-import { stableHash } from "@dueback/domain";
-import { verifyCallbackSignature } from "@dueback/channel-adapters/callback-signature";
-import type { EvidenceService } from "@dueback/runtime/evidence-service";
+import { evidenceCandidateSchema } from "@actionos/contracts";
+import { stableHash } from "@actionos/domain";
+import { verifyCallbackSignature } from "@actionos/channel-adapters/callback-signature";
+import type { EvidenceService } from "@actionos/runtime/evidence-service";
 
 export interface CallbackRecordStore {
   reserveCallback(key: string, receivedAt: string): Promise<"RESERVED" | "IN_FLIGHT" | "COMPLETED">;
@@ -19,9 +19,9 @@ export async function handleMerchantCallback(
   }
 ): Promise<Response> {
   const body = await request.text();
-  const timestamp = request.headers.get("x-dueback-timestamp");
-  const signature = request.headers.get("x-dueback-signature");
-  const correlationId = request.headers.get("x-dueback-correlation-id") ?? undefined;
+  const timestamp = request.headers.get("x-actionos-timestamp");
+  const signature = request.headers.get("x-actionos-signature");
+  const correlationId = request.headers.get("x-actionos-correlation-id") ?? undefined;
   const now = dependencies.now();
   if (!timestamp || !signature)
     return Response.json({ error: "CALLBACK_AUTH_REQUIRED" }, { status: 401 });
@@ -31,7 +31,7 @@ export async function handleMerchantCallback(
   if (!verifyCallbackSignature(body, timestamp, signature, dependencies.secret))
     return Response.json({ error: "INVALID_CALLBACK_SIGNATURE" }, { status: 401 });
 
-  const key = stableHash({ namespace: "dueback/callback/v1", timestamp, signature, body });
+  const key = stableHash({ namespace: "actionos/callback/v1", timestamp, signature, body });
   const reservation = await dependencies.callbacks.reserveCallback(key, now);
   if (reservation !== "RESERVED")
     return Response.json({ duplicate: true, status: reservation }, { status: 202 });

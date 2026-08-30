@@ -1,8 +1,8 @@
-import type { FirestoreAnalysisStore } from "@dueback/persistence/analysis-store";
+import type { FirestoreAnalysisStore } from "@actionos/persistence/analysis-store";
 
 export async function handleAnalysisStatus(
   request: Request,
-  caseId: string,
+  missionId: string,
   dependencies: {
     authenticate(request: Request): Promise<{ uid: string }>;
     store: Pick<FirestoreAnalysisStore, "getOwnedCase">;
@@ -11,10 +11,10 @@ export async function handleAnalysisStatus(
   const privateHeaders = { "Cache-Control": "private, no-store" };
   try {
     const owner = await dependencies.authenticate(request);
-    const job = await dependencies.store.getOwnedCase(caseId, owner.uid);
+    const job = await dependencies.store.getOwnedCase(missionId, owner.uid);
     if (!job) return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404, headers: privateHeaders });
     return Response.json({
-      caseId: job.caseId,
+      missionId: job.missionId,
       status: job.status,
       stage: job.stage,
       attemptCount: job.attemptCount,
@@ -34,7 +34,7 @@ export async function handleAnalysisStatus(
 
 export async function handleAnalysisRetry(
   request: Request,
-  caseId: string,
+  missionId: string,
   dependencies: {
     authenticate(request: Request): Promise<{ uid: string }>;
     assertOrigin(request: Request): void;
@@ -48,7 +48,7 @@ export async function handleAnalysisRetry(
     dependencies.assertOrigin(request);
     const owner = await dependencies.authenticate(request);
     const now = dependencies.now();
-    const job = await dependencies.store.retryOwned(caseId, owner.uid, now);
+    const job = await dependencies.store.retryOwned(missionId, owner.uid, now);
     if (job.status === "QUEUED") await dependencies.schedule(job.jobId, now);
     return Response.json({ status: job.status, stage: job.stage }, { headers: privateHeaders });
   } catch (error) {

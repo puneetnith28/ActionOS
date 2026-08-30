@@ -1,7 +1,7 @@
-import { FirestoreRuntimeStore } from "@dueback/persistence/runtime-store";
-import { FirestoreAnalysisStore } from "@dueback/persistence/analysis-store";
+import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
+import { FirestoreAnalysisStore } from "@actionos/persistence/analysis-store";
 import { authenticatedOwner } from "../../../lib/authz";
-import { handleCases } from "../../../lib/cases-controller";
+import { handleCases } from "../../../lib/missions-controller";
 import { firestore } from "../../../lib/firebase-admin";
 
 export const runtime = "nodejs";

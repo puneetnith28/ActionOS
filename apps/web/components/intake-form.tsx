@@ -53,12 +53,12 @@ export function IntakeForm() {
         headers: { Authorization: `Bearer ${token}` },
         body
       });
-      const result = (await response.json()) as { caseId?: string; status?: string; error?: string };
-      if (!response.ok || !result.caseId) throw new Error(result.error ?? "INTAKE_FAILED");
+      const result = (await response.json()) as { missionId?: string; status?: string; error?: string };
+      if (!response.ok || !result.missionId) throw new Error(result.error ?? "INTAKE_FAILED");
       router.push(
         result.status === "READY"
-          ? localize(`/cases/${result.caseId}/review`)
-          : localize(`/cases/${result.caseId}/analyzing`)
+          ? localize(`/cases/${result.missionId}/review`)
+          : localize(`/cases/${result.missionId}/analyzing`)
       );
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "INTAKE_FAILED");

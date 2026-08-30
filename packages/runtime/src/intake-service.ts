@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
-import { outcomeContractSchema, promiseDraftSchema, resolutionPlanSchema } from "@dueback/contracts";
-import type { ChannelType, OutcomeContract, PromiseDraft, ResolutionPlan } from "@dueback/contracts";
-import { caseDedupeKey, stableHash } from "@dueback/domain";
+import { outcomeContractSchema, promiseDraftSchema, resolutionPlanSchema } from "@actionos/contracts";
+import type { ChannelType, OutcomeContract, PromiseDraft, ExecutionPlan } from "@actionos/contracts";
+import { caseDedupeKey, stableHash } from "@actionos/domain";
 
 export interface IntakeArtifact {
-  readonly caseId?: string;
+  readonly missionId?: string;
   readonly artifactId: string;
   readonly ownerId: string;
   readonly sourceChannel: "upload" | "paste" | "fixture";
@@ -23,18 +23,18 @@ export interface PromiseExtractor {
 }
 
 export interface DraftCase {
-  readonly caseId: string;
+  readonly missionId: string;
   readonly ownerId: string;
   readonly artifactId: string;
   readonly dedupeKey: string;
   readonly state: "AWAITING_APPROVAL" | "READY" | "CANCELLED";
   readonly promiseDraft: PromiseDraft;
   readonly outcomeContract?: OutcomeContract;
-  readonly plan: ResolutionPlan;
+  readonly plan: ExecutionPlan;
   readonly activationBlocked: boolean;
   readonly blockingFields: readonly string[];
   readonly createdAt: string;
-  readonly approval?: PlanApproval;
+  readonly boundary?: PlanApproval;
 }
 
 export function commercialOutcomeContract(
@@ -61,7 +61,7 @@ export function commercialOutcomeContract(
 export interface PlanApproval {
   readonly approvalId: string;
   readonly ownerId: string;
-  readonly caseId: string;
+  readonly missionId: string;
   readonly planVersion: number;
   readonly planHash: string;
   readonly approvedAt: string;
@@ -119,7 +119,7 @@ export function followUpMessage(draft: PromiseDraft): { subject: string; body: s
 }
 
 function buildPlan(input: {
-  readonly caseId: string;
+  readonly missionId: string;
   readonly ownerId: string;
   readonly draft: PromiseDraft;
   readonly recipient: string;
@@ -129,7 +129,7 @@ function buildPlan(input: {
     readonly senderIdentity: string;
     readonly replyRoute: string;
   };
-}): ResolutionPlan {
+}): ExecutionPlan {
   const { draft } = input;
   // BILL_CREDIT needs a bill period that the current intake contract cannot yet
   // extract. Keep the promise usable as a general follow-up instead of creating
@@ -140,7 +140,7 @@ function buildPlan(input: {
   const message = followUpMessage(draft);
   const unsigned = {
     planId: `plan_${randomUUID()}`,
-    caseId: input.caseId,
+    missionId: input.missionId,
     ownerId: input.ownerId,
     version: 1,
     goal: draft.result.value,
@@ -179,13 +179,13 @@ function buildPlan(input: {
         : {}),
     evidenceRequirements: [
       {
-        minimumLevel: "MERCHANT_CONFIRMED" as const,
+        minimumStatus: "OUTCOME_CONFIRMED" as const,
         ...(draft.amountMinor ? { amountMinor: draft.amountMinor.value } : {}),
         ...(draft.currency ? { currency: draft.currency.value } : {}),
         ...(promiseType === "REPLACEMENT"
           ? {
               subject: draft.result.value,
-              requiredEvidenceFields: ["subject", "trackingNumber"] as const
+              requiredOutcomeFields: ["subject", "trackingNumber"] as const
             }
           : {}),
         transactionRef: draft.transactionRef.value,
@@ -235,9 +235,9 @@ export class IntakeService {
     await this.budget?.consume(artifact.ownerId, now);
 
     const promiseDraft = promiseDraftSchema.parse(await this.extractor.extract(artifact));
-    const caseId = artifact.caseId ?? `case_${randomUUID()}`;
+    const missionId = artifact.missionId ?? `case_${randomUUID()}`;
     const plan = buildPlan({
-      caseId,
+      missionId,
       ownerId: artifact.ownerId,
       draft: promiseDraft,
       recipient: this.merchantRecipient,
@@ -250,7 +250,7 @@ export class IntakeService {
       plan.allowedRecipient
     );
     const draft: DraftCase = {
-      caseId,
+      missionId,
       ownerId: artifact.ownerId,
       artifactId: artifact.artifactId,
       dedupeKey,

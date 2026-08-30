@@ -1,10 +1,10 @@
-import { ResendInboundEmailAdapter } from "@dueback/channel-adapters/inbound-email";
-import { transportStatusForProviderEvent } from "@dueback/channel-adapters/email-webhook";
-import { extractInboundFlow } from "@dueback/genkit-flows/extract-inbound";
-import { FirestoreRuntimeStore } from "@dueback/persistence/runtime-store";
-import { EvidenceService } from "@dueback/runtime/evidence-service";
-import { InboundService } from "@dueback/runtime/inbound-service";
-import { InterventionService } from "@dueback/runtime/interventions";
+import { ResendInboundEmailAdapter } from "@actionos/channel-adapters/inbound-email";
+import { transportStatusForProviderEvent } from "@actionos/channel-adapters/email-webhook";
+import { extractInboundFlow } from "@actionos/genkit-flows/extract-inbound";
+import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
+import { EvidenceService } from "@actionos/runtime/evidence-service";
+import { InboundService } from "@actionos/runtime/inbound-service";
+import { InterventionService } from "@actionos/runtime/interventions";
 import { firestore } from "../../../../../lib/firebase-admin";
 import { notificationDelivery } from "../../../../../lib/notification-delivery";
 import { caseScheduler } from "../../../../../lib/case-scheduler";

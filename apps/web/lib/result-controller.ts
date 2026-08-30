@@ -1,16 +1,16 @@
-import type { FollowThroughCase } from "@dueback/runtime/case-runner";
-import type { EvidenceRecord } from "@dueback/runtime/evidence-service";
-import type { InterventionRecord } from "@dueback/runtime/interventions";
-import type { RuntimeTimelineEvent } from "@dueback/runtime/timeline";
-import type { NotificationRecord } from "@dueback/runtime/notifications";
+import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { EvidenceRecord } from "@actionos/runtime/evidence-service";
+import type { InterventionRecord } from "@actionos/runtime/interventions";
+import type { RuntimeTimelineEvent } from "@actionos/runtime/timeline";
+import type { NotificationRecord } from "@actionos/runtime/notifications";
 
 export interface CaseResultStore {
-  get(caseId: string): Promise<FollowThroughCase | undefined>;
-  listEvidence(caseId: string): Promise<readonly EvidenceRecord[]>;
-  listInterventions?(caseId: string): Promise<readonly InterventionRecord[]>;
-  listEvents?(caseId: string): Promise<readonly RuntimeTimelineEvent[]>;
-  listNotifications?(caseId: string): Promise<readonly NotificationRecord[]>;
-  listChannelEvents?(caseId: string): Promise<readonly {
+  get(missionId: string): Promise<FollowThroughMission | undefined>;
+  listEvidence(missionId: string): Promise<readonly EvidenceRecord[]>;
+  listInterventions?(missionId: string): Promise<readonly InterventionRecord[]>;
+  listEvents?(missionId: string): Promise<readonly RuntimeTimelineEvent[]>;
+  listNotifications?(missionId: string): Promise<readonly NotificationRecord[]>;
+  listChannelEvents?(missionId: string): Promise<readonly {
     channelType: string;
     transportStatus: string;
     acceptedAt: string;
@@ -20,7 +20,7 @@ export interface CaseResultStore {
 
 export async function handleCaseResult(
   request: Request,
-  caseId: string,
+  missionId: string,
   dependencies: {
     authenticate: (request: Request) => Promise<{ uid: string }>;
     store: CaseResultStore;
@@ -29,16 +29,16 @@ export async function handleCaseResult(
   const privateHeaders = { "Cache-Control": "private, no-store" };
   try {
     const owner = await dependencies.authenticate(request);
-    const item = await dependencies.store.get(caseId);
+    const item = await dependencies.store.get(missionId);
     if (!item) return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404, headers: privateHeaders });
     if (item.ownerId !== owner.uid)
       return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404, headers: privateHeaders });
     const [evidence, interventions, events, notifications, channelEvents] = await Promise.all([
-      dependencies.store.listEvidence(caseId),
-      dependencies.store.listInterventions?.(caseId) ?? Promise.resolve([]),
-      dependencies.store.listEvents?.(caseId) ?? Promise.resolve([]),
-      dependencies.store.listNotifications?.(caseId) ?? Promise.resolve([]),
-      dependencies.store.listChannelEvents?.(caseId) ?? Promise.resolve([])
+      dependencies.store.listEvidence(missionId),
+      dependencies.store.listInterventions?.(missionId) ?? Promise.resolve([]),
+      dependencies.store.listEvents?.(missionId) ?? Promise.resolve([]),
+      dependencies.store.listNotifications?.(missionId) ?? Promise.resolve([]),
+      dependencies.store.listChannelEvents?.(missionId) ?? Promise.resolve([])
     ]);
     return Response.json(
       { case: item, evidence, interventions, events, notifications, channelEvents },

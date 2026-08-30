@@ -1,6 +1,6 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
-import { TaskScheduler } from "@dueback/runtime/task-scheduler";
-import type { DurableWakeScheduler } from "@dueback/runtime/wake-outbox";
+import { TaskScheduler } from "@actionos/runtime/task-scheduler";
+import type { DurableWakeScheduler } from "@actionos/runtime/wake-outbox";
 import { durableCaseScheduler } from "./durable-case-scheduler";
 
 export function caseScheduler(): DurableWakeScheduler | undefined {
@@ -11,7 +11,7 @@ export function caseScheduler(): DurableWakeScheduler | undefined {
   return durableCaseScheduler(new TaskScheduler(new CloudTasksClient(), {
     projectId,
     location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
-    queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
+    queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-cases",
     workerUrl,
     serviceAccountEmail,
     ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE

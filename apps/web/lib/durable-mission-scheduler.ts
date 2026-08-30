@@ -1,6 +1,6 @@
-import { DurableWakeScheduler } from "@dueback/runtime/wake-outbox";
-import type { TaskScheduler } from "@dueback/runtime/task-scheduler";
-import { FirestoreWakeOutboxStore } from "@dueback/persistence/wake-outbox-store";
+import { DurableWakeScheduler } from "@actionos/runtime/wake-outbox";
+import type { TaskScheduler } from "@actionos/runtime/task-scheduler";
+import { FirestoreWakeOutboxStore } from "@actionos/persistence/wake-outbox-store";
 import { firestore } from "./firebase-admin";
 
 export function durableCaseScheduler(tasks: TaskScheduler): DurableWakeScheduler {

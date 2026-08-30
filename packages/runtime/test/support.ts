@@ -11,7 +11,7 @@ export function makeDraft(): DraftCase {
     }
   ];
   return {
-    caseId: "case_12345678",
+    missionId: "case_12345678",
     ownerId: "person_12345678",
     artifactId: "artifact_12345678",
     dedupeKey: hash,
@@ -23,11 +23,11 @@ export function makeDraft(): DraftCase {
       currency: { value: "USD", provenance, uncertainty: "NONE" },
       transactionRef: { value: "ORDER-79", provenance, uncertainty: "NONE" },
       dueAt: { value: "2026-08-20T00:00:00.000Z", provenance, uncertainty: "NONE" },
-      proposedEvidenceLevel: "MERCHANT_CONFIRMED"
+      proposedVerificationStatus: "OUTCOME_CONFIRMED"
     },
     plan: {
       planId: "plan_12345678",
-      caseId: "case_12345678",
+      missionId: "case_12345678",
       ownerId: "person_12345678",
       version: 1,
       planHash: hash,
@@ -37,7 +37,7 @@ export function makeDraft(): DraftCase {
       sharedFields: ["transactionRef", "amountMinor", "currency"],
       evidenceRequirements: [
         {
-          minimumLevel: "MERCHANT_CONFIRMED",
+          minimumStatus: "OUTCOME_CONFIRMED",
           amountMinor: 7900,
           currency: "USD",
           transactionRef: "ORDER-79",

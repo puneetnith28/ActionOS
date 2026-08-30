@@ -1,7 +1,7 @@
-import { FirestoreAnalysisStore } from "@dueback/persistence/analysis-store";
-import { FirestoreIntakeStore } from "@dueback/persistence/intake-store";
-import { extractPromiseWithMetricsFlow } from "@dueback/genkit-flows/extract-promise";
-import { IntakeService } from "@dueback/runtime/intake-service";
+import { FirestoreAnalysisStore } from "@actionos/persistence/analysis-store";
+import { FirestoreIntakeStore } from "@actionos/persistence/intake-store";
+import { extractPromiseWithMetricsFlow } from "@actionos/genkit-flows/extract-promise";
+import { IntakeService } from "@actionos/runtime/intake-service";
 import { artifactBucket, firestore } from "../../../../../lib/firebase-admin";
 import { PrivateArtifactStorage } from "../../../../../lib/artifact-storage";
 import { handleAnalysisWorker } from "../../../../../lib/analysis-worker";

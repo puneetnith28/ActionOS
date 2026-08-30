@@ -16,7 +16,7 @@ interface AnalysisStatus {
 
 const stageIds = ["EVIDENCE_SECURED", "GEMINI_EXTRACTION", "VALIDATING", "REVIEW_READY"] as const;
 
-export function AnalysisProgress({ caseId, preview }: { readonly caseId: string; readonly preview?: AnalysisStatus }) {
+export function AnalysisProgress({ missionId, preview }: { readonly missionId: string; readonly preview?: AnalysisStatus }) {
   const router = useRouter();
   const { locale, localize } = useLocale();
   const copy = getInteractiveCopy(locale).analysis;
@@ -33,7 +33,7 @@ export function AnalysisProgress({ caseId, preview }: { readonly caseId: string;
     const poll = async () => {
       try {
         const token = await anonymousIdToken();
-        const response = await fetch(`/api/cases/${caseId}/analysis`, {
+        const response = await fetch(`/api/cases/${missionId}/analysis`, {
           headers: { Authorization: `Bearer ${token}` },
           cache: "no-store"
         });
@@ -43,7 +43,7 @@ export function AnalysisProgress({ caseId, preview }: { readonly caseId: string;
         setAnalysis(body);
         setError(undefined);
         if (body.status === "READY") {
-          router.replace(localize(`/cases/${caseId}/review`));
+          router.replace(localize(`/cases/${missionId}/review`));
           return;
         }
         if (body.status !== "FAILED") timeout = setTimeout(() => void poll(), 1_200);
@@ -58,14 +58,14 @@ export function AnalysisProgress({ caseId, preview }: { readonly caseId: string;
       cancelled = true;
       if (timeout) clearTimeout(timeout);
     };
-  }, [caseId, router, pollGeneration, localize, preview]);
+  }, [missionId, router, pollGeneration, localize, preview]);
 
   async function retry() {
     setRetrying(true);
     setError(undefined);
     try {
       const token = await anonymousIdToken();
-      const response = await fetch(`/api/cases/${caseId}/analysis`, {
+      const response = await fetch(`/api/cases/${missionId}/analysis`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
       });

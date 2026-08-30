@@ -1,8 +1,8 @@
-import type { CaseControlService } from "@dueback/runtime/case-control";
+import type { CaseControlService } from "@actionos/runtime/case-control";
 
 export async function handleCaseControl(
   request: Request,
-  caseId: string,
+  missionId: string,
   dependencies: {
     authenticate: (request: Request) => Promise<{ uid: string }>;
     service: CaseControlService;
@@ -22,7 +22,7 @@ export async function handleCaseControl(
       return Response.json({ error: "INVALID_CONTROL_COMMAND" }, { status: 400 });
     }
     const result = await dependencies.service.command({
-      caseId,
+      missionId,
       ownerId: owner.uid,
       expectedVersion: body.expectedVersion as number,
       action: body.action,

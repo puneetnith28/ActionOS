@@ -1,6 +1,6 @@
 "use client";
 
-import type { ConsumerCaseDetail } from "../lib/case-projection";
+import type { ConsumerCaseDetail } from "../lib/mission-projection";
 import { useLocale } from "../lib/use-locale";
 
 export function ResultVerdict({ detail }: { readonly detail: ConsumerCaseDetail }) {

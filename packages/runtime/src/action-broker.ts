@@ -1,10 +1,10 @@
-import { actionIdempotencyKey, authorizeAction, stableHash } from "@dueback/domain";
-import type { ApprovedActionPolicy, AuthorizationDecision, ProposedAction } from "@dueback/domain";
+import { actionIdempotencyKey, authorizeAction, stableHash } from "@actionos/domain";
+import type { ExecutionPolicy, AuthorizationDecision, ProposedAction } from "@actionos/domain";
 
 export interface ActionReceipt {
   readonly receiptId: string;
   readonly acceptedAt: string;
-  readonly caseId?: string;
+  readonly missionId?: string;
   readonly channelType?: string;
   readonly providerMessageId?: string;
   readonly replyRoute?: string;
@@ -24,7 +24,7 @@ export interface ActionRecordStore {
   fail(idempotencyKey: string, reasonCode: string): Promise<void>;
   markUnknown?(input: {
     idempotencyKey: string;
-    caseId: string;
+    missionId: string;
     ownerId: string;
     channelType: string;
     recipientFingerprint: string;
@@ -38,14 +38,14 @@ export interface ClosedActionAdapter {
   execute(
     proposal: ProposedAction,
     idempotencyKey: string,
-    context: { readonly caseId: string; readonly correlationId?: string }
+    context: { readonly missionId: string; readonly correlationId?: string }
   ): Promise<ActionReceipt>;
 }
 
 export interface ExternalSendBudget {
   reserveExternalSend(input: {
     ownerId: string;
-    caseId: string;
+    missionId: string;
     recipient: string;
     channelType: string;
     requestedAt: string;
@@ -80,9 +80,9 @@ export class ActionBroker {
   ) {}
 
   async execute(input: {
-    readonly caseId: string;
+    readonly missionId: string;
     readonly actionOrdinal: number;
-    readonly policy: ApprovedActionPolicy;
+    readonly policy: ExecutionPolicy;
     readonly proposal: ProposedAction;
     readonly now: string;
     readonly correlationId?: string;
@@ -91,7 +91,7 @@ export class ActionBroker {
     if (!decision.authorized) return { status: "DENIED", decision };
 
     const idempotencyKey = actionIdempotencyKey({
-      caseId: input.caseId,
+      missionId: input.missionId,
       planVersion: input.proposal.planVersion,
       actionType: input.proposal.actionType,
       ordinal: input.actionOrdinal
@@ -112,20 +112,20 @@ export class ActionBroker {
     try {
       await this.budget?.reserveExternalSend({
         ownerId: input.proposal.ownerId,
-        caseId: input.caseId,
+        missionId: input.missionId,
         recipient: input.proposal.recipient,
         channelType: input.proposal.channelType ?? "UNKNOWN",
         requestedAt: input.now,
         idempotencyKey
       });
       const providerReceipt = await this.adapter.execute(input.proposal, idempotencyKey, {
-        caseId: input.caseId,
+        missionId: input.missionId,
         ...(input.correlationId ? { correlationId: input.correlationId } : {})
       });
       const channelType = input.proposal.channelType ?? providerReceipt.channelType;
       const receipt: ActionReceipt = {
         ...providerReceipt,
-        caseId: input.caseId,
+        missionId: input.missionId,
         ...(channelType ? { channelType } : {}),
         actionIdempotencyKey: idempotencyKey,
         ...(input.correlationId ? { correlationId: input.correlationId } : {})
@@ -139,7 +139,7 @@ export class ActionBroker {
         error.idempotencyKey = idempotencyKey;
         await this.store.markUnknown?.({
           idempotencyKey,
-          caseId: input.caseId,
+          missionId: input.missionId,
           ownerId: input.proposal.ownerId,
           channelType: input.proposal.channelType ?? "UNKNOWN",
           recipientFingerprint: stableHash({

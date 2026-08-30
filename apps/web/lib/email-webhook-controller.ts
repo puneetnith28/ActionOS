@@ -1,8 +1,8 @@
-import { stableHash } from "@dueback/domain";
+import { stableHash } from "@actionos/domain";
 import {
   parseEmailProviderEvent,
   verifyEmailWebhook
-} from "@dueback/channel-adapters/email-webhook";
+} from "@actionos/channel-adapters/email-webhook";
 
 export interface EmailProviderEventStore {
   reserveProviderEvent(input: {

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { authorizeAction } from "../src/policy";
-import type { ApprovedActionPolicy, ProposedAction } from "../src/policy";
+import type { ExecutionPolicy, ProposedAction } from "../src/policy";
 
-const policy: ApprovedActionPolicy = {
+const policy: ExecutionPolicy = {
   ownerId: "person_1",
   planVersion: 1,
   planHash: "sha256:plan",
@@ -10,7 +10,7 @@ const policy: ApprovedActionPolicy = {
   allowedRecipient: "merchant@example.test",
   allowedChannel: "MANAGED_EMAIL",
   sharedFields: ["transactionRef"],
-  approval: {
+  boundary: {
     ownerId: "person_1",
     planVersion: 1,
     planHash: "sha256:plan",
