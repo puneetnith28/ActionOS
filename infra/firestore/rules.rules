@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Browsers never write operational state directly. Authenticated product
+    // requests pass through ownership-checking Cloud Run endpoints.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

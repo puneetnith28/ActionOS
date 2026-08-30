@@ -1,0 +1,30 @@
+substitutions:
+  _REGION: us-central1
+  _REPOSITORY: dueback
+  _TAG: manual
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      [
+        build,
+        -f,
+        infra/cloud-run/Dockerfile.web,
+        -t,
+        "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/web:${_TAG}",
+        .
+      ]
+  - name: gcr.io/cloud-builders/docker
+    args:
+      [
+        build,
+        -f,
+        infra/cloud-run/Dockerfile.sandbox,
+        -t,
+        "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/merchant-sandbox:${_TAG}",
+        .
+      ]
+images:
+  - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/web:${_TAG}"
+  - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/merchant-sandbox:${_TAG}"
+options:
+  logging: CLOUD_LOGGING_ONLY

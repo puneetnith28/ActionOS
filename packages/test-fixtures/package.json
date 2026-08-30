@@ -1,0 +1,23 @@
+{
+  "name": "@actionos/test-fixtures",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/promises.ts",
+    "./promise-manifests": "./src/promise-manifests.ts",
+    "./evaluation-corpus": "./src/evaluation-corpus.ts",
+    "./email-events": "./src/email-events.ts",
+    "./case-projections": "./src/case-projections.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@actionos/contracts": "workspace:*",
+    "@actionos/domain": "workspace:*"
+  }
+}

@@ -1,0 +1,63 @@
+import type { FollowThroughCase } from "@dueback/runtime/case-runner";
+import type { EvidenceRecord } from "@dueback/runtime/evidence-service";
+
+export interface ConversationEntry {
+  id: string;
+  direction: "OUTBOUND" | "INBOUND";
+  title: string;
+  occurredAt?: string;
+  safeBody: string;
+  status: string;
+  reason: string;
+}
+
+function explicitFacts(record: EvidenceRecord): string {
+  const candidate = record.candidate;
+  const amount = candidate.amountMinor === undefined
+    ? undefined
+    : candidate.currency
+      ? `${candidate.currency} ${(candidate.amountMinor / 100).toFixed(2)}`
+      : (candidate.amountMinor / 100).toFixed(2);
+  const facts = [
+    candidate.transactionRef ? `Reference ${candidate.transactionRef}` : undefined,
+    amount ? `Amount ${amount}` : undefined,
+    candidate.subject ? `Subject ${candidate.subject}` : undefined,
+    candidate.billPeriod ? `Bill period ${candidate.billPeriod}` : undefined,
+    candidate.trackingNumber ? `Tracking ${candidate.trackingNumber}` : undefined
+  ].filter((value): value is string => Boolean(value));
+  return facts.length ? facts.join(" · ") : "No outcome facts were explicitly stated.";
+}
+
+export function caseConversation(
+  item: FollowThroughCase,
+  evidence: readonly EvidenceRecord[],
+  channelEvents: readonly { acceptedAt: string; transportStatus: string }[]
+): ConversationEntry[] {
+  const outbound = channelEvents.map((event, index) => ({
+    id: `outbound-${String(index)}-${event.acceptedAt}`,
+    direction: "OUTBOUND" as const,
+    title: index === 0 ? "DueBack sent the approved follow-up" : "DueBack sent an approved follow-up",
+    occurredAt: event.acceptedAt,
+    safeBody: `Requested outcome: ${item.plan.goal}`,
+    status: event.transportStatus,
+    reason: "Provider transport status only; this does not prove the outcome."
+  }));
+  const inbound = evidence.map((record) => ({
+    id: `inbound-${record.candidate.evidenceId}`,
+    direction: "INBOUND" as const,
+    title: record.candidate.level === "REQUEST_ACKNOWLEDGED"
+      ? "The company acknowledged the request"
+      : "DueBack checked a company reply",
+    occurredAt: record.recordedAt,
+    safeBody: explicitFacts(record),
+    status: record.verification.accepted ? "PROOF_ACCEPTED" : "NOT_RESOLVED",
+    reason: record.verification.accepted
+      ? "The explicit facts met the approved evidence contract."
+      : record.verification.reasonCodes.includes("INSUFFICIENT_LEVEL")
+        ? "Acknowledgement is not proof that the promised outcome happened."
+        : `Still needs review: ${record.verification.reasonCodes.join(", ").toLowerCase().replaceAll("_", " ")}.`
+  }));
+  return [...outbound, ...inbound].sort((left, right) =>
+    left.occurredAt.localeCompare(right.occurredAt)
+  );
+}

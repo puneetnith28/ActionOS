@@ -1,0 +1,28 @@
+{
+  "name": "@actionos/persistence",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/firestore.ts",
+    "./intake-store": "./src/intake-store.ts",
+    "./analysis-store": "./src/analysis-store.ts",
+    "./runtime-store": "./src/runtime-store.ts",
+    "./retention": "./src/retention.ts",
+    "./expiry": "./src/expiry.ts",
+    "./wake-outbox-store": "./src/wake-outbox-store.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src test",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@actionos/contracts": "workspace:*",
+    "@actionos/runtime": "workspace:*",
+    "@actionos/domain": "workspace:*",
+    "@actionos/channel-adapters": "workspace:*",
+    "firebase-admin": "14.2.0"
+  }
+}

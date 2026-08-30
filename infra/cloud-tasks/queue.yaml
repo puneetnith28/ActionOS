@@ -1,0 +1,11 @@
+queue:
+  name: dueback-cases
+  location: us-central1
+  rateLimits:
+    maxDispatchesPerSecond: 2
+    maxConcurrentDispatches: 2
+  retryConfig:
+    maxAttempts: 5
+    minBackoff: 10s
+    maxBackoff: 300s
+    maxDoublings: 3

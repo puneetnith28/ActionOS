@@ -1,0 +1,36 @@
+{
+  "name": "@actionos/runtime",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./action-broker": "./src/action-broker.ts",
+    "./task-scheduler": "./src/task-scheduler.ts",
+    "./intake-service": "./src/intake-service.ts",
+    "./plan-service": "./src/plan-service.ts",
+    "./case-runner": "./src/case-runner.ts",
+    "./notifications": "./src/notifications.ts",
+    "./interventions": "./src/interventions.ts",
+    "./case-control": "./src/case-control.ts",
+    "./evidence-service": "./src/evidence-service.ts",
+    "./timeline": "./src/timeline.ts",
+    "./channel-registry": "./src/channel-registry.ts",
+    "./inbound-service": "./src/inbound-service.ts",
+    "./technical-run": "./src/technical-run.ts",
+    "./wake-outbox": "./src/wake-outbox.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src test",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@actionos/contracts": "workspace:*",
+    "@actionos/domain": "workspace:*",
+    "@google-cloud/tasks": "7.0.0"
+  },
+  "devDependencies": {
+    "@actionos/test-fixtures": "workspace:*"
+  }
+}

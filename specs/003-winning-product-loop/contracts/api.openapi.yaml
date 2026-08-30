@@ -1,0 +1,145 @@
+openapi: 3.1.0
+info:
+  title: DueBack Winning Product Loop API
+  version: 0.1.0
+paths:
+  /api/intake:
+    post:
+      summary: Secure evidence, create an analyzing case and enqueue durable extraction
+      responses:
+        "202":
+          description: Analysis case accepted or existing duplicate returned
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/IntakeAccepted" }
+        "400": { description: Invalid or missing source }
+        "401": { description: Owner session required }
+        "429": { description: Case or model budget exhausted }
+  /api/cases/{caseId}/analysis:
+    get:
+      summary: Read the owned persisted analysis stage
+      responses:
+        "200":
+          description: Current analysis projection
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AnalysisStatus" }
+        "403": { description: Ownership required }
+        "404": { description: Case not found or deleted }
+    post:
+      summary: Cancel or retry an eligible analysis job
+      responses:
+        "200": { description: Versioned analysis command accepted }
+        "409": { description: Stale or invalid transition }
+  /api/internal/tasks/analyze-case:
+    post:
+      summary: Lease and execute one durable tool-less Gemini analysis attempt
+      responses:
+        "200": { description: Published, retry scheduled, cancelled or stale }
+        "401": { description: Cloud Tasks OIDC identity required }
+        "409": { description: Lease or job version conflict }
+  /api/cases/{caseId}/plan:
+    get:
+      summary: Read the editable current plan and mode capabilities
+      responses:
+        "200": { description: Owned plan }
+        "403": { description: Ownership required }
+    post:
+      summary: Revise facts/mode/channel/proof, preview, approve, reject or delete
+      responses:
+        "200": { description: Updated version, preview or approved case }
+        "409": { description: Stale version, unresolved blocker or unavailable mode/channel }
+  /api/cases/{caseId}/identity:
+    post:
+      summary: Atomically link/claim an anonymous draft to a recoverable owner
+      responses:
+        "200": { description: Case linked to recoverable owner }
+        "401": { description: Recoverable provider authentication required }
+        "409": { description: Case already claimed or ownership race }
+  /api/cases:
+    get:
+      summary: List a bounded recent history for the recoverable owner
+      responses:
+        "200": { description: Owned compact case summaries }
+        "401": { description: Recoverable identity required }
+  /api/cases/{caseId}/timeline:
+    get:
+      summary: Read ordered human-safe persisted case events
+      responses:
+        "200":
+          description: Timeline projection
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [caseId, state, events]
+                properties:
+                  caseId: { type: string }
+                  state: { type: string }
+                  events:
+                    type: array
+                    items: { $ref: "#/components/schemas/CaseEvent" }
+        "403": { description: Ownership required }
+  /api/cases/{caseId}/evidence-console:
+    get:
+      summary: Read a redacted judge projection for an owned synthetic demo case
+      responses:
+        "200": { description: Redacted persisted evidence projection }
+        "403": { description: Judge mode, synthetic case or ownership requirement failed }
+  /api/channels:
+    get:
+      summary: List modes/channels using static configuration plus persisted health gates
+      responses:
+        "200": { description: Truthful current capabilities }
+  /api/internal/email/readiness:
+    post:
+      summary: Record a scoped controlled-email smoke result for current deployment/configuration
+      responses:
+        "200": { description: Readiness record created or rejected }
+        "401": { description: Operator identity required }
+        "409": { description: Incomplete smoke gates }
+components:
+  schemas:
+    IntakeAccepted:
+      type: object
+      required: [caseId, analysisJobId, state, duplicate, statusPath]
+      properties:
+        caseId: { type: string }
+        analysisJobId: { type: string }
+        state: { const: ANALYZING }
+        duplicate: { type: boolean }
+        statusPath: { type: string }
+    AnalysisStatus:
+      type: object
+      required: [caseId, state, stage, attemptCount, updatedAt, canCancel, canRetry]
+      properties:
+        caseId: { type: string }
+        state: { enum: [ANALYZING, AWAITING_APPROVAL, CANCELLED, FAILED] }
+        stage: { enum: [EVIDENCE_SECURED, EXTRACTION_RUNNING, VALIDATING, REVIEW_READY, RETRY_PENDING, FAILED, CANCELLED] }
+        attemptCount: { type: integer, minimum: 0, maximum: 4 }
+        updatedAt: { type: string, format: date-time }
+        retryAt: { type: string, format: date-time }
+        safeErrorCode: { type: string }
+        canCancel: { type: boolean }
+        canRetry: { type: boolean }
+    CaseEvent:
+      type: object
+      required: [eventId, sequence, type, occurredAt, title, summary]
+      properties:
+        eventId: { type: string }
+        sequence: { type: integer, minimum: 1 }
+        type: { type: string }
+        occurredAt: { type: string, format: date-time }
+        title: { type: string }
+        summary: { type: string }
+        consequence: { type: string }
+        reasonCodes: { type: array, items: { type: string } }
+    ExecutionModeCapability:
+      type: object
+      required: [mode, status, counterpartyLabel, timingLabel, reasonCodes]
+      properties:
+        mode: { enum: [ACCELERATED_DEMO, CONTROLLED_REAL_PILOT] }
+        status: { enum: [AVAILABLE, UNAVAILABLE, EXPIRED] }
+        counterpartyLabel: { type: string }
+        timingLabel: { type: string }
+        reasonCodes: { type: array, items: { type: string } }

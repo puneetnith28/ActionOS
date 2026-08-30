@@ -1,0 +1,41 @@
+{
+  "name": "actionos",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.34.5",
+  "engines": {
+    "node": ">=22 <25"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r --if-present test && vitest run tests",
+    "test:domain": "pnpm --filter @actionos/domain test",
+    "format:check": "prettier --check .",
+    "format": "prettier --write .",
+    "evaluate": "tsx scripts/evaluation/run.ts",
+    "evaluate:live-model": "tsx scripts/evaluation/live-model.ts",
+    "research:report": "tsx scripts/research/report.ts",
+    "test:deployed": "playwright test",
+    "test:firestore-rules": "firebase emulators:exec --only firestore --project actionos-rules-test 'pnpm exec vitest run tests/security/firestore-rules.test.ts --config vitest.security.config.ts'",
+    "demo:reset": "tsx scripts/demo/reset.ts",
+    "release:capture-google": "tsx scripts/release/capture-google-state.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.2",
+    "@firebase/rules-unit-testing": "5.0.1",
+    "@playwright/test": "1.62.1",
+    "@types/node": "22.19.11",
+    "eslint": "9.39.2",
+    "firebase": "12.17.1",
+    "firebase-tools": "15.27.0",
+    "genkit": "1.41.0",
+    "prettier": "3.8.2",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.56.1",
+    "vitest": "4.1.10"
+  }
+}

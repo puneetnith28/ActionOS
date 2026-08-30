@@ -1,0 +1,27 @@
+{
+  "name": "@actionos/channel-adapters",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./upload": "./src/upload.ts",
+    "./callback-signature": "./src/callback-signature.ts",
+    "./artifact-access": "./src/artifact-access.ts",
+    "./merchant-sandbox": "./src/merchant-sandbox.ts",
+    "./company-email": "./src/company-email.ts",
+    "./email-webhook": "./src/email-webhook.ts",
+    "./inbound-email": "./src/inbound-email.ts",
+    "./outbound-email": "./src/outbound-email.ts",
+    "./partner-api": "./src/partner-api.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src test",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@actionos/domain": "workspace:*",
+    "@actionos/runtime": "workspace:*"
+  }
+}

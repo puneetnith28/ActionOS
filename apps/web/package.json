@@ -1,0 +1,34 @@
+{
+  "name": "@actionos/web",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint app components lib test next.config.ts",
+    "test": "vitest run",
+    "deploy:firestore-rules": "tsx scripts/deploy-firestore-rules.ts"
+  },
+  "dependencies": {
+    "@actionos/channel-adapters": "workspace:*",
+    "@actionos/contracts": "workspace:*",
+    "@actionos/domain": "workspace:*",
+    "@actionos/genkit-flows": "workspace:*",
+    "@actionos/persistence": "workspace:*",
+    "@actionos/runtime": "workspace:*",
+    "@google-cloud/tasks": "7.0.0",
+    "google-auth-library": "10.5.0",
+    "firebase": "12.17.1",
+    "firebase-admin": "14.2.0",
+    "next": "16.3.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@actionos/test-fixtures": "workspace:*",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4"
+  }
+}
