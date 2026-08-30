@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
 import type { ProposedCapabilityExecution } from "@actionos/domain";
-import type { ExecutionReceipt, CapabilityExecutor } from "@actionos/runtime/capability-broker";
+import { CapabilityOutcomeUnknownError, type ExecutionReceipt, type CapabilityExecutor } from "@actionos/runtime/capability-broker";
 
 export interface PartnerApiFixtureConfig {
   readonly endpoint: string;
@@ -34,16 +34,27 @@ export class PartnerApiFixtureAdapter implements CapabilityExecutor {
       proposal
     });
     const signature = createHmac("sha256", this.config.signingSecret).update(body).digest("hex");
-    const response = await this.request(this.config.endpoint, {
-      method: "POST",
-      headers: {
-        "content-Type": "application/json",
-        "idempotency-key": idempotencyKey,
-        "x-actionos-signature": `sha256=${signature}`,
-        ...(context.correlationId ? { "x-actionos-correlation-id": context.correlationId } : {})
-      },
-      body
-    });
+    let response: Response;
+    try {
+      response = await this.request(this.config.endpoint, {
+        method: "POST",
+        headers: {
+          "content-Type": "application/json",
+          "idempotency-key": idempotencyKey,
+          "x-actionos-signature": `sha256=${signature}`,
+          ...(context.correlationId ? { "x-actionos-correlation-id": context.correlationId } : {})
+        },
+        body,
+        signal: AbortSignal.timeout(10000)
+      });
+    } catch (error) {
+      throw new CapabilityOutcomeUnknownError(
+        error instanceof Error && error.name === "TimeoutError" ? "PARTNER_TIMEOUT" : "PARTNER_API_UNKNOWN"
+      );
+    }
+    if (response.status >= 500) {
+      throw new CapabilityOutcomeUnknownError(`PARTNER_API_${String(response.status)}`);
+    }
     if (!response.ok) throw new Error(`PARTNER_API_${String(response.status)}`);
     const receipt = (await response.json()) as Partial<ExecutionReceipt>;
     if (!receipt.receiptId || !receipt.acceptedAt) throw new Error("PARTNER_RECEIPT_INVALID");

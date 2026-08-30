@@ -76,10 +76,13 @@ export class CompanyEmailActionAdapter implements CapabilityExecutor {
           subject: message.subject,
           text: message.text,
           ...(context.correlationId ? { headers: { "X-ActionOS-Correlation-Id": context.correlationId } } : {})
-        })
+        }),
+        signal: AbortSignal.timeout(10000)
       });
-    } catch {
-      throw new CapabilityOutcomeUnknownError("COMPANY_EMAIL_TRANSPORT_UNKNOWN");
+    } catch (error) {
+      throw new CapabilityOutcomeUnknownError(
+        error instanceof Error && error.name === "TimeoutError" ? "COMPANY_EMAIL_TIMEOUT" : "COMPANY_EMAIL_TRANSPORT_UNKNOWN"
+      );
     }
     if (response.status >= 500) {
       throw new CapabilityOutcomeUnknownError(`COMPANY_EMAIL_TRANSPORT_${String(response.status)}`);

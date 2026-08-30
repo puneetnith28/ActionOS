@@ -166,13 +166,24 @@ const ai = genkit({
 
 const gateway: PromiseModelGateway = {
   async generate(input) {
-    const response = await ai.generate({
-      model: vertexAI.model("gemini-3.5-flash"),
-      system: input.system,
-      prompt: input.prompt,
-      output: { schema: promiseDraftFlowSchema },
-      config: { temperature: 0 }
-    });
+    let response;
+    try {
+      response = await ai.generate({
+        model: vertexAI.model("gemini-3.5-flash"),
+        system: input.system,
+        prompt: input.prompt,
+        output: { schema: promiseDraftFlowSchema },
+        config: { temperature: 0 }
+      });
+    } catch (error) {
+      response = await ai.generate({
+        model: vertexAI.model("gemini-1.5-pro"),
+        system: input.system,
+        prompt: input.prompt,
+        output: { schema: promiseDraftFlowSchema },
+        config: { temperature: 0 }
+      });
+    }
     if (!response.output) return null;
     const normalized = structuredClone(response.output) as Record<string, unknown>;
     for (const value of Object.values(normalized)) {

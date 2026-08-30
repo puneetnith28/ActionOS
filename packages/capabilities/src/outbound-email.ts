@@ -84,7 +84,8 @@ export class ResendEmailTransport implements EmailTransport {
         to: [input.recipient],
         subject: input.subject,
         text: input.text
-      })
+      }),
+      signal: AbortSignal.timeout(10000)
     });
     if (!response.ok) throw new Error(`EMAIL_TRANSPORT_${String(response.status)}`);
     const result = (await response.json()) as { id?: string };

@@ -64,13 +64,24 @@ const ai = genkit({
 });
 const gateway: VerificationModelGateway = {
   async generate(input) {
-    const response = await ai.generate({
-      model: vertexAI.model("gemini-3.5-flash"),
-      system: input.system,
-      prompt: input.prompt,
-      output: { schema: candidateOutputSchema },
-      config: { temperature: 0 }
-    });
+    let response;
+    try {
+      response = await ai.generate({
+        model: vertexAI.model("gemini-3.5-flash"),
+        system: input.system,
+        prompt: input.prompt,
+        output: { schema: candidateOutputSchema },
+        config: { temperature: 0 }
+      });
+    } catch (error) {
+      response = await ai.generate({
+        model: vertexAI.model("gemini-1.5-pro"),
+        system: input.system,
+        prompt: input.prompt,
+        output: { schema: candidateOutputSchema },
+        config: { temperature: 0 }
+      });
+    }
     return response.output ?? null;
   }
 };
