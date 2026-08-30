@@ -47,7 +47,7 @@ export default async function Home() {
         <div><span className="eyebrow">{copy.difference}</span><h2>{copy.notChat}</h2></div>
         <div className="comparison-card">
           <div><small>{copy.reminder}</small><strong>{copy.reminderQuote}</strong><p>{copy.reminderText}</p></div>
-          <div data-dueback="true"><small>DUEBACK</small><strong>{copy.duebackQuote}</strong><p>{copy.duebackText}</p></div>
+          <div data-actionos="true"><small>ACTIONOS</small><strong>{copy.duebackQuote}</strong><p>{copy.duebackText}</p></div>
         </div>
       </section>
 

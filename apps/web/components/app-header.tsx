@@ -8,8 +8,8 @@ export async function AppHeader() {
   return (
     <header className="app-header">
       <a className="brand" href={localizePath("/", locale)} aria-label={copy.home}>
-        <span className="brand-mark" aria-hidden="true">✓</span>
-        <span>DueBack</span>
+        <span className="brand-mark" aria-hidden="true">⌘</span>
+        <span>ActionOS</span>
       </a>
       <nav className="header-actions" aria-label={copy.navigation}>
         <a className="header-link" href={localizePath("/cases", locale)}>{copy.cases}</a>
