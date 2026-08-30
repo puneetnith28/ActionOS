@@ -6,16 +6,16 @@ export interface InboxIdentity {
 export function emptyInboxPresentation(identity: InboxIdentity) {
   if (!identity.isAnonymous) {
     return {
-      heading: "No follow-ups yet",
+      heading: "No active missions",
       message: identity.email
-        ? `Signed in as ${identity.email}. This account does not have any follow-ups yet.`
-        : "You are signed in. This account does not have any follow-ups yet.",
+        ? `Signed in as ${identity.email}. This account does not have any active or historical missions.`
+        : "You are signed in. This account does not have any active or historical missions.",
       showSignIn: false
     } as const;
   }
   return {
-    heading: "No follow-ups in this session",
-    message: "Sign in to recover cases saved with Google, or add a new company promise.",
+    heading: "No missions in this session",
+    message: "Sign in to recover missions saved with Google, or define a new objective.",
     showSignIn: true
   } as const;
 }

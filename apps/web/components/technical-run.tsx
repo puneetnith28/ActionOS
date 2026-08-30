@@ -26,7 +26,7 @@ export function TechnicalRun({ missionId }: { readonly missionId: string }) {
         setOpen(true);
       })
       .catch(() => {
-        setError("The redacted technical trace is unavailable for this case.");
+        setError("Telemetry trace data is unavailable for this mission.");
       })
       .finally(() => {
         setBusy(false);
@@ -34,8 +34,8 @@ export function TechnicalRun({ missionId }: { readonly missionId: string }) {
   };
   return (
     <section className="card technical-run">
-      <h2>How ActionOS ran</h2>
-      <p>Inspect persisted, redacted steps. Missing telemetry stays labeled missing.</p>
+      <h2>Execution Telemetry</h2>
+      <p>Inspect raw execution telemetry. Missing spans remain unrecorded.</p>
       <button
         type="button"
         className="secondary"
@@ -53,7 +53,7 @@ export function TechnicalRun({ missionId }: { readonly missionId: string }) {
           load();
         }}
       >
-        {busy ? "Loading trace…" : open ? "Hide technical trace" : "Show technical trace"}
+        {busy ? "Fetching trace telemetry…" : open ? "Hide telemetry trace" : "Show telemetry trace"}
       </button>
       {error ? (
         <p className="error" role="alert">

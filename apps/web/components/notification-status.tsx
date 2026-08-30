@@ -20,13 +20,13 @@ export function NotificationStatus({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const presentation = notificationPresentation(notification);
-  return <section className="card notification-status" aria-label={tr("Your return notification", "Tu notificación de retorno", "Sua notificação de retorno")}>
-    <div className="eyebrow">{tr("Return notification", "Notificación de retorno", "Notificação de retorno")}</div>
+  return <section className="card notification-status" aria-label={tr("System Notification State", "Estado de notificaciones", "Estado das notificações")}>
+    <div className="eyebrow">{tr("Notification Routing", "Enrutamiento de notificaciones", "Roteamento de notificações")}</div>
     <h2>{presentation.copy}</h2>
     {presentation.inAppOnly
-      ? <p>{tr("This mission page is your return path. No email update was requested.", "Esta página es tu vía de retorno. No se solicitó un correo.", "Esta página é seu caminho de retorno. Nenhum e-mail foi solicitado.")}</p>
+      ? <p>{tr("Execution updates are restricted to the Live Mission Console. External webhooks and email routing are disabled.", "Las actualizaciones de estado están restringidas a la consola. Los webhooks externos y notificaciones por correo están desactivados.", "As atualizações de estado estão restritas ao Console. Webhooks externos e notificações por e-mail estão desativados.")}</p>
       : <p>{tr("Destination", "Destino", "Destino")}: {presentation.destination}. {tr("Attempts", "Intentos", "Tentativas")}: {presentation.attempts} {tr("of 3", "de 3", "de 3")}.</p>}
-    <p>{presentation.inAppOnly ? tr("The proof decision is saved here.", "La decisión de prueba queda guardada aquí.", "A decisão de prova fica salva aqui.") : tr("Notification delivery never changes whether the company promise has enough proof.", "La entrega de la notificación nunca cambia si la promesa tiene prueba suficiente.", "A entrega da notificação nunca muda se a promessa possui prova suficiente.")}</p>
+    <p>{presentation.inAppOnly ? tr("Verification results are preserved locally.", "Los resultados de verificación se preservan aquí.", "Os resultados de verificação são preservados aqui.") : tr("Outbound notification transport failures do not impact autonomous execution state.", "Fallos en el transporte de notificaciones no impactan el estado de ejecución autónoma.", "Falhas no transporte de notificações não impactam o estado de execução autônoma.")}</p>
     {presentation.canRetry ? <button type="button" className="secondary" disabled={busy} onClick={() => {
       setBusy(true); setError(undefined);
       void anonymousIdToken().then((token) => fetch(`/api/cases/${missionId}/notifications/retry`, {
@@ -36,7 +36,7 @@ export function NotificationStatus({
       })).then((response) => {
         if (!response.ok) throw new Error("RETRY_FAILED");
         onRetried();
-      }).catch(() => { setError(tr("ActionOS could not retry this notification. Your mission is unchanged.", "ActionOS no pudo reintentar esta notificación. Tu caso no cambió.", "O ActionOS não conseguiu tentar esta notificação novamente. Seu caso não mudou.")); })
+      }).catch(() => { setError(tr("ActionOS could not retry this notification. Your mission state is unchanged.", "ActionOS no pudo reintentar la notificación. El estado de la misión no cambió.", "O ActionOS não conseguiu tentar esta notificação novamente. O estado da missão não mudou.")); })
         .finally(() => { setBusy(false); });
     }}>{busy ? tr("Retrying…", "Reintentando…", "Tentando novamente…") : tr("Retry notification", "Reintentar notificación", "Tentar notificação novamente")}</button> : null}
     {error ? <p className="error" role="alert">{error}</p> : null}

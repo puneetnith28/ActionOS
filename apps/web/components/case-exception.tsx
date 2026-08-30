@@ -16,7 +16,7 @@ export function CaseException({ missionId }: { readonly missionId: string }) {
   const { locale, localize } = useLocale();
   const tr = (en: string, es: string, pt: string) => locale === "es" ? es : locale === "pt" ? pt : en;
   const [payload, setPayload] = useState<ExceptionPayload>();
-  const [reason, setReason] = useState("The promised result did not actually arrive.");
+  const [reason, setReason] = useState("The expected system state was not achieved.");
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
 
@@ -72,8 +72,8 @@ export function CaseException({ missionId }: { readonly missionId: string }) {
   return (
     <div className="review-grid">
       <section className="card">
-        <div className="eyebrow">{tr("Your decision is required", "Necesitamos tu decisión", "Precisamos da sua decisão")}</div>
-        <h2>{latest?.question ?? (payload.case.state === "DONE" ? tr("Did the promised result actually arrive?", "¿Llegó realmente el resultado prometido?", "O resultado prometido realmente chegou?") : tr("Should ActionOS stop future actions?", "¿ActionOS debe detener las acciones futuras?", "O ActionOS deve interromper as ações futuras?"))}</h2>
+        <div className="eyebrow">{tr("Intervention Required", "Intervención requerida", "Intervenção necessária")}</div>
+        <h2>{latest?.question ?? (payload.case.state === "DONE" ? tr("Did the target state match expectations?", "¿El estado objetivo cumplió con las expectativas?", "O estado alvo atendeu às expectativas?") : tr("Halt agent execution loop?", "¿Detener el bucle de ejecución?", "Interromper o loop de execução?"))}</h2>
         <p>
           {latest?.requestedField
             ? `Check only the ${latest.requestedField}. ActionOS has not changed the approved plan.`
@@ -83,11 +83,11 @@ export function CaseException({ missionId }: { readonly missionId: string }) {
         {latest ? <p><strong>{tr("What happens next", "Qué sucede ahora", "O que acontece agora")}:</strong> {latest.consequence}</p> : null}
       </section>
       <section className="card">
-        <h2>{tr("You remain in control", "Vos mantenés el control", "Você mantém o controle")}</h2>
-        <p>{tr("Stop prevents future actions. Delete removes this mission and its nested records; actions already sent cannot be recalled.", "Detener impide acciones futuras. Eliminar borra el caso y sus registros; las acciones ya enviadas no pueden recuperarse.", "Parar impede ações futuras. Excluir remove o caso e seus registros; ações já enviadas não podem ser recuperadas.")}</p>
+        <h2>{tr("Manual Intervention Controls", "Controles de intervención manual", "Controles de intervenção manual")}</h2>
+        <p>{tr("Halt prevents future agent execution. Delete completely purges this mission and execution history; side-effects already triggered cannot be reversed.", "Detener impide la ejecución futura. Eliminar purga por completo esta misión y su historial; los efectos secundarios ya desencadenados no se pueden revertir.", "Interromper impede a execução futura do agente. Excluir expurga completamente esta missão e o histórico; efeitos colaterais já acionados não podem ser revertidos.")}</p>
         {payload.case.state === "DONE" ? (
           <>
-            <label htmlFor="reopen-reason">{tr("Why is this not resolved?", "¿Por qué no está resuelto?", "Por que isto não está resolvido?")}</label>
+            <label htmlFor="reopen-reason">{tr("Reason for forced state failure?", "¿Motivo del fallo forzado?", "Motivo da falha forçada?")}</label>
             <textarea
               id="reopen-reason"
               value={reason}
@@ -97,26 +97,26 @@ export function CaseException({ missionId }: { readonly missionId: string }) {
               }}
             />
             <button disabled={busy || !reason.trim()} onClick={() => void command("REOPEN")}>
-              {tr("This isn't resolved", "Esto no está resuelto", "Isto não está resolvido")}
+              {tr("Force failure", "Forzar fallo", "Forçar falha")}
             </button>
           </>
         ) : payload.case.state === "NEEDS_ATTENTION" ? latest?.allowedDecisions.includes("REVISE") ? (
           <button disabled={busy} onClick={() => void command("REVISE")}>
-            {tr("Correct the approved plan", "Corregir el plan aprobado", "Corrigir o plano aprovado")}
+            {tr("Revise execution boundaries", "Revisar límites de ejecución", "Revisar limites de execução")}
           </button>
         ) : (
           <button disabled={busy} onClick={() => void command("RESUME")}>
-            {tr("Retry within the approved limits", "Reintentar dentro de los límites aprobados", "Tentar novamente dentro dos limites aprovados")}
+            {tr("Resume execution loop", "Reanudar bucle de ejecución", "Retomar loop de execução")}
           </button>
         ) : (
           <button disabled={busy} onClick={() => void command("STOP")}>
-            {tr("Stop future actions", "Detener acciones futuras", "Interromper ações futuras")}
+            {tr("Halt execution loop", "Detener bucle de ejecución", "Interromper loop de execução")}
           </button>
         )}
         <button className="secondary" disabled={busy} onClick={() => {
-          if (window.confirm(tr("Delete this mission and stop all future actions? Actions already sent cannot be recalled.", "¿Eliminar este caso y detener toda acción futura? Las acciones enviadas no pueden recuperarse.", "Excluir este caso e interromper todas as ações futuras? Ações enviadas não podem ser recuperadas."))) void command("DELETE");
+          if (window.confirm(tr("Purge this mission and halt all execution? Side-effects already triggered cannot be reversed.", "¿Purgar esta misión y detener la ejecución? Los efectos secundarios ya desencadenados no se pueden revertir.", "Expurgar esta missão e interromper toda execução? Efeitos colaterais já acionados não podem ser revertidos."))) void command("DELETE");
         }}>
-          {tr("Delete this case", "Eliminar este caso", "Excluir este caso")}
+          {tr("Purge mission data", "Purgar datos de misión", "Expurgar dados da missão")}
         </button>
         {error ? <p className="error">{error}</p> : null}
       </section>
