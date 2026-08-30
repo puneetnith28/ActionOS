@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { performance } from "node:perf_hooks";
 import { genkit } from "genkit";
-import { actionIdempotencyKey } from "../../packages/domain/src/identity.ts";
+import { capabilityIdempotencyKey } from "../../packages/domain/src/identity.ts";
 import { authorizeAction } from "../../packages/domain/src/policy.ts";
 import { verifyEvidence } from "../../packages/domain/src/verifier.ts";
 import { transportStatusForProviderEvent } from "../../packages/capabilities/src/email-webhook.ts";
@@ -158,7 +158,7 @@ function evaluateCase(item: EvaluationCase): ObservedResult {
       actionType: "SEND_FOLLOW_UP",
       ordinal: 1
     };
-    const passed = actionIdempotencyKey(input) === actionIdempotencyKey(input);
+    const passed = capabilityIdempotencyKey(input) === capabilityIdempotencyKey(input);
     return {
       passed,
       observedState: item.expected.state,

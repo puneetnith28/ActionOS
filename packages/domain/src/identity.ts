@@ -14,13 +14,13 @@ export function stableHash(value: unknown): `sha256:${string}` {
   return `sha256:${createHash("sha256").update(stable(value)).digest("hex")}`;
 }
 
-export function actionIdempotencyKey(input: {
+export function capabilityIdempotencyKey(input: {
   readonly missionId: string;
   readonly planVersion: number;
   readonly actionType: string;
   readonly ordinal: number;
 }): `sha256:${string}` {
-  return stableHash({ namespace: "dueback/action/v1", ...input });
+  return stableHash({ namespace: "dueback/capability/v1", ...input });
 }
 
 export function eventDedupeKey(input: {

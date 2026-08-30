@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  actionIdempotencyKey,
+  capabilityIdempotencyKey,
   artifactDedupeKey,
   callbackDedupeKey,
   caseDedupeKey,
@@ -15,7 +15,7 @@ describe("stable identities", () => {
 
   it("keeps retries on one logical action key", () => {
     const input = { missionId: "case_1", planVersion: 1, actionType: "SEND_FOLLOW_UP", ordinal: 1 };
-    expect(actionIdempotencyKey(input)).toBe(actionIdempotencyKey(input));
+    expect(capabilityIdempotencyKey(input)).toBe(capabilityIdempotencyKey(input));
   });
 
   it("separates external events by source identity", () => {

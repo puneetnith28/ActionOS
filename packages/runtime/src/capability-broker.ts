@@ -1,4 +1,4 @@
-import { actionIdempotencyKey, validateCapabilityExecution, stableHash } from "@actionos/domain";
+import { capabilityIdempotencyKey, validateCapabilityExecution, stableHash } from "@actionos/domain";
 import type { CapabilityPolicy, AuthorizationDecision, ProposedCapabilityExecution } from "@actionos/domain";
 
 export interface ExecutionReceipt {
@@ -10,7 +10,7 @@ export interface ExecutionReceipt {
   readonly replyRoute?: string;
   readonly recipientFingerprint?: string;
   readonly correlationId?: string;
-  readonly actionIdempotencyKey?: string;
+  readonly capabilityIdempotencyKey?: string;
 }
 
 export type Reservation =
@@ -90,7 +90,7 @@ export class ExecutionBroker {
     const decision = validateCapabilityExecution(input.policy, input.proposal, input.now);
     if (!decision.authorized) return { status: "DENIED", decision };
 
-    const idempotencyKey = actionIdempotencyKey({
+    const idempotencyKey = capabilityIdempotencyKey({
       missionId: input.missionId,
       planVersion: input.proposal.planVersion,
       actionType: input.proposal.actionType,
@@ -127,7 +127,7 @@ export class ExecutionBroker {
         ...providerReceipt,
         missionId: input.missionId,
         ...(channelType ? { channelType } : {}),
-        actionIdempotencyKey: idempotencyKey,
+        capabilityIdempotencyKey: idempotencyKey,
         ...(input.correlationId ? { correlationId: input.correlationId } : {})
       };
       await this.store.succeed(idempotencyKey, receipt);

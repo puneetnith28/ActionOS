@@ -45,7 +45,7 @@ export const actionReceiptSchema = z.object({
   acceptedAt: isoDateSchema,
   observedAt: isoDateSchema.optional(),
   correlationId: opaqueIdSchema.optional(),
-  actionIdempotencyKey: sha256Schema.optional(),
+  capabilityIdempotencyKey: sha256Schema.optional(),
   reasonCodes: z.array(z.string().min(1).max(100)).max(10).optional()
 });
 
