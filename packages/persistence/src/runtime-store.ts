@@ -76,13 +76,13 @@ export class FirestoreRuntimeStore
   }
 
   async get(missionId: string): Promise<FollowThroughMission | undefined> {
-    const document = await this.db.collection("caseRuns").doc(missionId).get();
+    const document = await this.db.collection("missionRuns").doc(missionId).get();
     return document.exists ? (document.data() as FollowThroughMission) : undefined;
   }
 
   async listByOwner(ownerId: string, limit: number): Promise<readonly FollowThroughMission[]> {
     const snapshot = await this.db
-      .collection("caseRuns")
+      .collection("missionRuns")
       .where("ownerId", "==", ownerId)
       .limit(Math.min(Math.max(limit, 1), 50))
       .get();
@@ -91,7 +91,7 @@ export class FirestoreRuntimeStore
 
   async listEvidence(missionId: string): Promise<readonly EvidenceRecord[]> {
     const snapshot = await this.db
-      .collection("caseRuns")
+      .collection("missionRuns")
       .doc(missionId)
       .collection("evidence")
       .orderBy("recordedAt", "asc")
@@ -102,7 +102,7 @@ export class FirestoreRuntimeStore
 
   async listEvents(missionId: string): Promise<readonly RuntimeTimelineEvent[]> {
     const snapshot = await this.db
-      .collection("caseRuns")
+      .collection("missionRuns")
       .doc(missionId)
       .collection("events")
       .orderBy("sequence", "asc")
@@ -117,7 +117,7 @@ export class FirestoreRuntimeStore
     observedAt?: string;
   }[]> {
     const snapshot = await this.db
-      .collection("actionRecords")
+      .collection("capabilityRecords")
       .where("receipt.missionId", "==", missionId)
       .limit(20)
       .get();
@@ -141,7 +141,7 @@ export class FirestoreRuntimeStore
     next: FollowThroughMission,
     wake?: WakeIntent
   ): Promise<void> {
-    const reference = this.db.collection("caseRuns").doc(missionId);
+    const reference = this.db.collection("missionRuns").doc(missionId);
     await this.db.runTransaction(async (transaction) => {
       const current = await transaction.get(reference);
       if (!current.exists) throw new Error("MISSION_NOT_FOUND");
@@ -170,7 +170,7 @@ export class FirestoreRuntimeStore
   }
 
   async reserve(idempotencyKey: string): Promise<Reservation> {
-    const reference = this.db.collection("actionRecords").doc(idempotencyKey.slice(7));
+    const reference = this.db.collection("capabilityRecords").doc(idempotencyKey.slice(7));
     return this.db.runTransaction(async (transaction) => {
       const current = await transaction.get(reference);
       if (current.exists) {
@@ -189,7 +189,7 @@ export class FirestoreRuntimeStore
   }
 
   async succeed(idempotencyKey: string, receipt: ExecutionReceipt): Promise<void> {
-    const actionReference = this.db.collection("actionRecords").doc(idempotencyKey.slice(7));
+    const actionReference = this.db.collection("capabilityRecords").doc(idempotencyKey.slice(7));
     const batch = this.db.batch();
     batch.set(actionReference, {
         status: "SUCCEEDED",
@@ -215,7 +215,7 @@ export class FirestoreRuntimeStore
     await batch.commit();
   }
 
-  async caseForReplyRoute(replyRoute: string): Promise<string | undefined> {
+  async missionForReplyRoute(replyRoute: string): Promise<string | undefined> {
     const routeKey = stableHash({
       namespace: "dueback/reply-route/v1",
       replyRoute: replyRoute.toLowerCase()
@@ -224,7 +224,7 @@ export class FirestoreRuntimeStore
     return document.exists ? document.get("missionId") as string : undefined;
   }
 
-  async caseForProviderMessageId(providerMessageId: string): Promise<string | undefined> {
+  async missionForProviderMessageId(providerMessageId: string): Promise<string | undefined> {
     const snapshot = await this.db.collection("messageThreads")
       .where("providerMessageId", "==", providerMessageId)
       .limit(2)
@@ -239,7 +239,7 @@ export class FirestoreRuntimeStore
     observedAt: string
   ): Promise<"RECORDED" | "UNKNOWN" | "AMBIGUOUS"> {
     const snapshot = await this.db
-      .collection("actionRecords")
+      .collection("capabilityRecords")
       .where("receipt.providerMessageId", "==", providerMessageId)
       .limit(2)
       .get();
@@ -254,9 +254,9 @@ export class FirestoreRuntimeStore
     }, { merge: true });
     const missionId = receipt.missionId;
     if (missionId && ["BOUNCED", "COMPLAINED", "SUPPRESSED"].includes(transportStatus)) {
-      const caseReference = this.db.collection("caseRuns").doc(missionId);
+      const missionReference = this.db.collection("missionRuns").doc(missionId);
       await this.db.runTransaction(async (transaction) => {
-        const current = await transaction.get(caseReference);
+        const current = await transaction.get(missionReference);
         if (!current.exists || ["DONE", "CANCELLED"].includes(String(current.get("state")))) return;
         const correlationId = String(current.get("correlationId") ?? `corr_${missionId.slice(-24)}`);
         const ownerId = String(current.get("ownerId"));
@@ -277,7 +277,7 @@ export class FirestoreRuntimeStore
           transaction.get(interventionReference),
           transaction.get(notificationReference)
         ]);
-        transaction.update(caseReference, {
+        transaction.update(missionReference, {
           state: "NEEDS_ATTENTION",
           version: Number(current.get("version")) + 1,
           lastError: `EMAIL_${transportStatus}`,
@@ -342,8 +342,8 @@ export class FirestoreRuntimeStore
   }
 
   async fail(idempotencyKey: string, reasonCode: string): Promise<void> {
-    await this.db.collection("actionRecords").doc(idempotencyKey.slice(7)).delete();
-    await this.db.collection("actionFailures").add({
+    await this.db.collection("capabilityRecords").doc(idempotencyKey.slice(7)).delete();
+    await this.db.collection("capabilityFailures").add({
       idempotencyKey,
       reasonCode,
       occurredAt: new Date().toISOString(),
@@ -361,7 +361,7 @@ export class FirestoreRuntimeStore
     reasonCode: string;
     observedAt: string;
   }): Promise<void> {
-    await this.db.collection("actionRecords").doc(input.idempotencyKey.slice(7)).set({
+    await this.db.collection("capabilityRecords").doc(input.idempotencyKey.slice(7)).set({
       status: "UNKNOWN",
       ...input,
       deleteAt: firestoreDeleteAt(input.observedAt)
@@ -376,11 +376,11 @@ export class FirestoreRuntimeStore
     verification: EvidenceRecord;
     wake?: WakeIntent;
   }): Promise<{ duplicate: boolean }> {
-    const caseRef = this.db.collection("caseRuns").doc(input.missionId);
-    const evidenceRef = caseRef.collection("evidence").doc(input.evidence.candidate.outcomeId);
+    const missionRef = this.db.collection("missionRuns").doc(input.missionId);
+    const evidenceRef = missionRef.collection("evidence").doc(input.evidence.candidate.outcomeId);
     return this.db.runTransaction(async (transaction) => {
       const [item, prior] = await Promise.all([
-        transaction.get(caseRef),
+        transaction.get(missionRef),
         transaction.get(evidenceRef)
       ]);
       if (!item.exists) throw new Error("MISSION_NOT_FOUND");
@@ -390,7 +390,7 @@ export class FirestoreRuntimeStore
         ...input.evidence,
         deleteAt: firestoreDeleteAt(input.evidence.recordedAt)
       });
-      transaction.update(caseRef, {
+      transaction.update(missionRef, {
         state: input.nextState,
         version: input.expectedVersion + 1,
         updatedAt: input.evidence.recordedAt,
@@ -405,7 +405,7 @@ export class FirestoreRuntimeStore
       persistWakeIntent(transaction, this.db, input.wake);
       const sequence = input.expectedVersion + 1;
       const eventId = `${String(sequence).padStart(6, "0")}-evidence-result-${input.evidence.candidate.outcomeId.slice(-8)}`;
-      transaction.create(caseRef.collection("events").doc(eventId), {
+      transaction.create(missionRef.collection("events").doc(eventId), {
         eventId,
         missionId: input.missionId,
         sequence,
@@ -463,7 +463,7 @@ export class FirestoreRuntimeStore
   async technicalRunSource(missionId: string): Promise<TechnicalRunSource> {
     const [run, draft, events, evidence, notifications, channelEvents] = await Promise.all([
       this.get(missionId),
-      this.db.collection("caseDrafts").doc(missionId).get(),
+      this.db.collection("missionDrafts").doc(missionId).get(),
       this.listEvents(missionId),
       this.listEvidence(missionId),
       this.listNotifications(missionId),
