@@ -13,7 +13,7 @@ export class PartnerApiFixtureAdapter implements CapabilityExecutor {
 
   constructor(private readonly config: PartnerApiFixtureConfig) {
     const endpoint = new URL(config.endpoint);
-    if (endpoint.pathname !== "/v1/dueback/actions") {
+    if (endpoint.pathname !== "/v1/actionos/actions") {
       throw new Error("PARTNER_ENDPOINT_NOT_ALLOWED");
     }
     if (endpoint.protocol !== "https:" && endpoint.hostname !== "127.0.0.1" && endpoint.hostname !== "localhost") {
@@ -28,7 +28,7 @@ export class PartnerApiFixtureAdapter implements CapabilityExecutor {
     context: { readonly missionId: string; readonly correlationId?: string }
   ): Promise<ExecutionReceipt> {
     const body = JSON.stringify({
-      schemaVersion: "dueback.partner-action.v1",
+      schemaVersion: "actionos.partner-action.v1",
       missionId: context.missionId,
       correlationId: context.correlationId,
       proposal
@@ -37,9 +37,10 @@ export class PartnerApiFixtureAdapter implements CapabilityExecutor {
     const response = await this.request(this.config.endpoint, {
       method: "POST",
       headers: {
-        "content-type": "application/json",
+        "content-Type": "application/json",
         "idempotency-key": idempotencyKey,
-        "x-dueback-signature": `sha256=${signature}`
+        "x-actionos-signature": `sha256=${signature}`,
+        ...(context.correlationId ? { "x-actionos-correlation-id": context.correlationId } : {})
       },
       body
     });

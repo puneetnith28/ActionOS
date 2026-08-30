@@ -3,14 +3,14 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 evidence="$repo_root/docs/submission/evidence/2026-08-22/v12-final"
-product="$evidence/dueback-product-master-30fps-v3.mp4"
-cloud="$evidence/dueback-google-cloud-evidence-30fps.mp4"
+product="$evidence/actionos-product-master-30fps-v3.mp4"
+cloud="$evidence/actionos-google-cloud-evidence-30fps.mp4"
 result="$evidence/frame-60s.png"
-architecture="$repo_root/docs/submission/assets/dueback-architecture-video-preview.png"
-audio="$evidence/dueback-narration-v12-final.wav"
-captions="$evidence/dueback-subtitles-v12.srt"
-output="${1:-$evidence/dueback-demo-v12-final-candidate.mp4}"
-font_dir="$(mktemp -d "${TMPDIR:-/tmp}/dueback-video-fonts.XXXXXX")"
+architecture="$repo_root/docs/submission/assets/actionos-architecture-video-preview.png"
+audio="$evidence/actionos-narration-v12-final.wav"
+captions="$evidence/actionos-subtitles-v12.srt"
+output="${1:-$evidence/actionos-demo-v12-final-candidate.mp4}"
+font_dir="$(mktemp -d "${TMPDIR:-/tmp}/actionos-video-fonts.XXXXXX")"
 trap 'rm -f "$font_dir/seguisb.ttf"; rmdir "$font_dir"' EXIT
 
 for required in "$product" "$cloud" "$result" "$architecture" "$audio" "$captions"; do

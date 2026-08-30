@@ -43,7 +43,7 @@ export function interventionRecord(input: {
   createdAt: string;
 }): InterventionRecord {
   const dedupeKey = stableHash({
-    namespace: "dueback/intervention/v1",
+    namespace: "actionos/intervention/v1",
     missionId: input.missionId,
     kind: input.kind,
     reasonCodes: [...input.reasonCodes].sort()
@@ -60,8 +60,8 @@ export function interventionRecord(input: {
     question: input.kind === "EVIDENCE_CONFLICT"
       ? `Does the approved ${input.requestedField ?? "evidence"} need correction?`
       : input.kind === "ACTION_BUDGET_EXHAUSTED"
-        ? "Should DueBack stop or prepare a newly approved follow-up plan?"
-      : "Should DueBack retry within the existing approved limits?",
+        ? "Should ActionOS stop or prepare a newly approved follow-up plan?"
+      : "Should ActionOS retry within the existing approved limits?",
     consequence: input.kind === "EVIDENCE_CONFLICT"
       ? "Correcting an approved fact stops the current authority and requires a new plan approval."
       : input.kind === "ACTION_BUDGET_EXHAUSTED"

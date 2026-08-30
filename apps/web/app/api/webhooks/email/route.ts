@@ -21,8 +21,8 @@ export async function POST(request: Request) {
     workerUrl: `${baseUrl}/api/internal/tasks/run-mission`,
     inboundWorkerUrl: `${baseUrl}/api/internal/tasks/process-inbound`,
     serviceAccountEmail,
-    ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
-      ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
+    ...(process.env.ACTIONOS_TASKS_OIDC_AUDIENCE
+      ? { oidcAudience: process.env.ACTIONOS_TASKS_OIDC_AUDIENCE }
       : {})
   });
   return handleEmailWebhook(request, {

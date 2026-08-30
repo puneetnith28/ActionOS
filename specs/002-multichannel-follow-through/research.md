@@ -17,7 +17,7 @@ service; provider marketplace breadth.
 ## R-002 — Provider-managed inbound domain for P0
 
 **Decision**: Receive replies at `case+<opaque-route>@<managed-domain>` and route signed inbound
-events to DueBack. Use a dedicated subdomain when a custom domain is adopted.
+events to ActionOS. Use a dedicated subdomain when a custom domain is adopted.
 
 **Rationale**: It creates a direct thread without reading a user's inbox. Opaque routing prevents a
 raw case ID from acting as authorization; ownership remains server-side.
@@ -96,7 +96,7 @@ scopes.
 ## R-011 — Provider HTTP boundary without an additional SDK
 
 **Decision**: Use the platform `fetch` implementation against the provider's exact HTTPS endpoints
-and pin no provider SDK. The only new behavior is implemented behind DueBack-owned typed adapters.
+and pin no provider SDK. The only new behavior is implemented behind ActionOS-owned typed adapters.
 
 **Rationale**: Node, framework and Google dependencies are already exactly pinned in the committed
 workspace manifests and lockfile. Adding a convenience SDK would increase supply-chain surface

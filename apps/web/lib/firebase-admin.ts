@@ -15,7 +15,7 @@ export const adminAuth = getAuth(adminApp);
 export const firestore = getFirestore(adminApp);
 
 export function artifactBucket() {
-  const bucketName = process.env.DUEBACK_ARTIFACT_BUCKET;
+  const bucketName = process.env.ACTIONOS_ARTIFACT_BUCKET;
   if (!bucketName) throw new Error("ARTIFACT_BUCKET_NOT_CONFIGURED");
   return getStorage(adminApp).bucket(bucketName);
 }

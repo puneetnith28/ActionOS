@@ -6,7 +6,7 @@
 `vertexAI()` initializer. The older main `@genkit-ai/vertexai` Gemini export is deprecated and will
 not be used.
 
-**Rationale**: DueBack needs typed multimodal extraction, tools, prompt/evaluation versioning, and
+**Rationale**: ActionOS needs typed multimodal extraction, tools, prompt/evaluation versioning, and
 tracing inside a web product. Genkit supplies these capabilities without adding a second language.
 Durability and authorization remain explicit application responsibilities, which makes the judging
 evidence stronger than implying the framework guarantees them.
@@ -23,7 +23,7 @@ evidence stronger than implying the framework guarantees them.
 
 **Decision**: Use Firestore as the source of truth and Cloud Tasks for delayed/retried work.
 
-**Rationale**: Cloud Tasks is at-least-once. DueBack explicitly demonstrates safe redelivery through
+**Rationale**: Cloud Tasks is at-least-once. ActionOS explicitly demonstrates safe redelivery through
 stable action keys, task/event dedupe keys, optimistic case versions, and transactions. Scheduled
 tasks can wake a case after its promise deadline without keeping a process alive.
 

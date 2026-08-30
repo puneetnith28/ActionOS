@@ -6,7 +6,7 @@
 
 **Status**: Ready for implementation
 
-**Input**: User description: "Build DueBack, a personal reverse CRM that keeps commercial promises
+**Input**: User description: "Build ActionOS, a personal reverse CRM that keeps commercial promises
 open until approved evidence proves the promised refund, credit, replacement, or correction."
 
 ## User Scenarios & Testing _(mandatory)_
@@ -14,7 +14,7 @@ open until approved evidence proves the promised refund, credit, replacement, or
 ### User Story 1 - Capture and Approve a Promise (Priority: P1)
 
 A non-technical person shares an email, PDF, image, screenshot, or text containing a commercial
-promise. DueBack identifies the promise and presents a plain-language Resolution Plan before any
+promise. ActionOS identifies the promise and presents a plain-language Resolution Plan before any
 external action occurs.
 
 **Why this priority**: Without accurate capture, understandable boundaries, and informed approval,
@@ -26,7 +26,7 @@ modify one boundary, and activate the case without any external action occurring
 **Acceptance Scenarios**:
 
 1. **Given** a message promising a refund with a merchant, amount, currency, reference, and deadline,
-   **When** the person submits it, **Then** DueBack drafts those fields, cites their origin, and marks
+   **When** the person submits it, **Then** ActionOS drafts those fields, cites their origin, and marks
    uncertain or missing fields.
 2. **Given** a draft plan, **When** the person reviews it, **Then** they can see the intended result,
    recipient, action, shared data, limits, approval boundaries, completion evidence, and expiry.
@@ -37,11 +37,11 @@ modify one boundary, and activate the case without any external action occurring
 
 ### User Story 2 - Follow Through Without False Completion (Priority: P1)
 
-After approval, DueBack waits through the promised period, performs an authorized follow-up when
+After approval, ActionOS waits through the promised period, performs an authorized follow-up when
 needed, survives recoverable failures, and closes only when the approved evidence requirements are
 satisfied.
 
-**Why this priority**: This is the central customer outcome and the difference between DueBack and a
+**Why this priority**: This is the central customer outcome and the difference between ActionOS and a
 drafting or reminder assistant.
 
 **Independent Test**: Run a refund case through acknowledgement, recoverable failure, duplicate
@@ -51,7 +51,7 @@ valid evidence.
 **Acceptance Scenarios**:
 
 1. **Given** an active case whose deadline has passed without sufficient evidence, **When** it is
-   evaluated, **Then** DueBack performs only the approved follow-up and keeps the case active.
+   evaluated, **Then** ActionOS performs only the approved follow-up and keeps the case active.
 2. **Given** a response stating only that an inquiry or request was received, **When** it is
    evaluated, **Then** the case does not become complete and the missing evidence is explained.
 3. **Given** duplicate execution or incoming events, **When** they are processed, **Then** no external
@@ -64,7 +64,7 @@ valid evidence.
 
 ### User Story 3 - Resolve Exceptions Without Losing Control (Priority: P2)
 
-The person is contacted only when DueBack needs a decision, is blocked, exhausts recovery, or finds
+The person is contacted only when ActionOS needs a decision, is blocked, exhausts recovery, or finds
 evidence that conflicts with the approved plan. The person can supply information, change limits,
 stop, expire, delete, or reopen the case.
 
@@ -92,7 +92,7 @@ resolved`, **Then** the case reopens with the previous evidence preserved in its
 The same case model supports a credit promised on a future bill and a replacement promised with
 tracking, without changing the core meanings of approval, waiting, evidence, completion, or audit.
 
-**Why this priority**: Limited portability demonstrates that DueBack is a category rather than a
+**Why this priority**: Limited portability demonstrates that ActionOS is a category rather than a
 single scripted refund demo, without requiring three complete products.
 
 **Independent Test**: Create one bill-credit case and one replacement case, verify their distinct

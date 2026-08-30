@@ -6,13 +6,13 @@
 
 **Status**: Ready for planning
 
-**Input**: Close the ten audited DueBack product and judging gaps with an editable review,
+**Input**: Close the ten audited ActionOS product and judging gaps with an editable review,
 resumable analysis, accelerated complete demo, visible evidence console, safe controlled real email,
 recoverable identity, truthful return path, live timeline, real-model evaluation, and submission gates.
 
 ## Product Decision
 
-DueBack remains the product and `Proof of Done` remains the differentiator. This feature does not
+ActionOS remains the product and `Proof of Done` remains the differentiator. This feature does not
 add more nominal recipes or claim universal company access. It closes one understandable loop:
 
 `share evidence → correct the contract → approve a reachable channel → leave → observe autonomous
@@ -25,7 +25,7 @@ The public product MUST distinguish two modes before activation:
   every outbound, inbound, identity, authenticity and false-completion gate passes.
 
 The accelerated demo is a real deployed execution with compressed time, not a prerecorded or
-hard-coded UI animation. The controlled pilot is not a claim that DueBack can contact any company.
+hard-coded UI animation. The controlled pilot is not a claim that ActionOS can contact any company.
 
 ## Ten Audited Workstreams
 
@@ -103,7 +103,7 @@ approved or executed.
 
 ### User Story 3 - Approve in Plain Language (Priority: P1)
 
-The person approves a short decision summary answering: what will DueBack ask for, whom will it
+The person approves a short decision summary answering: what will ActionOS ask for, whom will it
 contact, when may it act, what may it share, and what exact evidence will bring the result back.
 Channel internals, hashes, headers and architecture remain available under progressive disclosure.
 
@@ -170,7 +170,7 @@ the page, then reopen from case history and verify the same ordered event ledger
 
 1. **Given** an active case, **When** any persisted event arrives, **Then** the user timeline updates
    with human language, time, state and consequence.
-2. **Given** a weak reply, **When** it is rejected, **Then** the timeline states why and what DueBack
+2. **Given** a weak reply, **When** it is rejected, **Then** the timeline states why and what ActionOS
    will do next rather than exposing only a reason code.
 3. **Given** a terminal result, **When** it is displayed, **Then** `what was verified`, `what was not
    verified`, evidence source and `This is not resolved` control are visible.
@@ -213,7 +213,7 @@ inbound route, and only facts explicitly present in authenticated content become
 **Why this priority**: A real transport boundary removes the perception that all value is circular,
 but it must not compromise the deterministic sandbox or enable arbitrary outreach.
 
-**Independent Test**: Send from a verified DueBack sender to one controlled mailbox, reply first
+**Independent Test**: Send from a verified ActionOS sender to one controlled mailbox, reply first
 without the amount/reference and then with complete matching evidence, and verify that only the
 second reply can satisfy the requirement.
 

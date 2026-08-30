@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: DueBack Winning Product Loop API
+  title: ActionOS Winning Product Loop API
   version: 0.1.0
 paths:
   /api/intake:

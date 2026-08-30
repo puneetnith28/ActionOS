@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-const deployedUrl = process.env.DUEBACK_DEPLOYED_URL;
-const liveRecipient = process.env.DUEBACK_LIVE_EMAIL_RECIPIENT;
-const ownerState = process.env.DUEBACK_OWNER_STORAGE_STATE;
+const deployedUrl = process.env.ACTIONOS_DEPLOYED_URL;
+const liveRecipient = process.env.ACTIONOS_LIVE_EMAIL_RECIPIENT;
+const ownerState = process.env.ACTIONOS_OWNER_STORAGE_STATE;
 
 test.describe("deployed managed email pilot", () => {
   test.skip(

@@ -6,7 +6,7 @@
 
 **Status**: Ready for planning
 
-**Input**: User description: "Extend DueBack from a controlled proof-of-done demo into a clear,
+**Input**: User description: "Extend ActionOS from a controlled proof-of-done demo into a clear,
 bidirectional follow-through product. Email is the first real channel, Gmail is optional, and web
 forms, WhatsApp, partner APIs, and the controlled sandbox share one honest channel model."
 
@@ -15,7 +15,7 @@ forms, WhatsApp, partner APIs, and the controlled sandbox share one honest chann
 ### User Story 1 - Approve a Real Conversation (Priority: P1)
 
 A person shares evidence of an unfinished outcome and reviews a conversation plan that shows who
-DueBack will contact, by which available channel, what it will say, what information it will share,
+ActionOS will contact, by which available channel, what it will say, what information it will share,
 when it may follow up, what it will never do, what proof is required, and how the result returns.
 
 **Why this priority**: The person cannot safely delegate follow-through unless the external action
@@ -41,7 +41,7 @@ the final visible version without sending anything early.
 
 ### User Story 2 - Send One Authorized Email Reliably (Priority: P1)
 
-After approval and at the approved time, DueBack sends one real transactional follow-up to an
+After approval and at the approved time, ActionOS sends one real transactional follow-up to an
 authorized controlled recipient, records the transport result, and survives retry or restart
 without sending a duplicate.
 
@@ -71,7 +71,7 @@ case, normalized as hostile external data, interpreted for candidate facts, and 
 letting the model or transport declare completion.
 
 **Why this priority**: Outbound-only email is another message sender. Bidirectional reply handling is
-what allows DueBack to continue the work and return only when something meaningful changes.
+what allows ActionOS to continue the work and return only when something meaningful changes.
 
 **Independent Test**: Reply from a controlled mailbox first with an acknowledgement and then with
 matching confirmation; verify that the first reply keeps the case open and the second reaches only
@@ -87,7 +87,7 @@ the evidence level allowed by deterministic policy.
 3. **Given** a reply stating only that the request was received, **When** it is evaluated, **Then**
    the case remains open and the missing evidence is visible.
 4. **Given** a reply that proposes a different amount, remedy, recipient, fee, or permission,
-   **When** it is evaluated, **Then** DueBack requests a decision and does not accept or pursue it.
+   **When** it is evaluated, **Then** ActionOS requests a decision and does not accept or pursue it.
 5. **Given** authenticated evidence matching the approved case and requirement, **When** the
    deterministic verifier accepts it, **Then** the case reaches the exact supported evidence level.
 
@@ -95,7 +95,7 @@ the evidence level allowed by deterministic policy.
 
 ### User Story 4 - Return Only When It Matters (Priority: P2)
 
-The person can leave the application while DueBack waits, sends, receives, retries, and verifies.
+The person can leave the application while ActionOS waits, sends, receives, retries, and verifies.
 They receive one deduplicated update when a decision is needed or evidence is accepted, and can
 inspect or control the case without navigating a dashboard.
 
@@ -240,7 +240,7 @@ a reduced partner-API fixture; verify common policy, idempotency, receipts, and 
   and lifecycle behavior without claiming a production integration.
 - **FR-037**: Gmail MUST remain optional and unavailable until incremental consent, token revocation,
   refresh, scope, privacy, and push-renewal behavior are specified and tested.
-- **FR-038**: Gmail integration SHOULD use a DueBack-managed reply route when that avoids requesting
+- **FR-038**: Gmail integration SHOULD use a ActionOS-managed reply route when that avoids requesting
   broad mailbox-reading access.
 - **FR-039**: Public testing MUST restrict external email to controlled authorized addresses and MUST
   prevent bulk sending or arbitrary public recipients.

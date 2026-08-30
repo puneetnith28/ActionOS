@@ -143,7 +143,7 @@ export class ExecutionBroker {
           ownerId: input.proposal.ownerId,
           channelType: input.proposal.channelType ?? "UNKNOWN",
           recipientFingerprint: stableHash({
-            namespace: "dueback/recipient/v1",
+            namespace: "actionos/recipient/v1",
             recipient: input.proposal.recipient.toLowerCase()
           }),
           ...(input.correlationId ? { correlationId: input.correlationId } : {}),

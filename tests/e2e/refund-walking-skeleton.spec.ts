@@ -151,8 +151,8 @@ describe("refund walking skeleton", () => {
           new Request("http://callback.test", {
             method: "POST",
             headers: {
-              "x-dueback-timestamp": String(incoming.headers["x-dueback-timestamp"]),
-              "x-dueback-signature": String(incoming.headers["x-dueback-signature"])
+              "x-actionos-timestamp": String(incoming.headers["x-actionos-timestamp"]),
+              "x-actionos-signature": String(incoming.headers["x-actionos-signature"])
             },
             body
           }),

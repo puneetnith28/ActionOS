@@ -22,7 +22,7 @@ export function wakeIntent(input: {
   createdAt: string;
 }): WakeIntent {
   const intentId = stableHash({
-    namespace: "dueback/wake-intent/v1",
+    namespace: "actionos/wake-intent/v1",
     missionId: input.missionId,
     expectedVersion: input.expectedVersion,
     wakeAt: input.wakeAt

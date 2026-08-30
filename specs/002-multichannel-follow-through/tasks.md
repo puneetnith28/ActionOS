@@ -106,7 +106,7 @@ partner fixture; compare common receipts, policy and lifecycle behavior.
 ## Phase 8: Production, Evaluation and Submission Evidence
 
 - [x] T059 Add provider secrets, webhook URL, allowlist and sandbox rollback to `infra/cloud-run/deploy.sh` and `.env.example`
-- [x] T060 [P] Add channel architecture and trust boundaries to `docs/architecture/dueback.md`
+- [x] T060 [P] Add channel architecture and trust boundaries to `docs/architecture/actionos.md`
 - [x] T061 [P] Update setup, honest limitations and provider operation in `README.md` and `specs/002-multichannel-follow-through/quickstart.md`
 - [x] T062 Extend the evaluation corpus and reporting for email delivery/reply outcomes in `packages/test-fixtures/`, `scripts/evaluation/`, and `docs/evaluation/`
 - [x] T063 Run typecheck, lint, all deterministic tests, production build and `git diff --check`

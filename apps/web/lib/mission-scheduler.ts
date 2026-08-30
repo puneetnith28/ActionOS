@@ -5,7 +5,7 @@ import { durableCaseScheduler } from "./durable-mission-scheduler";
 
 export function missionScheduler(): DurableWakeScheduler | undefined {
   const projectId = process.env.GOOGLE_CLOUD_PROJECT;
-  const workerUrl = process.env.DUEBACK_WORKER_URL;
+  const workerUrl = process.env.ACTIONOS_WORKER_URL;
   const serviceAccountEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT;
   if (!projectId || !workerUrl || !serviceAccountEmail) return undefined;
   return durableCaseScheduler(new TaskScheduler(new CloudTasksClient(), {
@@ -14,8 +14,8 @@ export function missionScheduler(): DurableWakeScheduler | undefined {
     queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-missions",
     workerUrl,
     serviceAccountEmail,
-    ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
-      ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
+    ...(process.env.ACTIONOS_TASKS_OIDC_AUDIENCE
+      ? { oidcAudience: process.env.ACTIONOS_TASKS_OIDC_AUDIENCE }
       : {})
   }));
 }

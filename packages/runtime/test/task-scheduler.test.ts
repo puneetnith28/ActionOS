@@ -12,7 +12,7 @@ describe("TaskScheduler", () => {
       projectId: "demo",
       location: "us-central1",
       queue: "cases",
-      workerUrl: "https://dueback.test/api/internal/tasks/run-mission",
+      workerUrl: "https://actionos.test/api/internal/tasks/run-mission",
       serviceAccountEmail: "tasks@demo.iam.gserviceaccount.com"
     });
 
@@ -34,8 +34,8 @@ describe("TaskScheduler", () => {
       projectId: "demo",
       location: "us-central1",
       queue: "cases",
-      workerUrl: "https://dueback.test/api/internal/tasks/run-mission",
-      inboundWorkerUrl: "https://dueback.test/api/internal/tasks/process-inbound",
+      workerUrl: "https://actionos.test/api/internal/tasks/run-mission",
+      inboundWorkerUrl: "https://actionos.test/api/internal/tasks/process-inbound",
       serviceAccountEmail: "tasks@demo.iam.gserviceaccount.com"
     });
     await expect(scheduler.scheduleInbound({
@@ -60,7 +60,7 @@ describe("TaskScheduler", () => {
       projectId: "demo",
       location: "us-central1",
       queue: "cases",
-      workerUrl: "https://dueback.test/api/internal/tasks/run-mission",
+      workerUrl: "https://actionos.test/api/internal/tasks/run-mission",
       serviceAccountEmail: "tasks@demo.iam.gserviceaccount.com"
     });
     await scheduler.scheduleMission({
@@ -93,9 +93,9 @@ describe("TaskScheduler", () => {
       projectId: "demo",
       location: "us-central1",
       queue: "cases",
-      workerUrl: "https://dueback.test/api/internal/tasks/run-mission",
+      workerUrl: "https://actionos.test/api/internal/tasks/run-mission",
       serviceAccountEmail: "tasks@demo.iam.gserviceaccount.com",
-      oidcAudience: "https://dueback.test"
+      oidcAudience: "https://actionos.test"
     });
     await scheduler.scheduleMission({
       missionId: "mission_oidc",
@@ -103,7 +103,7 @@ describe("TaskScheduler", () => {
       wakeAt: "2026-08-15T12:00:00.000Z"
     });
     expect(createTask).toHaveBeenCalledOnce();
-    expect(observedAudience).toBe("https://dueback.test");
+    expect(observedAudience).toBe("https://actionos.test");
     expect(observedServiceAccount).toBe("tasks@demo.iam.gserviceaccount.com");
   });
 });

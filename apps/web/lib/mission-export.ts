@@ -19,7 +19,7 @@ export function caseExportText(item: FollowThroughMission, verification: readonl
   const accepted = latest?.verification.accepted === true;
   const monetary = item.plan.evidenceRequirements.some((requirement) => requirement.amountMinor !== undefined);
   return [
-    "DUEBACK CASE SUMMARY",
+    "ACTIONOS CASE SUMMARY",
     `Generated: ${generatedAt}`,
     `Status: ${item.state === "DONE" ? "Evidence accepted" : item.state === "NEEDS_ATTENTION" ? "Decision needed" : "Still open"}`,
     `Promise: ${item.plan.goal}`,
@@ -28,7 +28,7 @@ export function caseExportText(item: FollowThroughMission, verification: readonl
     "COMPANY STATEMENT",
     latest ? `Evidence status: ${latest.candidate.status}` : "No company verification recorded.",
     "",
-    "DUEBACK DECISION",
+    "ACTIONOS DECISION",
     latest ? (accepted ? "The explicit verification met the approved contract." : `Not resolved: ${latest.verification.reasonCodes.join(", ")}.`) : "No verification decision yet.",
     "",
     "PROMISED VS OBSERVED",

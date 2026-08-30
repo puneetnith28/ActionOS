@@ -88,7 +88,7 @@ export class VerificationService {
     const correlationId =
       requestedCorrelationId ??
       item.correlationId ??
-      `corr_${stableHash({ namespace: "dueback/correlation/v1", missionId: item.missionId }).slice(7, 31)}`;
+      `corr_${stableHash({ namespace: "actionos/correlation/v1", missionId: item.missionId }).slice(7, 31)}`;
     const accepted = verification.accepted;
     const conflict = !accepted && !verification.reasonCodes.includes("INSUFFICIENT_STATUS");
     const nextWakeAt = !accepted && !conflict

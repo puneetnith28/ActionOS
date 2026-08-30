@@ -25,8 +25,8 @@ export class MerchantSandboxAdapter implements CapabilityExecutor {
       headers: {
         "content-type": "application/json",
         "idempotency-key": idempotencyKey,
-        "x-dueback-scenario": this.config.scenario,
-        ...(context.correlationId ? { "x-dueback-correlation-id": context.correlationId } : {}),
+        "x-actionos-scenario": this.config.scenario,
+        ...(context.correlationId ? { "x-actionos-correlation-id": context.correlationId } : {}),
         ...(this.config.actionSecret ? { authorization: `Bearer ${this.config.actionSecret}` } : {})
       },
       body: JSON.stringify({ missionId: context.missionId, proposal })

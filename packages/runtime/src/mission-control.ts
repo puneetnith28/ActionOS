@@ -71,7 +71,7 @@ export class MissionControlService {
     idempotencyKey?: string;
   }): Promise<FollowThroughMission | DeletionReceipt> {
     const idempotencyKey = input.idempotencyKey ?? stableHash({
-      namespace: "dueback/mission-control/v1",
+      namespace: "actionos/mission-control/v1",
       missionId: input.missionId,
       ownerId: input.ownerId,
       expectedVersion: input.expectedVersion,

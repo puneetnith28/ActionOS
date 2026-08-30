@@ -19,7 +19,7 @@ describe("company email action adapter", () => {
     });
     const adapter = new CompanyEmailActionAdapter({
       apiKey: "test-key",
-      from: "DueBack <followup@example.com>",
+      from: "ActionOS <followup@example.com>",
       replyDomain: "inbound.example.com",
       request
     });

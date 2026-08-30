@@ -19,7 +19,8 @@ function intakeService(
   store: FirestoreIntakeStore,
   analysisStore: FirestoreAnalysisStore,
   telemetryStore: FirestoreTelemetryStore,
-  jobId: string
+  jobId: string,
+  requestedCorrelationId?: string
 ): IntakeService {
   const intakeChannel = defaultIntakeChannel();
   return new IntakeService(
@@ -43,7 +44,7 @@ function intakeService(
             observedAt: new Date().toISOString(),
             usage: result.usage
           });
-          const telemetryId = `corr_${jobId.slice(-24)}`;
+          const telemetryId = requestedCorrelationId ?? `corr_${jobId.slice(-24)}`;
           await telemetryStore.recordTelemetry({
             missionId: jobId,
             correlationId: telemetryId,
@@ -65,7 +66,7 @@ function intakeService(
             status: "FAILED",
             observedAt: new Date().toISOString()
           });
-          const telemetryId = `corr_${jobId.slice(-24)}`;
+          const telemetryId = requestedCorrelationId ?? `corr_${jobId.slice(-24)}`;
           await telemetryStore.recordTelemetry({
             missionId: jobId,
             correlationId: telemetryId,
@@ -88,10 +89,13 @@ export async function POST(request: Request) {
   const intakeStore = new FirestoreIntakeStore(firestore);
   const analysisStore = new FirestoreAnalysisStore(firestore);
   const telemetryStore = new FirestoreTelemetryStore(firestore);
+  
+  const headerCorrelationId = request.headers.get("x-actionos-correlation-id") ?? undefined;
+  
   return handleAnalysisWorker(request, {
     store: analysisStore,
     storage: new PrivateArtifactStorage(artifactBucket()),
-    service: (jobId) => intakeService(intakeStore, analysisStore, telemetryStore, jobId),
+    service: (jobId) => intakeService(intakeStore, analysisStore, telemetryStore, jobId, headerCorrelationId),
     now: () => new Date().toISOString()
   });
 }

@@ -9,7 +9,7 @@
 ## Submission and Category Fit
 
 - [x] CHK001 Is exactly one official category named consistently across the specification, plan, README, and eventual submission? [Gap]
-- [x] CHK002 Is the autonomous multi-step behavior that makes DueBack more than chat explicitly observable in the acceptance path? [Completeness, Spec §US2]
+- [x] CHK002 Is the autonomous multi-step behavior that makes ActionOS more than chat explicitly observable in the acceptance path? [Completeness, Spec §US2]
 - [x] CHK003 Are the essential, non-decorative roles of Gemini 3.5+, Genkit, and each selected Google Cloud service specified? [Clarity, Plan §Technical Context]
 - [x] CHK004 Is the Individual/Hobbyist positioning supported without implying an incorporated organization? [Consistency, Assumption]
 - [x] CHK005 Are pre-existing templates, libraries, fixtures, and assets required to have provenance and compatible licenses? [Gap]

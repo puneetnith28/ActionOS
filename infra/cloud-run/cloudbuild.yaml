@@ -1,6 +1,6 @@
 substitutions:
   _REGION: us-central1
-  _REPOSITORY: dueback
+  _REPOSITORY: actionos
   _TAG: manual
 steps:
   - name: gcr.io/cloud-builders/docker

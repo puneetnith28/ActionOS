@@ -25,13 +25,13 @@ function messageFor(proposal: ProposedCapabilityExecution, missionId: string) {
     text: [
       "Hello,",
       "",
-      "DueBack is following up on an outcome requested by your customer.",
+      "ActionOS is following up on an outcome requested by your customer.",
       `Reference: ${reference}`,
       amountLine.trimEnd(),
       "Please reply with the current status and verifiable confirmation when the outcome is complete.",
       "An acknowledgement that the request was received will not be treated as completion.",
       "",
-      `DueBack case: ${missionId}`
+      `ActionOS case: ${missionId}`
     ].filter(Boolean).join("\n")
   };
 }
@@ -55,7 +55,7 @@ export class CompanyEmailActionAdapter implements CapabilityExecutor {
       ? { subject: proposal.subject, text: proposal.body }
       : messageFor(proposal, context.missionId);
     const routeToken = stableHash({
-      namespace: "dueback/email-reply-route/v1",
+      namespace: "actionos/email-reply-route/v1",
       missionId: context.missionId,
       idempotencyKey
     }).slice(7, 39);
@@ -74,7 +74,8 @@ export class CompanyEmailActionAdapter implements CapabilityExecutor {
           to: [proposal.recipient],
           reply_to: replyRoute,
           subject: message.subject,
-          text: message.text
+          text: message.text,
+          ...(context.correlationId ? { headers: { "X-ActionOS-Correlation-Id": context.correlationId } } : {})
         })
       });
     } catch {
@@ -93,7 +94,7 @@ export class CompanyEmailActionAdapter implements CapabilityExecutor {
       channelType: "MANAGED_EMAIL",
       replyRoute,
       recipientFingerprint: stableHash({
-        namespace: "dueback/recipient/v1",
+        namespace: "actionos/recipient/v1",
         recipient: proposal.recipient.toLowerCase()
       }),
       acceptedAt: new Date().toISOString()

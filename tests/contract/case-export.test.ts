@@ -29,7 +29,7 @@ describe("safe case export", () => {
   it("returns 404 without reading evidence for another owner", async () => {
     const draft = makeDraftMission();
     let evidenceRead = false;
-    const response = await handleCaseExport(new Request("https://dueback.test/export"), draft.caseId, {
+    const response = await handleCaseExport(new Request("https://actionos.test/export"), draft.caseId, {
       authenticate: () => Promise.resolve({ uid: "other_12345678" }),
       store: {
         get: () => Promise.resolve({ ...draft, state: "DONE", version: 3 } as never),

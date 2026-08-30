@@ -14,7 +14,7 @@ describe("consumer case contracts", () => {
     expect(caseSummarySchema.parse({
       missionId: "mission_12345678", companyName: "Example", outcomeLabel: "USD 59 refund",
       bucket: "WORKING", statusLabel: "Waiting for the company", lastActivityAt: at,
-      nextStepLabel: "DueBack will evaluate the next reply", attentionRequired: false,
+      nextStepLabel: "ActionOS will evaluate the next reply", attentionRequired: false,
       channelLabel: "Email"
     })).toBeTruthy();
     expect(conversationEntrySchema.parse({

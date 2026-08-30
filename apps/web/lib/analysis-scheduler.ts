@@ -3,8 +3,8 @@ import { TaskScheduler } from "@actionos/runtime/task-scheduler";
 
 export function analysisScheduler(): TaskScheduler | undefined {
   const projectId = process.env.GOOGLE_CLOUD_PROJECT;
-  const workerUrl = process.env.DUEBACK_WORKER_URL;
-  const analysisWorkerUrl = process.env.DUEBACK_ANALYSIS_WORKER_URL;
+  const workerUrl = process.env.ACTIONOS_WORKER_URL;
+  const analysisWorkerUrl = process.env.ACTIONOS_ANALYSIS_WORKER_URL;
   const serviceAccountEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT;
   if (!projectId || !workerUrl || !analysisWorkerUrl || !serviceAccountEmail) return undefined;
   return new TaskScheduler(new CloudTasksClient(), {
@@ -14,8 +14,8 @@ export function analysisScheduler(): TaskScheduler | undefined {
     workerUrl,
     analysisWorkerUrl,
     serviceAccountEmail,
-    ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
-      ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
+    ...(process.env.ACTIONOS_TASKS_OIDC_AUDIENCE
+      ? { oidcAudience: process.env.ACTIONOS_TASKS_OIDC_AUDIENCE }
       : {})
   });
 }

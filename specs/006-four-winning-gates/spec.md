@@ -13,10 +13,10 @@ Close the four issues found by the pre-video jury audit without adding channels 
 
 ## Gate 2 — One honest product position
 
-- DueBack is a consumer follow-through product backed by a reusable Proof-of-Done runtime.
+- ActionOS is a consumer follow-through product backed by a reusable Proof-of-Done runtime.
 - The submitted product proves one company-follow-up recipe deeply.
 - It MUST NOT claim arbitrary-company connectivity or global production coverage.
-- Primary contrast: company systems close tickets; DueBack keeps the consumer's promise open.
+- Primary contrast: company systems close tickets; ActionOS keeps the consumer's promise open.
 
 ## Gate 3 — Gemini is necessary and measurable
 

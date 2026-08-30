@@ -5,4 +5,4 @@ WORKDIR /workspace
 COPY . .
 RUN pnpm install --frozen-lockfile
 EXPOSE 8080
-CMD ["pnpm", "--filter", "@dueback/merchant-sandbox", "start"]
+CMD ["pnpm", "--filter", "@actionos/merchant-sandbox", "start"]

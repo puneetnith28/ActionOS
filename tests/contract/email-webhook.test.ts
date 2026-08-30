@@ -8,7 +8,7 @@ const timestamp = String(Date.parse(now) / 1000);
 const secret = `whsec_${Buffer.from("contract-secret").toString("base64")}`;
 
 function request(body: string, signatureBody = body) {
-  return new Request("https://dueback.test/api/webhooks/email", {
+  return new Request("https://actionos.test/api/webhooks/email", {
     method: "POST",
     headers: {
       "svix-id": "provider_event_12345678",

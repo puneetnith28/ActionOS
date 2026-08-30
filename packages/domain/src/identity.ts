@@ -20,7 +20,7 @@ export function capabilityIdempotencyKey(input: {
   readonly actionType: string;
   readonly ordinal: number;
 }): `sha256:${string}` {
-  return stableHash({ namespace: "dueback/capability/v1", ...input });
+  return stableHash({ namespace: "actionos/capability/v1", ...input });
 }
 
 export function eventDedupeKey(input: {
@@ -28,7 +28,7 @@ export function eventDedupeKey(input: {
   readonly externalId: string;
   readonly missionId: string;
 }): `sha256:${string}` {
-  return stableHash({ namespace: "dueback/event/v1", ...input });
+  return stableHash({ namespace: "actionos/event/v1", ...input });
 }
 
 export function missionDedupeKey(input: {
@@ -36,14 +36,14 @@ export function missionDedupeKey(input: {
   readonly sourceChannel: string;
   readonly sourceIdentity: string;
 }): `sha256:${string}` {
-  return stableHash({ namespace: "dueback/case/v1", ...input });
+  return stableHash({ namespace: "actionos/case/v1", ...input });
 }
 
 export function artifactDedupeKey(input: {
   readonly ownerId: string;
   readonly contentSha256: string;
 }): `sha256:${string}` {
-  return stableHash({ namespace: "dueback/artifact/v1", ...input });
+  return stableHash({ namespace: "actionos/artifact/v1", ...input });
 }
 
 export function callbackDedupeKey(input: {
@@ -51,5 +51,5 @@ export function callbackDedupeKey(input: {
   readonly nonce: string;
   readonly missionId: string;
 }): `sha256:${string}` {
-  return stableHash({ namespace: "dueback/callback/v1", ...input });
+  return stableHash({ namespace: "actionos/callback/v1", ...input });
 }

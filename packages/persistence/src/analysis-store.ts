@@ -22,7 +22,7 @@ export class FirestoreAnalysisStore {
   async createOrGet(job: AnalysisJob): Promise<{ job: AnalysisJob; duplicate: boolean }> {
     const jobRef = this.db.collection("analysisJobs").doc(job.jobId);
     const dedupeRef = this.db.collection("analysisDedupe").doc(stableHash({
-      namespace: "dueback/analysis-dedupe/v1",
+      namespace: "actionos/analysis-dedupe/v1",
       ownerId: job.ownerId,
       sha256: job.sha256
     }).slice(7));

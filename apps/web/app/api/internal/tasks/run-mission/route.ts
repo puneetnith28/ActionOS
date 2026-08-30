@@ -27,7 +27,7 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   const projectId = process.env.GOOGLE_CLOUD_PROJECT;
-  const workerUrl = process.env.DUEBACK_WORKER_URL;
+  const workerUrl = process.env.ACTIONOS_WORKER_URL;
   const merchantUrl = process.env.MERCHANT_SANDBOX_URL;
   const serviceAccountEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT;
   const actionSecret = process.env.MERCHANT_CALLBACK_SECRET;
@@ -48,8 +48,8 @@ export async function POST(request: Request) {
     queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-missions",
     workerUrl,
     serviceAccountEmail,
-    ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
-      ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
+    ...(process.env.ACTIONOS_TASKS_OIDC_AUDIENCE
+      ? { oidcAudience: process.env.ACTIONOS_TASKS_OIDC_AUDIENCE }
       : {})
   }));
   const capabilities = publicCapabilities({

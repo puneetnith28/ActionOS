@@ -2,10 +2,10 @@ import { expect, test } from "@playwright/test";
 import { makeDraftMission } from "../helpers/draft-case";
 import type { DraftMission } from "../../packages/runtime/src/intake-service";
 
-const deployedUrl = process.env.DUEBACK_DEPLOYED_URL;
+const deployedUrl = process.env.ACTIONOS_DEPLOYED_URL;
 
 test.describe("channel plan authorization", () => {
-  test.skip(!deployedUrl, "Set DUEBACK_DEPLOYED_URL to run against the public Cloud Run service");
+  test.skip(!deployedUrl, "Set ACTIONOS_DEPLOYED_URL to run against the public Cloud Run service");
 
   test("shows the exact contract, versions a return-address change, and approves an available channel", async ({
     page
@@ -16,7 +16,7 @@ test.describe("channel plan authorization", () => {
       plan: {
         ...initial.plan,
         channelType: "CONTROLLED_SANDBOX" as const,
-        senderIdentity: "DueBack controlled demo",
+        senderIdentity: "ActionOS controlled demo",
         replyRoute: "Signed callback",
         messageTemplateVersion: "follow-up/v1",
         messageSubject: "Follow-up for ORDER-79",
@@ -83,7 +83,7 @@ test.describe("channel plan authorization", () => {
     await expect(page.getByText("3 sends", { exact: true })).toBeVisible();
     await expect(page.getByText("Every 2 days")).toBeVisible();
     await page
-      .getByRole("textbox", { name: "Email for DueBack case updates" })
+      .getByRole("textbox", { name: "Email for ActionOS case updates" })
       .fill("owner@example.test");
     await page.getByRole("button", { name: "Save update email" }).click();
     await expect(page.getByText(/Plan updated to version 2/)).toBeVisible();
@@ -98,7 +98,7 @@ test.describe("channel plan authorization", () => {
       plan: {
         ...makeDraftMission().plan,
         channelType: "MANAGED_EMAIL" as const,
-        senderIdentity: "DueBack <followup@example.test>",
+        senderIdentity: "ActionOS <followup@example.test>",
         replyRoute: "case+opaque@inbound.example.test",
         messageSubject: "Follow-up for ORDER-79",
         messageBody: "Please confirm ORDER-79."
@@ -221,7 +221,7 @@ test.describe("channel plan authorization", () => {
       plan: {
         ...initial.plan,
         channelType: "CONTROLLED_SANDBOX" as const,
-        senderIdentity: "DueBack controlled demo",
+        senderIdentity: "ActionOS controlled demo",
         replyRoute: "Signed callback"
       }
     };
@@ -276,8 +276,8 @@ test.describe("channel plan authorization", () => {
           planHash: `sha256:${"c".repeat(64)}`,
           channelType: "MANAGED_EMAIL",
           allowedRecipient: "support@northstar.example",
-          senderIdentity: "DueBack <followup@dueback.example>",
-          replyRoute: "case+opaque@reply.dueback.example"
+          senderIdentity: "ActionOS <followup@actionos.example>",
+          replyRoute: "case+opaque@reply.actionos.example"
         }
       };
       await route.fulfill({
@@ -292,6 +292,6 @@ test.describe("channel plan authorization", () => {
     await page.keyboard.press("Enter");
     await expect(email).toHaveAttribute("aria-pressed", "true");
     await expect(page.getByText(/Contact channel changed.*version 2/)).toBeVisible();
-    await expect(page.getByText("case+opaque@reply.dueback.example")).toBeVisible();
+    await expect(page.getByText("case+opaque@reply.actionos.example")).toBeVisible();
   });
 });

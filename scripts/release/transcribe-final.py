@@ -9,7 +9,7 @@ from faster_whisper import WhisperModel
 
 
 ROOT = Path(__file__).resolve().parents[2]
-AUDIO = ROOT / "docs/submission/evidence/2026-08-22/v12-final/dueback-narration-v12-final.wav"
+AUDIO = ROOT / "docs/submission/evidence/2026-08-22/v12-final/actionos-narration-v12-final.wav"
 OUT = ROOT / "docs/submission/evidence/2026-08-22/v12-final"
 
 
@@ -23,8 +23,8 @@ def timestamp(seconds: float) -> str:
 
 def corrected_words(words: list[dict]) -> list[dict]:
     replacements = {
-        ("do", "-back"): "DueBack",
-        ("do", "-back's"): "DueBack's",
+        ("do", "-back"): "ActionOS",
+        ("do", "-back's"): "ActionOS's",
         ("follow", "-up"): "follow-up",
         ("item", "-potent"): "idempotent",
     }
@@ -87,12 +87,12 @@ def main() -> None:
         text = " ".join(word["text"] for word in cue)
         srt.extend([str(index), f"{timestamp(start)} --> {timestamp(end)}", text, ""])
 
-    (OUT / "dueback-narration-v12.words.json").write_text(
+    (OUT / "actionos-narration-v12.words.json").write_text(
         json.dumps({"language": info.language, "probability": info.language_probability, "words": words}, indent=2),
         encoding="utf-8",
     )
-    (OUT / "dueback-subtitles-v12.srt").write_text("\n".join(srt), encoding="utf-8")
-    (OUT / "dueback-transcript-v12.txt").write_text(" ".join(word["text"] for word in words) + "\n", encoding="utf-8")
+    (OUT / "actionos-subtitles-v12.srt").write_text("\n".join(srt), encoding="utf-8")
+    (OUT / "actionos-transcript-v12.txt").write_text(" ".join(word["text"] for word in words) + "\n", encoding="utf-8")
     print(f"{len(words)} words, {len(cues)} cues, language={info.language}")
 
 

@@ -11,7 +11,7 @@
 - [x] T003 [P] Add channel-copy failures to `apps/web/test/case-projection.test.ts`
 - [x] T004 Implement server-side channel-aware projection in `apps/web/lib/case-projection.ts`
 - [x] T005 Replace unconditional sandbox/callback copy in `apps/web/components/case-result.tsx` and `apps/web/components/case-timeline.tsx`
-- [x] T006 Align live controlled-email claims in `README.md`, `docs/architecture/dueback.md`, `docs/hackathon/compliance-checklist.md` and `docs/submission/demo-script.md`
+- [x] T006 Align live controlled-email claims in `README.md`, `docs/architecture/actionos.md`, `docs/hackathon/compliance-checklist.md` and `docs/submission/demo-script.md`
 
 **Gate A**: managed-email UI contains zero sandbox-only labels; sandbox disclosure remains.
 
@@ -86,7 +86,7 @@
 - [x] T052 [US5] Implement persisted allowlist projection in `packages/runtime/src/technical-run.ts`
 - [x] T053 [US5] Add required safe read methods in `packages/persistence/src/runtime-store.ts`
 - [x] T054 [US5] Add owner/synthetic-gated route in `apps/web/app/api/cases/[caseId]/technical-run/route.ts`
-- [x] T055 [US5] Build “How DueBack ran” drawer in `apps/web/components/technical-run.tsx`
+- [x] T055 [US5] Build “How ActionOS ran” drawer in `apps/web/components/technical-run.tsx`
 
 ## Phase 8 — User Story 6: Safe Export (P2)
 

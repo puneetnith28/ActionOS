@@ -33,7 +33,7 @@ export class OutboundEmailAdapter {
     recipient: string
   ): Promise<{ receipt: EmailDeliveryReceipt; duplicate: boolean }> {
     const key = stableHash({
-      namespace: "dueback/outbound-email/v1",
+      namespace: "actionos/outbound-email/v1",
       notificationDedupeKey: notification.dedupeKey,
       recipient
     });
@@ -46,7 +46,7 @@ export class OutboundEmailAdapter {
     try {
       const receipt = await this.transport.send({
         recipient,
-        subject: completed ? "DueBack has merchant-confirmed proof" : "DueBack needs one decision",
+        subject: completed ? "ActionOS has merchant-confirmed proof" : "ActionOS needs one decision",
         text: `${completed ? "The merchant confirmed the promised outcome." : "Your case needs a limited decision."}\n\nOpen: ${new URL(notification.deepLinkPath, this.publicBaseUrl).toString()}\n\nMerchant confirmation is not bank settlement or delivery proof.`,
         idempotencyKey: key
       });

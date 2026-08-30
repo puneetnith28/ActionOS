@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-const deployedUrl = process.env.DUEBACK_DEPLOYED_URL;
+const deployedUrl = process.env.ACTIONOS_DEPLOYED_URL;
 
 test.describe("deployed mobile judge path", () => {
-  test.skip(!deployedUrl, "Set DUEBACK_DEPLOYED_URL to run against the public Cloud Run service");
+  test.skip(!deployedUrl, "Set ACTIONOS_DEPLOYED_URL to run against the public Cloud Run service");
 
   test("captures, approves, leaves the page, and returns only on sufficient proof", async ({
     page
@@ -12,7 +12,7 @@ test.describe("deployed mobile judge path", () => {
     const reference = `DEMO-${String(Date.now())}`;
     await page.goto(`${deployedUrl}/intake`);
     await expect(
-      page.getByRole("heading", { name: "Say what needs to happen. DueBack keeps it moving." })
+      page.getByRole("heading", { name: "Say what needs to happen. ActionOS keeps it moving." })
     ).toBeVisible();
     await expect(page.getByTestId("intake-form")).toHaveAttribute("data-hydrated", "true", {
       timeout: 15_000
@@ -35,7 +35,7 @@ test.describe("deployed mobile judge path", () => {
     await expect(
       page.getByText(/It cannot spend, change the outcome, or call an acknowledgement done/)
     ).toBeVisible();
-    await expect(page.getByText("How DueBack contacts them")).toBeVisible();
+    await expect(page.getByText("How ActionOS contacts them")).toBeVisible();
     await expect(page.getByText("The first follow-up")).toBeVisible();
     await expect(page.getByText(`Follow-up for ${reference}`)).toBeVisible();
     await expect(

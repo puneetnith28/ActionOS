@@ -17,7 +17,7 @@ describe("outbound email", () => {
         failDelivery: () => Promise.resolve()
       },
       { send },
-      "https://dueback.example/"
+      "https://actionos.example/"
     );
     const notification = {
       notificationId: "notification_12345678",

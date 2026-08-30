@@ -21,7 +21,7 @@ const auth = () => Promise.resolve({ uid: "person_12345678" });
 const now = () => "2026-08-15T12:00:00.000Z";
 
 function command(body: object): Request {
-  return new Request("https://dueback.test/api/cases/mission_12345678/plan", {
+  return new Request("https://actionos.test/api/cases/mission_12345678/plan", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body)
@@ -34,7 +34,7 @@ describe("intake and plan HTTP contract", () => {
     const form = new FormData();
     form.set("text", "Northstar promised a USD 79 refund for ORDER-79.");
     const response = await handleIntake(
-      new Request("https://dueback.test/api/intake", { method: "POST", body: form }),
+      new Request("https://actionos.test/api/intake", { method: "POST", body: form }),
       { authenticate: auth, service: { intake } as never, now }
     );
     expect(response.status).toBe(201);

@@ -15,8 +15,8 @@ pnpm build
 Run adapter contracts and bidirectional fixtures:
 
 ```bash
-pnpm --filter @dueback/channel-adapters test
-pnpm --filter @dueback/runtime test
+pnpm --filter @actionos/channel-adapters test
+pnpm --filter @actionos/runtime test
 pnpm exec vitest run tests/contract tests/integration tests/adversarial
 ```
 
@@ -49,18 +49,18 @@ Required server configuration:
 
 ```text
 COMPANY_CONTACT_MODE=email
-COMPANY_EMAIL_FROM=DueBack <followup@verified.example>
+COMPANY_EMAIL_FROM=ActionOS <followup@verified.example>
 COMPANY_EMAIL_REPLY_DOMAIN=inbound.verified.example
 COMPANY_EMAIL_ALLOWED_RECIPIENT_DOMAINS=controlled-mailbox.example
-DUEBACK_NOTIFICATION_FROM=DueBack <updates@verified.example>
-DUEBACK_PUBLIC_BASE_URL=https://your-service.run.app
+ACTIONOS_NOTIFICATION_FROM=ActionOS <updates@verified.example>
+ACTIONOS_PUBLIC_BASE_URL=https://your-service.run.app
 ```
 
 Required Secret Manager bindings:
 
 ```text
-RESEND_API_KEY=dueback-resend-api-key:latest
-EMAIL_WEBHOOK_SIGNING_SECRET=dueback-email-webhook-signing:latest
+RESEND_API_KEY=actionos-resend-api-key:latest
+EMAIL_WEBHOOK_SIGNING_SECRET=actionos-email-webhook-signing:latest
 ```
 
 Register the provider webhook at
@@ -79,7 +79,7 @@ deletion removes user-visible case records and leaves only a non-personal tombst
 ## Public browser verification
 
 ```bash
-DUEBACK_DEPLOYED_URL='https://your-service.run.app' \
+ACTIONOS_DEPLOYED_URL='https://your-service.run.app' \
   pnpm exec playwright test --workers=1 --retries=0
 ```
 

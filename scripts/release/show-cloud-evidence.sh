@@ -6,21 +6,21 @@ project_id="bulbasour-503317"
 region="us-central1"
 screen() {
   clear
-  printf '\033[1;32mDUEBACK · LIVE GOOGLE CLOUD EVIDENCE\033[0m\n'
+  printf '\033[1;32mACTIONOS · LIVE GOOGLE CLOUD EVIDENCE\033[0m\n'
   printf '\033[2mProject %s · Region %s · 2026-08-22 UTC\033[0m\n\n' "$project_id" "$region"
 }
 
 sleep 3
 screen
-printf '\033[1;36m$ gcloud run services describe dueback-web --region=us-central1\033[0m\n\n'
-gcloud run services describe dueback-web --region="$region" --project="$project_id" \
+printf '\033[1;36m$ gcloud run services describe actionos-web --region=us-central1\033[0m\n\n'
+gcloud run services describe actionos-web --region="$region" --project="$project_id" \
   --format='table(status.url:label=RUN_URL,status.latestReadyRevisionName:label=LIVE_REVISION,spec.template.spec.containers[0].image:label=DEPLOYED_IMAGE)'
 printf '\n\033[1m100%% of untagged traffic · Firebase Hosting repinned\033[0m\n'
 sleep 6
 
 screen
-printf '\033[1;36m$ gcloud tasks queues describe dueback-cases --location=us-central1\033[0m\n\n'
-gcloud tasks queues describe dueback-cases --location="$region" --project="$project_id" \
+printf '\033[1;36m$ gcloud tasks queues describe actionos-cases --location=us-central1\033[0m\n\n'
+gcloud tasks queues describe actionos-cases --location="$region" --project="$project_id" \
   --format='yaml(state,rateLimits.maxConcurrentDispatches,rateLimits.maxDispatchesPerSecond,retryConfig.maxAttempts,retryConfig.minBackoff,retryConfig.maxBackoff)'
 sleep 5
 

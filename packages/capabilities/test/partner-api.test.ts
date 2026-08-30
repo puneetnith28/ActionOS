@@ -22,7 +22,7 @@ describe("controlled partner API fixture", () => {
       })));
     });
     const adapter = new PartnerApiFixtureAdapter({
-      endpoint: "https://fixture.example/v1/dueback/actions",
+      endpoint: "https://fixture.example/v1/actionos/actions",
       signingSecret: "fixture-secret",
       request
     });
@@ -31,7 +31,7 @@ describe("controlled partner API fixture", () => {
     const [, init] = request.mock.calls[0] ?? [];
     const headers = init?.headers as Record<string, string> | undefined;
     expect(headers?.["idempotency-key"]).toBe("action/case/1");
-    expect(headers?.["x-dueback-signature"]).toMatch(/^sha256=[a-f0-9]{64}$/);
+    expect(headers?.["x-actionos-signature"]).toMatch(/^sha256=[a-f0-9]{64}$/);
   });
 
   it("rejects arbitrary paths and insecure remote endpoints", () => {
@@ -40,7 +40,7 @@ describe("controlled partner API fixture", () => {
       signingSecret: "secret"
     })).toThrow("PARTNER_ENDPOINT_NOT_ALLOWED");
     expect(() => new PartnerApiFixtureAdapter({
-      endpoint: "http://fixture.example/v1/dueback/actions",
+      endpoint: "http://fixture.example/v1/actionos/actions",
       signingSecret: "secret"
     })).toThrow("PARTNER_ENDPOINT_NOT_ALLOWED");
   });

@@ -4,7 +4,7 @@ $ErrorActionPreference = "Stop"
 $target = (Invoke-RestMethod "http://127.0.0.1:$DebugPort/json/list") |
   Where-Object { $_.type -eq "page" -and $_.url -like "https://bulbasour-503317.web.app/*" } |
   Select-Object -First 1
-if (-not $target) { throw "DueBack capture tab not found" }
+if (-not $target) { throw "ActionOS capture tab not found" }
 
 $socket = [System.Net.WebSockets.ClientWebSocket]::new()
 $cancel = [Threading.CancellationToken]::None
@@ -64,7 +64,7 @@ Click-Text "button" "Missing refund"
 Start-Sleep -Seconds 2
 Click-Text "button" "Build my plan"
 Start-Sleep -Seconds 4
-Wait-Text "Review what DueBack understood." 75
+Wait-Text "Review what ActionOS understood." 75
 Eval "window.scrollTo({top:170,behavior:'smooth'});true" | Out-Null
 Start-Sleep -Seconds 5
 Eval "(()=>{const e=document.querySelector('input[type=checkbox]');e.scrollIntoView({block:'center'});return true})()" | Out-Null
@@ -79,6 +79,6 @@ Eval "window.scrollTo(0,0);true" | Out-Null
 Start-Sleep -Seconds 6
 Click-Text "button" "Show technical trace"
 Start-Sleep -Seconds 3
-Eval "(()=>{const e=[...document.querySelectorAll('section')].find(x=>x.textContent.includes('How DueBack ran'));e.scrollIntoView({block:'start'});return true})()" | Out-Null
+Eval "(()=>{const e=[...document.querySelectorAll('section')].find(x=>x.textContent.includes('How ActionOS ran'));e.scrollIntoView({block:'start'});return true})()" | Out-Null
 Start-Sleep -Seconds 8
 Write-Output "CAPTURE_FLOW_COMPLETE"

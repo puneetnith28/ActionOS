@@ -233,7 +233,7 @@ export class FirestoreRuntimeStore
       });
     if (receipt.replyRoute && receipt.missionId) {
       const routeKey = stableHash({
-        namespace: "dueback/reply-route/v1",
+        namespace: "actionos/reply-route/v1",
         replyRoute: receipt.replyRoute.toLowerCase()
       });
       batch.set(this.db.collection("messageThreads").doc(routeKey.slice(7)), {
@@ -251,7 +251,7 @@ export class FirestoreRuntimeStore
 
   async missionForReplyRoute(replyRoute: string): Promise<string | undefined> {
     const routeKey = stableHash({
-      namespace: "dueback/reply-route/v1",
+      namespace: "actionos/reply-route/v1",
       replyRoute: replyRoute.toLowerCase()
     });
     const document = await this.db.collection("messageThreads").doc(routeKey.slice(7)).get();
@@ -295,12 +295,12 @@ export class FirestoreRuntimeStore
         const correlationId = String(current.get("correlationId") ?? `corr_${missionId.slice(-24)}`);
         const ownerId = String(current.get("ownerId"));
         const interventionKey = stableHash({
-          namespace: "dueback/intervention/v1",
+          namespace: "actionos/intervention/v1",
           missionId,
           kind: "EMAIL_ROUTE_UNAVAILABLE"
         });
         const notificationKey = stableHash({
-          namespace: "dueback/notification/v1",
+          namespace: "actionos/notification/v1",
           missionId,
           correlationId,
           kind: "NEEDS_ATTENTION"
@@ -648,7 +648,7 @@ export class FirestoreRuntimeStore
     receivedAt: string;
   }): Promise<void> {
     const inboundId = stableHash({
-      namespace: "dueback/inbound-envelope/v1",
+      namespace: "actionos/inbound-envelope/v1",
       providerEventId: input.providerEventId,
       providerEmailId: input.providerEmailId
     });

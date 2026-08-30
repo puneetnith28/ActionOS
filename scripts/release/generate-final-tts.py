@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the final DueBack narration with Gemini TTS on Vertex AI."""
+"""Generate the final ActionOS narration with Gemini TTS on Vertex AI."""
 
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
@@ -11,7 +11,7 @@ from google.genai import types
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "docs/submission/demo-narration-final.md"
-OUTPUT = ROOT / "docs/submission/evidence/2026-08-22/v12-final/dueback-narration-v12.wav"
+OUTPUT = ROOT / "docs/submission/evidence/2026-08-22/v12-final/actionos-narration-v12.wav"
 SEGMENTS = OUTPUT.parent / "narration-segments"
 
 
@@ -44,7 +44,7 @@ def generate_segment(index_and_text: tuple[int, str]) -> Path:
 founder in your thirties giving a live software demonstration to expert hackathon judges. Use
 neutral American English, restrained confidence, natural sentence-level variation, and a calm
 conversational delivery. Never sound theatrical, promotional, breathless, or like a commercial.
-Speak at approximately 135 words per minute. Pronounce DueBack as 'Due Back', Gemini as
+Speak at approximately 135 words per minute. Pronounce ActionOS as 'Due Back', Gemini as
 'Gem-in-eye', and Genkit as 'Gen-kit'. Pause before and after 'Acknowledgement is not proof.' Pause
 before 'A deterministic verifier—not the model—accepts that evidence.' Do not add, omit, repeat, or
 paraphrase words.

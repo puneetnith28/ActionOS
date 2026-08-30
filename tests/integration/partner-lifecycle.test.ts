@@ -23,7 +23,7 @@ describe("partner adapter lifecycle", () => {
         receiptId: "partner_receipt_123", acceptedAt: "2026-08-16T12:00:02.000Z"
       })));
     const broker = new ExecutionBroker(store, new PartnerApiFixtureAdapter({
-      endpoint: "https://partner.example/v1/dueback/actions",
+      endpoint: "https://partner.example/v1/actionos/actions",
       signingSecret: "fixture-secret",
       request
     }));
@@ -54,7 +54,7 @@ describe("partner adapter lifecycle", () => {
     });
     expect(request).toHaveBeenCalledTimes(2);
     expect(request.mock.calls[0]?.[1]?.headers).toMatchObject({
-      "idempotency-key": expect.any(String), "x-dueback-signature": expect.stringMatching(/^sha256=/)
+      "idempotency-key": expect.any(String), "x-actionos-signature": expect.stringMatching(/^sha256=/)
     });
     expect(request.mock.calls[1]?.[1]?.headers).toMatchObject({
       "idempotency-key": request.mock.calls[0]?.[1]?.headers["idempotency-key"]

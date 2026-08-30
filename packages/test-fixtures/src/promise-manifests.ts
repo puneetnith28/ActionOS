@@ -16,7 +16,7 @@ export const billCreditFixture = {
     goal: "Apply the promised USD 25 credit to the September 2026 bill",
     goalType: "BILL_CREDIT",
     allowedActions: ["SEND_FOLLOW_UP"],
-    allowedRecipient: "merchant@controlled.dueback.test",
+    allowedRecipient: "merchant@controlled.actionos.test",
     sharedFields: ["transactionRef", "amountMinor", "currency", "billPeriod"],
     evidenceRequirements: [
       {
@@ -56,7 +56,7 @@ export const replacementFixture = {
     goal: "Ship the promised replacement headphones with tracking",
     goalType: "REPLACEMENT",
     allowedActions: ["SEND_FOLLOW_UP"],
-    allowedRecipient: "merchant@controlled.dueback.test",
+    allowedRecipient: "merchant@controlled.actionos.test",
     sharedFields: ["transactionRef", "subject"],
     evidenceRequirements: [
       {

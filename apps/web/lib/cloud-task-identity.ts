@@ -27,7 +27,7 @@ export async function verifyCloudTaskIdentity(request: Request): Promise<CloudTa
   )?.trim();
   const authorization = request.headers.get("authorization") ?? "";
   const token = authorization.match(/^Bearer ([A-Za-z0-9._~-]+)$/)?.[1];
-  const audience = process.env.DUEBACK_TASKS_OIDC_AUDIENCE?.trim();
+  const audience = process.env.ACTIONOS_TASKS_OIDC_AUDIENCE?.trim();
   const expectedEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT?.trim().toLowerCase();
 
   if (!taskName || !token || !audience || !expectedEmail) {

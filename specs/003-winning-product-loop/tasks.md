@@ -138,7 +138,7 @@
 - [ ] T069 [US10] Implement placeholder, URL, duration, language, revision and claim-evidence validation in `scripts/release/check.ts`
 - [ ] T070 [US10] Add `release:check` command to root `package.json` and contract tests in `tests/contract/release-readiness.test.ts`
 - [ ] T071 [US10] Update final continuous story and timing checkpoints in `docs/submission/demo-script.md`
-- [ ] T072 [US10] Align README, architecture and Devpost copy claims in `README.md`, `docs/architecture/dueback.md` and `docs/submission/devpost-copy.md`
+- [ ] T072 [US10] Align README, architecture and Devpost copy claims in `README.md`, `docs/architecture/actionos.md` and `docs/submission/devpost-copy.md`
 - [ ] T073 [US10] Record judge repo, eligibility, video and deployed revision gates without fabricated verification in `docs/hackathon/compliance-checklist.md`
 
 ## Phase 10: User Story 7 — Controlled Real Conversation (P2, Optional)

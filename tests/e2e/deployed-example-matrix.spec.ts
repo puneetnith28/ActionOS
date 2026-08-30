@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const deployedUrl = process.env.DUEBACK_DEPLOYED_URL;
+const deployedUrl = process.env.ACTIONOS_DEPLOYED_URL;
 
 const visibleExamples = [
   { label: "Missing refund", expected: /USD 59|59\.00/ },
@@ -10,7 +10,7 @@ const visibleExamples = [
 ] as const;
 
 test.describe("deployed visible example matrix", () => {
-  test.skip(!deployedUrl, "Set DUEBACK_DEPLOYED_URL to run against the public Cloud Run service");
+  test.skip(!deployedUrl, "Set ACTIONOS_DEPLOYED_URL to run against the public Cloud Run service");
 
   for (const example of visibleExamples) {
     test(`${example.label} completes the accelerated proof loop`, async ({ page }) => {

@@ -45,7 +45,7 @@ export interface EvaluationCase {
   };
   readonly provenance: {
     readonly origin: "synthetic";
-    readonly author: "DueBack participant";
+    readonly author: "ActionOS participant";
     readonly createdOn: "2026-08-16";
     readonly license: "CC0-1.0";
   };
@@ -53,7 +53,7 @@ export interface EvaluationCase {
 
 const provenance = {
   origin: "synthetic",
-  author: "DueBack participant",
+  author: "ActionOS participant",
   createdOn: "2026-08-16",
   license: "CC0-1.0"
 } as const;

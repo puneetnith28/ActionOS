@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-const deployedUrl = process.env.DUEBACK_DEPLOYED_URL;
+const deployedUrl = process.env.ACTIONOS_DEPLOYED_URL;
 
 test.describe("deployed ambiguous promise review", () => {
-  test.skip(!deployedUrl, "Set DUEBACK_DEPLOYED_URL to run against the public Cloud Run service");
+  test.skip(!deployedUrl, "Set ACTIONOS_DEPLOYED_URL to run against the public Cloud Run service");
 
   test("shows uncertainty and makes every blocker recoverable without developer tools", async ({
     page

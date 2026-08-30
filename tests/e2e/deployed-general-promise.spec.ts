@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-const deployedUrl = process.env.DUEBACK_DEPLOYED_URL;
+const deployedUrl = process.env.ACTIONOS_DEPLOYED_URL;
 
 test.describe("deployed general commercial promise", () => {
-  test.skip(!deployedUrl, "Set DUEBACK_DEPLOYED_URL to run against the public Cloud Run service");
+  test.skip(!deployedUrl, "Set ACTIONOS_DEPLOYED_URL to run against the public Cloud Run service");
 
   test("follows through on a document promise without inventing money", async ({ page }) => {
     await page.goto(`${deployedUrl}/intake`);

@@ -6,24 +6,24 @@
 
 **Status**: Approved for planning
 
-**Input**: Turn DueBack into a recoverable consumer follow-up app: progressive identity, My
+**Input**: Turn ActionOS into a recoverable consumer follow-up app: progressive identity, My
 follow-ups inbox, channel-aware case detail, real email conversation, notifications for decisions
 and results, and transparent judge evidence without adding unsupported channels.
 
 ## Product Promise
 
-DueBack is the place where a person leaves a company promise and returns only when a decision or
-verified result exists. Email is the transport between DueBack and the company; the app is the
+ActionOS is the place where a person leaves a company promise and returns only when a decision or
+verified result exists. Email is the transport between ActionOS and the company; the app is the
 recoverable source of truth, control and evidence.
 
 The public promise for this iteration is deliberately narrow: **“Share a company promise once.
-DueBack follows that approved thread and brings you back only when it needs you or has proof.”**
+ActionOS follows that approved thread and brings you back only when it needs you or has proof.”**
 
 ## User Scenarios & Testing
 
 ### User Story 1 - Return to every follow-up (Priority: P1)
 
-A person can explore anonymously, but before DueBack contacts a real mailbox they preserve access
+A person can explore anonymously, but before ActionOS contacts a real mailbox they preserve access
 with a recoverable identity. On any supported device they open “My follow-ups” and see active,
 attention-needed and completed cases without saving individual URLs.
 
@@ -36,7 +36,7 @@ then sign in from a clean browser and open the same owned case; a different iden
 **Acceptance Scenarios**:
 
 1. **Given** an anonymous person has reviewed a real-email plan, **When** they activate it, **Then**
-   DueBack requires or offers recoverable sign-in before the external action and preserves the
+   ActionOS requires or offers recoverable sign-in before the external action and preserves the
    draft and corrections.
 2. **Given** a signed-in owner has several cases, **When** they open “My follow-ups”, **Then** they see
    each company, promised outcome, human status, latest meaningful event and next step.
@@ -49,7 +49,7 @@ then sign in from a clean browser and open the same owned case; a different iden
 
 ### User Story 2 - Understand what is happening now (Priority: P1)
 
-A person opens one case and immediately understands what DueBack sent, what the company replied,
+A person opens one case and immediately understands what ActionOS sent, what the company replied,
 why that reply did or did not satisfy the promise, what happens next and whether they need to act.
 
 **Why this priority**: The current technical timeline proves architecture but does not answer the
@@ -63,7 +63,7 @@ result without sandbox language.
 
 1. **Given** a managed-email case, **When** the first message is sent, **Then** the detail identifies
    email as the active channel and shows a safe, readable summary of sender, recipient and message.
-2. **Given** the company replies “request received”, **When** DueBack evaluates it, **Then** the page
+2. **Given** the company replies “request received”, **When** ActionOS evaluates it, **Then** the page
    says “Not resolved”, quotes only safe bounded evidence, names the missing proof and shows the next
    approved action.
 3. **Given** sufficient authenticated evidence arrives, **When** deterministic verification passes,
@@ -76,7 +76,7 @@ result without sandbox language.
 
 ### User Story 3 - Be brought back only when needed (Priority: P1)
 
-A person may close the app. DueBack sends a bounded, deduplicated notification when judgment is
+A person may close the app. ActionOS sends a bounded, deduplicated notification when judgment is
 needed, when the case reaches a supported result, or when execution cannot continue.
 
 **Why this priority**: Background autonomy has no user value if an intervention silently waits in a
@@ -101,7 +101,7 @@ notification attempt and use its authenticated deep link to make the narrow deci
 
 ### User Story 4 - Make a narrow intervention (Priority: P1)
 
-When DueBack needs judgment, the owner sees one concrete question with its consequence. They can
+When ActionOS needs judgment, the owner sees one concrete question with its consequence. They can
 resume, stop, dispute a claimed result, or correct an authority-changing fact through a new approval.
 
 **Why this priority**: A general chat or admin dashboard would hide the product’s safety advantage;
@@ -115,17 +115,17 @@ and approval are required, and confirm the old approval cannot execute.
 1. **Given** missing or conflicting proof, **When** the owner opens the case, **Then** one primary
    decision and its evidence are shown before technical detail.
 2. **Given** the owner changes recipient, outcome, amount, deadline or proof requirement, **When**
-   they continue, **Then** DueBack creates a new plan version and requires explicit reapproval.
+   they continue, **Then** ActionOS creates a new plan version and requires explicit reapproval.
 3. **Given** the owner stops the case, **When** a late task or reply arrives, **Then** it cannot resume
    external action or silently close the case.
-4. **Given** DueBack reports a supported result, **When** the owner selects “This is not resolved”,
+4. **Given** ActionOS reports a supported result, **When** the owner selects “This is not resolved”,
    **Then** the case reopens with the dispute recorded and no automatic authority expansion.
 
 ---
 
 ### User Story 5 - See why this is an agent (Priority: P2)
 
-A judge or curious owner can expand “How DueBack ran” to inspect a redacted chain from Gemini
+A judge or curious owner can expand “How ActionOS ran” to inspect a redacted chain from Gemini
 extraction through durable task, external transport, reply authentication, deterministic verifier,
 notification and stored result.
 
@@ -160,7 +160,7 @@ summary, supported result and limitation, but no control token, raw artifact, se
 **Acceptance Scenarios**:
 
 1. **Given** an owned case, **When** the owner exports it, **Then** the artifact is redacted,
-   timestamped and clearly distinguishes company statements from DueBack verification.
+   timestamped and clearly distinguishes company statements from ActionOS verification.
 2. **Given** a recipient reads an exported artifact, **When** they try its identifiers against the
    app, **Then** they gain no case access or control.
 
@@ -258,7 +258,7 @@ summary, supported result and limitation, but no control token, raw artifact, se
   telemetry as missing rather than infer it.
 - **FR-030**: Technical evidence MUST redact message content, full addresses, secrets and raw
   artifacts, and remain owner/synthetic-case gated.
-- **FR-031**: A safe export MUST distinguish promise, company statement, DueBack decision and claim
+- **FR-031**: A safe export MUST distinguish promise, company statement, ActionOS decision and claim
   limitation while granting no control or authenticated access.
 
 #### Product truth and scope
@@ -325,7 +325,7 @@ Targets below are acceptance targets, not achieved metrics until the named tests
 - Anonymous mode remains sufficient for accelerated sandbox judging, but real email requires a
   recoverable owner.
 - The controlled pilot keeps recipient domains/mailboxes allowlisted; this feature does not open
-  DueBack as an arbitrary outbound-email platform.
+  ActionOS as an arbitrary outbound-email platform.
 - Resend remains the managed email transport because its real controlled path already passed send,
   signed webhook and inbound false-DONE gates. Google technology remains central to model,
   orchestration, durable execution, state and identity.

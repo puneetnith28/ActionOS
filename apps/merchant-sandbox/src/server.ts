@@ -212,6 +212,6 @@ if (process.env.NODE_ENV !== "test") {
   createMerchantServer({
     callbackSecret: secret,
     actionSecret: secret,
-    ...(process.env.DUEBACK_CALLBACK_URL ? { callbackUrl: process.env.DUEBACK_CALLBACK_URL } : {})
+    ...(process.env.ACTIONOS_CALLBACK_URL ? { callbackUrl: process.env.ACTIONOS_CALLBACK_URL } : {})
   }).listen(port);
 }

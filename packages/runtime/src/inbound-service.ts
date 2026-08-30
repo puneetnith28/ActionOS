@@ -52,7 +52,7 @@ export class InboundService {
     private readonly interventions: InterventionService
   ) {}
 
-  async process(email: NormalizedInboundEmail, now: string): Promise<{
+  async process(email: NormalizedInboundEmail, now: string, requestedCorrelationId?: string): Promise<{
     status: "REJECTED" | "INSUFFICIENT" | "NEEDS_ATTENTION" | "VERIFIED";
     reasonCodes?: readonly string[];
   }> {
@@ -79,7 +79,7 @@ export class InboundService {
     if (!["RUNNING", "WAITING_EXTERNAL", "VERIFYING"].includes(item.state)) {
       return { status: "REJECTED", reasonCodes: ["MISSION_NOT_ACCEPTING_INBOUND"] };
     }
-    const correlationId = item.correlationId ?? `corr_${stableHash({ missionId }).slice(7, 31)}`;
+    const correlationId = requestedCorrelationId ?? item.correlationId ?? `corr_${stableHash({ missionId }).slice(7, 31)}`;
     const expectedSender = address(item.plan.allowedRecipient);
     if (address(email.from) !== expectedSender) {
       await this.interventions.raise({
@@ -132,7 +132,7 @@ export class InboundService {
     const requirement = item.plan.evidenceRequirements[0];
     if (!requirement) throw new Error("EVIDENCE_REQUIREMENT_MISSING");
     const candidate: ExecutionOutcomeContract = {
-      outcomeId: `evidence_${stableHash({ namespace: "dueback/inbound-evidence/v1", id: email.providerEmailId }).slice(7, 31)}`,
+      outcomeId: `evidence_${stableHash({ namespace: "actionos/inbound-evidence/v1", id: email.providerEmailId }).slice(7, 31)}`,
       missionId,
       status: interpretation.evidenceLevel,
       ...(interpretation.amountMinor === undefined ? {} : { amountMinor: interpretation.amountMinor }),

@@ -12,7 +12,7 @@ let environment: RulesTestEnvironment;
 
 beforeAll(async () => {
   environment = await initializeTestEnvironment({
-    projectId: "dueback-rules-test",
+    projectId: "actionos-rules-test",
     firestore: {
       rules: await readFile("infra/firestore/firestore.rules", "utf8"),
       host: "127.0.0.1",

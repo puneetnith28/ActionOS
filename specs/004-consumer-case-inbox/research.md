@@ -5,7 +5,7 @@
 **Decision**: Build “My follow-ups” as a compact owner-scoped inbox with Needs you, Working and Done
 states. Email carries messages; the app owns state, control and evidence.
 
-**Rationale**: This answers the user’s missing “what happens after?” while preserving DueBack’s
+**Rationale**: This answers the user’s missing “what happens after?” while preserving ActionOS’s
 unique false-DONE and durable-execution story. It also lets the judge leave and return.
 
 **Alternatives considered**: Email-only loses recovery/control; an enterprise dashboard is the wrong
@@ -69,7 +69,7 @@ transport/authenticity status and verifier reason. Do not expose full raw email 
 injection and retention risk. The existing inbound interpreter and evidence ledger already provide
 the trustworthy facts.
 
-**Alternatives considered**: Full thread UI turns DueBack into an email client; event labels alone
+**Alternatives considered**: Full thread UI turns ActionOS into an email client; event labels alone
 are too abstract; model summaries without citations could invent meaning.
 
 ## Decision 7 — Authority changes require reapproval
@@ -77,7 +77,7 @@ are too abstract; model summaries without citations could invent meaning.
 **Decision**: Resume/stop/dispute can be narrow case controls. Recipient, result, amount, deadline or
 proof changes generate a new canonical plan/hash and invalidate the prior approval.
 
-**Rationale**: This preserves DueBack’s strongest safety property and prevents a friendly consumer
+**Rationale**: This preserves ActionOS’s strongest safety property and prevents a friendly consumer
 UI from becoming an authorization bypass.
 
 **Alternatives considered**: Direct inline mutation is convenient but unsafe; prohibiting all edits

@@ -7,7 +7,7 @@
 
 | Gate | Status | Current evidence | Missing evidence |
 |---|---|---|---|
-| A — Product truth | PASS | Server-side channel fixtures plus revision `dueback-web-00049-4jd`; anonymous intake remains sandbox even when email is configured | None |
+| A — Product truth | PASS | Server-side channel fixtures plus revision `actionos-web-00049-4jd`; anonymous intake remains sandbox even when email is configured | None |
 | B — Personal inbox | PARTIAL | Owner-scoped paginated `/api/cases`, Google sign-in, Firebase Hosting OAuth boundary, authenticated empty state | Same real case recovered in a clean browser; non-owner denial recorded |
 | C — Understandable case | PASS | Owner-checked safe detail DTO, bounded conversation, Promised-vs-Observed, ACK rejection, responsive header and deployed result paths | Continuous managed-email sufficient completion remains optional; weak ACK evidence already exists |
 | D — Durable return | PASS | Attention/completion/failure tests, concurrent replay dedupe, lifecycle truth, bounded retry and deployed closed-tab browser fixture | None for sandbox path |

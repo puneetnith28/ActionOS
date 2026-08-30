@@ -125,7 +125,7 @@ function evaluateCase(item: EvaluationCase): ObservedResult {
         planVersion: 1,
         planHash: hash,
         allowedActions: ["SEND_FOLLOW_UP"],
-        allowedRecipient: "merchant@controlled.dueback.test",
+        allowedRecipient: "merchant@controlled.actionos.test",
         sharedFields: ["transactionRef"],
         approval: {
           ownerId: "person_eval",
@@ -174,13 +174,13 @@ function evaluateCase(item: EvaluationCase): ObservedResult {
   };
 }
 
-const ai = genkit({ name: "dueback-evaluation" });
+const ai = genkit({ name: "actionos-evaluation" });
 export const corpusEvaluator = ai.defineEvaluator(
   {
-    name: "dueback/corpus-contract",
-    displayName: "DueBack corpus contract",
+    name: "actionos/corpus-contract",
+    displayName: "ActionOS corpus contract",
     definition:
-      "Checks deterministic DueBack outcome contracts without asking a model to judge itself."
+      "Checks deterministic ActionOS outcome contracts without asking a model to judge itself."
   },
   async (datapoint) => {
     const item = evaluationCorpus.find((candidate) => candidate.id === datapoint.testCaseId);

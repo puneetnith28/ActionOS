@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   const unauthorized = await requireCloudTaskIdentity(request);
   if (unauthorized) return unauthorized;
   const projectId = process.env.GOOGLE_CLOUD_PROJECT;
-  const workerUrl = process.env.DUEBACK_WORKER_URL;
+  const workerUrl = process.env.ACTIONOS_WORKER_URL;
   const serviceAccountEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT;
   if (!projectId || !workerUrl || !serviceAccountEmail) {
     return Response.json({ error: "RUNTIME_NOT_CONFIGURED" }, { status: 503 });
@@ -23,8 +23,8 @@ export async function POST(request: Request) {
     queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-missions",
     workerUrl,
     serviceAccountEmail,
-    ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
-      ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
+    ...(process.env.ACTIONOS_TASKS_OIDC_AUDIENCE
+      ? { oidcAudience: process.env.ACTIONOS_TASKS_OIDC_AUDIENCE }
       : {})
   });
   const result = await new DurableWakeScheduler(tasks, outbox, () => new Date().toISOString())

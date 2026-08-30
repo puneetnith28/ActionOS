@@ -1,12 +1,12 @@
 openapi: 3.1.0
 info:
-  title: DueBack MVP API
+  title: ActionOS MVP API
   version: 0.1.0
   description: >-
     Contract for intake, version-bound approval, durable execution, evidence callbacks,
     cancellation, reopening, and deletion. Controlled endpoints are never production merchants.
 servers:
-  - url: https://dueback.example.invalid
+  - url: https://actionos.example.invalid
 paths:
   /api/intakes:
     post:
@@ -136,11 +136,11 @@ paths:
       operationId: merchantCallback
       parameters:
         - in: header
-          name: X-DueBack-Signature
+          name: X-ActionOS-Signature
           required: true
           schema: { type: string }
         - in: header
-          name: X-DueBack-Timestamp
+          name: X-ActionOS-Timestamp
           required: true
           schema: { type: string }
       requestBody:

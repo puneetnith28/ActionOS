@@ -24,11 +24,11 @@ function cases(): readonly [string, CapabilityExecutor][] {
       }))))
     })],
     ["managed email", new CompanyEmailActionAdapter({
-      apiKey: "test", from: "dueback@example.test", replyDomain: "inbound.example.test",
+      apiKey: "test", from: "actionos@example.test", replyDomain: "inbound.example.test",
       request: vi.fn(() => Promise.resolve(new Response(JSON.stringify({ id: "email_receipt" }))))
     })],
     ["partner fixture", new PartnerApiFixtureAdapter({
-      endpoint: "https://partner.example/v1/dueback/actions",
+      endpoint: "https://partner.example/v1/actionos/actions",
       signingSecret: "test",
       request: vi.fn(() => Promise.resolve(new Response(JSON.stringify({
         receiptId: "partner_receipt",

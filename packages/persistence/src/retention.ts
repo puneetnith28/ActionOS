@@ -171,7 +171,7 @@ export class FirestoreMissionControlStore implements MissionControlStore {
     const runRef = this.db.collection("caseRuns").doc(input.missionId);
     const draftRef = this.db.collection("caseDrafts").doc(input.missionId);
     const tombstoneId = stableHash({
-      namespace: "dueback/deletion/v1",
+      namespace: "actionos/deletion/v1",
       missionId: input.missionId
     }).slice(7, 39);
     const tombstoneRef = this.db.collection("deletionTombstones").doc(tombstoneId);

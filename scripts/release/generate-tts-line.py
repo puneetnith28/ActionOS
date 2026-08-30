@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate one replacement narration line with the final DueBack voice."""
+"""Generate one replacement narration line with the final ActionOS voice."""
 
 import argparse
 from pathlib import Path
@@ -19,7 +19,7 @@ def main() -> None:
 founder in your thirties giving a live software demonstration to expert hackathon judges. Use
 neutral American English, restrained confidence, natural sentence-level variation, and a calm
 conversational delivery. Never sound theatrical, promotional, breathless, or like a commercial.
-Speak at approximately 135 words per minute. Pronounce DueBack as 'Due Back', Gemini as
+Speak at approximately 135 words per minute. Pronounce ActionOS as 'Due Back', Gemini as
 'Gem-in-eye', and Genkit as 'Gen-kit'. Do not add, omit, repeat, or paraphrase words.
 
 TEXT TO READ:

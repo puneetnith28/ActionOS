@@ -40,7 +40,7 @@ class ExceptionStore implements MissionControlStore {
 }
 
 function request(caseId: string, action: string, expectedVersion: number, reason?: string) {
-  return new Request(`https://dueback.test/api/cases/${caseId}/control`, {
+  return new Request(`https://actionos.test/api/cases/${caseId}/control`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ action, expectedVersion, reason, idempotencyKey: `command-${action.toLowerCase()}-12345678` })

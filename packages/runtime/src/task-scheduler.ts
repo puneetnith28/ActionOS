@@ -31,8 +31,8 @@ export class TaskScheduler {
     );
     const correlationId =
       input.correlationId ??
-      `corr_${stableHash({ namespace: "dueback/correlation/v1", missionId: input.missionId }).slice(7, 31)}`;
-    const stableName = stableHash({ namespace: "dueback/task/v1", ...input }).slice(7, 39);
+      `corr_${stableHash({ namespace: "actionos/correlation/v1", missionId: input.missionId }).slice(7, 31)}`;
+    const stableName = stableHash({ namespace: "actionos/task/v1", ...input }).slice(7, 39);
     const taskName = `${parent}/tasks/mission-${stableName}`;
     const body = Buffer.from(
       JSON.stringify({
@@ -47,7 +47,10 @@ export class TaskScheduler {
       httpRequest: {
         httpMethod: protos.google.cloud.tasks.v2.HttpMethod.POST,
         url: this.config.workerUrl,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-actionos-correlation-id": correlationId
+        },
         body,
         oidcToken: {
           serviceAccountEmail: this.config.serviceAccountEmail,
@@ -71,6 +74,7 @@ export class TaskScheduler {
     readonly providerEmailId: string;
     readonly eventType: string;
     readonly wakeAt: string;
+    readonly correlationId?: string;
   }): Promise<{ taskName: string; duplicate: boolean }> {
     if (!this.config.inboundWorkerUrl) throw new Error("INBOUND_WORKER_NOT_CONFIGURED");
     const parent = this.client.queuePath(
@@ -78,7 +82,7 @@ export class TaskScheduler {
       this.config.location,
       this.config.queue
     );
-    const stableName = stableHash({ namespace: "dueback/inbound-task/v1", ...input }).slice(7, 39);
+    const stableName = stableHash({ namespace: "actionos/inbound-task/v1", ...input }).slice(7, 39);
     const taskName = `${parent}/tasks/inbound-${stableName}`;
     const task: protos.google.cloud.tasks.v2.ITask = {
       name: taskName,
@@ -86,7 +90,10 @@ export class TaskScheduler {
       httpRequest: {
         httpMethod: protos.google.cloud.tasks.v2.HttpMethod.POST,
         url: this.config.inboundWorkerUrl,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(input.correlationId ? { "x-actionos-correlation-id": input.correlationId } : {})
+        },
         body: Buffer.from(JSON.stringify(input)).toString("base64"),
         oidcToken: {
           serviceAccountEmail: this.config.serviceAccountEmail,
@@ -106,6 +113,7 @@ export class TaskScheduler {
   async scheduleAnalysis(input: {
     readonly jobId: string;
     readonly wakeAt: string;
+    readonly correlationId?: string;
   }): Promise<{ taskName: string; duplicate: boolean }> {
     if (!this.config.analysisWorkerUrl) throw new Error("ANALYSIS_WORKER_NOT_CONFIGURED");
     const parent = this.client.queuePath(
@@ -113,7 +121,7 @@ export class TaskScheduler {
       this.config.location,
       this.config.queue
     );
-    const stableName = stableHash({ namespace: "dueback/analysis-task/v1", ...input }).slice(7, 39);
+    const stableName = stableHash({ namespace: "actionos/analysis-task/v1", ...input }).slice(7, 39);
     const taskName = `${parent}/tasks/analysis-${stableName}`;
     const task: protos.google.cloud.tasks.v2.ITask = {
       name: taskName,
@@ -121,7 +129,10 @@ export class TaskScheduler {
       httpRequest: {
         httpMethod: protos.google.cloud.tasks.v2.HttpMethod.POST,
         url: this.config.analysisWorkerUrl,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(input.correlationId ? { "x-actionos-correlation-id": input.correlationId } : {})
+        },
         body: Buffer.from(JSON.stringify({ jobId: input.jobId })).toString("base64"),
         oidcToken: {
           serviceAccountEmail: this.config.serviceAccountEmail,

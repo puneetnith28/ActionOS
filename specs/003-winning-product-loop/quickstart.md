@@ -18,8 +18,8 @@ provider secrets to the repository.
 Run the inbound/verifier contract and adversarial suites first:
 
 ```bash
-pnpm --filter @dueback/runtime test
-pnpm --filter @dueback/domain test
+pnpm --filter @actionos/runtime test
+pnpm --filter @actionos/domain test
 pnpm exec vitest run tests/adversarial tests/contract/email-inbound.test.ts
 ```
 
@@ -39,7 +39,7 @@ Run the Firestore emulator/integration paths for:
 
 ```bash
 pnpm exec vitest run tests/integration/durable-analysis.test.ts tests/adversarial/analysis-races.test.ts
-pnpm --filter @dueback/web test
+pnpm --filter @actionos/web test
 ```
 
 ## Gate C — Compact editable review
@@ -57,7 +57,7 @@ external action and prove stale approval cannot execute.
 Deploy sandbox mode. Keep real email disabled. Then run:
 
 ```bash
-DUEBACK_DEPLOYED_URL='https://your-service.run.app' \
+ACTIONOS_DEPLOYED_URL='https://your-service.run.app' \
   pnpm exec playwright test tests/e2e/deployed-example-matrix.spec.ts \
   --workers=1 --retries=0
 ```

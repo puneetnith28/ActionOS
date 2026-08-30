@@ -126,7 +126,7 @@ export function notificationRecord(input: {
   correlationId: string;
 }): NotificationRecord {
   const dedupeKey = stableHash({
-    namespace: "dueback/notification/v1",
+    namespace: "actionos/notification/v1",
     missionId: input.missionId,
     correlationId: input.correlationId,
     kind: input.kind

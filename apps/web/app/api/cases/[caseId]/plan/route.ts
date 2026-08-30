@@ -12,7 +12,7 @@ import { durableCaseScheduler } from "../../../../../lib/durable-mission-schedul
 export const runtime = "nodejs";
 function planService() {
   const projectId = process.env.GOOGLE_CLOUD_PROJECT;
-  const workerUrl = process.env.DUEBACK_WORKER_URL;
+  const workerUrl = process.env.ACTIONOS_WORKER_URL;
   const serviceAccountEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT;
   const scheduler =
     projectId && workerUrl && serviceAccountEmail
@@ -22,8 +22,8 @@ function planService() {
           queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-missions",
           workerUrl,
           serviceAccountEmail,
-          ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
-            ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
+          ...(process.env.ACTIONOS_TASKS_OIDC_AUDIENCE
+            ? { oidcAudience: process.env.ACTIONOS_TASKS_OIDC_AUDIENCE }
             : {})
         }))
       : undefined;

@@ -141,16 +141,16 @@ describe("PlanService", () => {
     const revised = await service.selectChannel("mission_12345678", "person_12345678", 1, {
       channelType: "MANAGED_EMAIL",
       allowedRecipient: "support@northstar.example",
-      senderIdentity: "DueBack <followup@dueback.example>",
-      replyRoute: "case+opaque@reply.dueback.example",
+      senderIdentity: "ActionOS <followup@actionos.example>",
+      replyRoute: "case+opaque@reply.actionos.example",
       trustedIssuer: "managed-email:recipient-hash"
     });
     expect(revised.plan).toMatchObject({
       version: 2,
       channelType: "MANAGED_EMAIL",
       allowedRecipient: "support@northstar.example",
-      senderIdentity: "DueBack <followup@dueback.example>",
-      replyRoute: "case+opaque@reply.dueback.example"
+      senderIdentity: "ActionOS <followup@actionos.example>",
+      replyRoute: "case+opaque@reply.actionos.example"
     });
     expect(revised.plan.evidenceRequirements[0]?.trustedIssuer)
       .toBe("managed-email:recipient-hash");
@@ -164,7 +164,7 @@ describe("PlanService", () => {
       plan: {
         ...initial.plan,
         channelType: "MANAGED_EMAIL",
-        senderIdentity: "DueBack <followup@example.test>",
+        senderIdentity: "ActionOS <followup@example.test>",
         replyRoute: "case+opaque@inbound.example.test",
         messageTemplateVersion: "follow-up/v1",
         messageSubject: "Follow-up for ORDER-79",

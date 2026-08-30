@@ -27,7 +27,7 @@ describe("case control isolation", () => {
       requestDeletion: deletion
     });
     const response = await handleMissionControl(
-      new Request("https://dueback.test/api/cases/mission_victim_1234/control", {
+      new Request("https://actionos.test/api/cases/mission_victim_1234/control", {
         method: "POST",
         body: JSON.stringify({ action: "DELETE", expectedVersion: 2, idempotencyKey: "isolation-command-1234" })
       }),

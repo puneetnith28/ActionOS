@@ -50,7 +50,7 @@ case facts; concurrent linking produces one owner and one case.
 Capture the real Google-linked browser state without sharing credentials or committing tokens:
 
 ```bash
-DUEBACK_DEPLOYED_URL='https://bulbasour-503317.web.app' pnpm release:capture-google
+ACTIONOS_DEPLOYED_URL='https://bulbasour-503317.web.app' pnpm release:capture-google
 ```
 
 The command opens a headed browser and waits up to five minutes for the participant to finish Google
@@ -58,9 +58,9 @@ sign-in. It saves Firebase cookies/local storage/IndexedDB under ignored `.auth/
 case in that authenticated browser, run the gate with its case ID:
 
 ```bash
-DUEBACK_DEPLOYED_URL='https://bulbasour-503317.web.app' \
-DUEBACK_OWNER_STORAGE_STATE='.auth/google-owner.json' \
-DUEBACK_CROSS_DEVICE_CASE_ID='case_...' \
+ACTIONOS_DEPLOYED_URL='https://bulbasour-503317.web.app' \
+ACTIONOS_OWNER_STORAGE_STATE='.auth/google-owner.json' \
+ACTIONOS_CROSS_DEVICE_CASE_ID='case_...' \
 pnpm exec playwright test tests/e2e/cross-device-return.spec.ts --workers=1 --retries=0
 ```
 
@@ -98,8 +98,8 @@ IDs, deployed Cloud Run revision and timestamps. Never place addresses, API keys
 committed output.
 
 ```bash
-DUEBACK_DEPLOYED_URL='https://your-project.web.app' \
-DUEBACK_EMAIL_E2E='1' \
+ACTIONOS_DEPLOYED_URL='https://your-project.web.app' \
+ACTIONOS_EMAIL_E2E='1' \
 pnpm exec playwright test tests/e2e/deployed-managed-email.spec.ts --workers=1 --retries=0
 ```
 

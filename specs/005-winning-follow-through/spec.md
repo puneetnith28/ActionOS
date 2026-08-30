@@ -6,13 +6,13 @@
 
 **Status**: Approved for implementation
 
-**Input**: Reopen the release candidate after a real-account audit showed that DueBack can reject
+**Input**: Reopen the release candidate after a real-account audit showed that ActionOS can reject
 weak evidence but does not yet schedule the next logical follow-up, and that consumer projections
 misstate counterparties, money and time.
 
 ## Product Promise
 
-DueBack does not merely send once and wait. After an approved contact it continues a bounded,
+ActionOS does not merely send once and wait. After an approved contact it continues a bounded,
 auditable chase until one of three honest outcomes exists: sufficient proof, one narrow decision for
 the owner, or exhaustion of the approved action budget.
 
@@ -32,9 +32,9 @@ the owner, or exhaustion of the approved action budget.
 
 ## User Stories
 
-### US1 — DueBack really continues the chase (P0)
+### US1 — ActionOS really continues the chase (P0)
 
-As an owner, when a company is silent or only acknowledges my request, I want DueBack to perform the
+As an owner, when a company is silent or only acknowledges my request, I want ActionOS to perform the
 next approved follow-up without requiring me to remember the case.
 
 **Acceptance scenarios**:

@@ -143,7 +143,7 @@ If this fails, freeze later phases and execute the documented pivot review.
 - [x] T064 Implement a Genkit evaluation runner that reports every case, failure, latency, model version, and cost basis in `scripts/evaluation/run.ts`
 - [x] T065 Add bounded uploads, retries, case budgets, rate limits, and redacted errors in `apps/web/lib/security-limits.ts`
 - [x] T066 Add deployed mobile Playwright verification and judge-safe demo reset in `tests/e2e/deployed-demo.spec.ts` and `scripts/demo/reset.ts`
-- [x] T067 [P] Create the current architecture diagram with trust boundaries in `docs/architecture/dueback.md`
+- [x] T067 [P] Create the current architecture diagram with trust boundaries in `docs/architecture/actionos.md`
 - [x] T068 [P] Update reproducible setup, deployment, controlled-service labels, limitations, and disclosures in `README.md`
 - [x] T069 [P] Add the four-minute English demo script and evidence shot list in `docs/submission/demo-script.md`
 - [x] T070 Record measured corpus results without invented metrics in `docs/evaluation/results.md`

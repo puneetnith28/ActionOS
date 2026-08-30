@@ -73,7 +73,7 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
       persistWakeIntent(transaction, this.db, wake);
       if (next.state === "READY" && next.boundary) {
         const correlationId = `corr_${stableHash({
-          namespace: "dueback/correlation/v1",
+          namespace: "actionos/correlation/v1",
           missionId: next.missionId
         }).slice(7, 31)}`;
         transaction.set(runReference, {

@@ -4,8 +4,8 @@ import { NotificationDeliveryService } from "@actionos/runtime/notifications";
 
 export function notificationDelivery(store: FirestoreRuntimeStore): NotificationDeliveryService {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.DUEBACK_NOTIFICATION_FROM ?? process.env.COMPANY_EMAIL_FROM;
-  const publicBaseUrl = process.env.DUEBACK_PUBLIC_BASE_URL;
+  const from = process.env.ACTIONOS_NOTIFICATION_FROM ?? process.env.COMPANY_EMAIL_FROM;
+  const publicBaseUrl = process.env.ACTIONOS_PUBLIC_BASE_URL;
   if (!apiKey || !from || !publicBaseUrl) return new NotificationDeliveryService(store);
   return new NotificationDeliveryService(
     store,

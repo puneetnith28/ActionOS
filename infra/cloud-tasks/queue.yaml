@@ -1,5 +1,5 @@
 queue:
-  name: dueback-cases
+  name: actionos-cases
   location: us-central1
   rateLimits:
     maxDispatchesPerSecond: 2

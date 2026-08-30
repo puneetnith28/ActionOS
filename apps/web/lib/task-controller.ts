@@ -18,6 +18,8 @@ export async function handleRunCaseTask(
       expectedVersion?: number;
       correlationId?: string;
     };
+    const headerCorrelationId = request.headers.get("x-actionos-correlation-id") ?? undefined;
+    const finalCorrelationId = headerCorrelationId ?? body.correlationId;
     const expectedVersion = body.expectedVersion;
     if (!body.missionId || typeof expectedVersion !== "number" || !Number.isInteger(expectedVersion))
       return Response.json({ error: "INVALID_TASK" }, { status: 400 });
@@ -25,7 +27,7 @@ export async function handleRunCaseTask(
         missionId: body.missionId,
         expectedVersion,
         now: now(),
-        ...(body.correlationId ? { correlationId: body.correlationId } : {})
+        ...(finalCorrelationId ? { correlationId: finalCorrelationId } : {})
       });
     // A sub-second Cloud Tasks clock boundary or clock skew must never consume
     // the only durable wake. A retryable response preserves the same task until

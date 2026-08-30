@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test";
 
-const deployedUrl = process.env.DUEBACK_DEPLOYED_URL;
+const deployedUrl = process.env.ACTIONOS_DEPLOYED_URL;
 const detail = {
   caseId: "mission_a11y_12345678",
   version: 1,
   state: "NEEDS_ATTENTION",
   statusLabel: "Decision needed",
-  nextAction: "Review one decision before DueBack continues",
+  nextAction: "Review one decision before ActionOS continues",
   goal: "Receive an accessible refund update",
   updatedAt: "2026-08-17T10:02:00.000Z",
   attemptCount: 1,
@@ -14,7 +14,7 @@ const detail = {
     type: "CONTROLLED_SANDBOX",
     label: "Controlled demo",
     disclosure: "Controlled demo",
-    contact: "DueBack contacts the controlled merchant",
+    contact: "ActionOS contacts the controlled merchant",
     reply: "A signed demo response returns",
     recipientHint: "Controlled endpoint"
   },
@@ -42,7 +42,7 @@ const detail = {
 };
 
 test.describe("case accessibility", () => {
-  test.skip(!deployedUrl, "Set DUEBACK_DEPLOYED_URL");
+  test.skip(!deployedUrl, "Set ACTIONOS_DEPLOYED_URL");
   test.use({ reducedMotion: "reduce" });
   test("supports keyboard landmarks, live state and 200 percent reflow", async ({ page }) => {
     await page.route("**/api/cases/mission_a11y_12345678/detail", (route) =>

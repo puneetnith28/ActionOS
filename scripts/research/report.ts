@@ -94,7 +94,7 @@ export function parseAndValidateStudyCsv(input: string): StudyRow[] {
       }
     }
     if (row.consent !== "yes") throw new Error(`STUDY_WITHOUT_CONSENT:${row.participant_id}`);
-    if (!new Set(["reminder", "dueback"]).has(row.choice)) {
+    if (!new Set(["reminder", "actionos"]).has(row.choice)) {
       throw new Error(`STUDY_CHOICE:${row.participant_id}`);
     }
     const seconds = Number(row.completion_seconds);
@@ -125,7 +125,7 @@ export function renderStudyReport(rows: StudyRow[]): string {
     ].every((column) => row[column as Column] === "yes")
   ).length;
   const distinguished = countYes(rows, "distinguished_acknowledgement");
-  const choseDueBack = rows.filter((row) => row.choice === "dueback").length;
+  const choseActionOS = rows.filter((row) => row.choice === "actionos").length;
   const metric = (label: string, value: number, threshold: number) =>
     `| ${label} | ${value}/8 | ≥${threshold}/8 | ${value >= threshold ? "PASS" : "FAIL"} |`;
 
@@ -141,7 +141,7 @@ ${metric("Completed intake and approval without help", withoutHelp, 6)}
 ${metric("Completed in under three minutes", underThreeMinutes, 6)}
 ${metric("Explained action, prohibition, shared data, and evidence", explainedAll, 6)}
 ${metric("Distinguished acknowledgement from resolution", distinguished, 7)}
-${metric("Chose limited delegation over reminder/draft", choseDueBack, 5)}
+${metric("Chose limited delegation over reminder/draft", choseActionOS, 5)}
 
 ## Participant-level audit table
 
@@ -175,8 +175,8 @@ Source data: [user-study-results.csv](./user-study-results.csv). Protocol and th
 }
 
 async function main(): Promise<void> {
-  const source = process.env.DUEBACK_STUDY_CSV ?? "docs/research/user-study-results.csv";
-  const destination = process.env.DUEBACK_STUDY_REPORT ?? "docs/research/user-study-report.md";
+  const source = process.env.ACTIONOS_STUDY_CSV ?? "docs/research/user-study-results.csv";
+  const destination = process.env.ACTIONOS_STUDY_REPORT ?? "docs/research/user-study-report.md";
   const rows = parseAndValidateStudyCsv(await readFile(source, "utf8"));
   await writeFile(destination, renderStudyReport(rows), "utf8");
   process.stdout.write(`Validated 8 consented rows and wrote ${destination}\n`);

@@ -3,7 +3,7 @@ ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH
 RUN corepack enable && corepack prepare pnpm@10.34.5 --activate
 WORKDIR /workspace
 COPY . .
-RUN pnpm install --frozen-lockfile && pnpm --filter @dueback/web build
+RUN pnpm install --frozen-lockfile && pnpm --filter @actionos/web build
 
 FROM node:22.22.1-slim
 ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH NODE_ENV=production PORT=8080
@@ -11,4 +11,4 @@ RUN corepack enable && corepack prepare pnpm@10.34.5 --activate
 WORKDIR /workspace
 COPY --from=build /workspace /workspace
 EXPOSE 8080
-CMD ["pnpm", "--filter", "@dueback/web", "start"]
+CMD ["pnpm", "--filter", "@actionos/web", "start"]

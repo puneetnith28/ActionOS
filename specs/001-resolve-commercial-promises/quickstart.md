@@ -33,8 +33,8 @@ pass without cloud credentials except tests explicitly marked as cloud integrati
 ## Start the controlled environment
 
 ```bash
-pnpm --filter @dueback/merchant-sandbox dev
-pnpm --filter @dueback/web dev
+pnpm --filter @actionos/merchant-sandbox dev
+pnpm --filter @actionos/web dev
 ```
 
 Expected:
@@ -88,7 +88,7 @@ prompt injection in source artifact
 
 ```bash
 bash infra/cloud-run/deploy.sh
-DUEBACK_DEPLOYED_URL='https://your-web-service.run.app' pnpm test:deployed
+ACTIONOS_DEPLOYED_URL='https://your-web-service.run.app' pnpm test:deployed
 pnpm evaluate
 ```
 

@@ -25,6 +25,7 @@ export async function POST(request: Request) {
       providerEventId?: string;
       providerEmailId?: string;
       eventType?: string;
+      correlationId?: string;
     };
     if (!body.providerEventId || !body.providerEmailId || !body.eventType) {
       return Response.json({ error: "INBOUND_TASK_INVALID" }, { status: 400 });
@@ -76,7 +77,9 @@ export async function POST(request: Request) {
       text: email.text,
       receivedAt: observedAt
     });
-    const result = await service.process(email, observedAt);
+    const headerCorrelationId = request.headers.get("x-actionos-correlation-id") ?? undefined;
+    const finalCorrelationId = headerCorrelationId ?? body.correlationId;
+    const result = await service.process(email, observedAt, finalCorrelationId);
     await store.markProviderEvent(body.providerEventId, "PROCESSED", observedAt, result.reasonCodes);
     return Response.json(result);
   } catch (error) {

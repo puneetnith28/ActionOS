@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-const deployedUrl = process.env.DUEBACK_DEPLOYED_URL;
+const deployedUrl = process.env.ACTIONOS_DEPLOYED_URL;
 
 test.describe("intake feedback and recovery", () => {
-  test.skip(!deployedUrl, "Set DUEBACK_DEPLOYED_URL to run against the public Cloud Run service");
+  test.skip(!deployedUrl, "Set ACTIONOS_DEPLOYED_URL to run against the public Cloud Run service");
 
   test("explains the value before asking for evidence", async ({ page }) => {
     await page.goto(`${deployedUrl}/`);
@@ -65,7 +65,7 @@ test.describe("intake feedback and recovery", () => {
 
   test("teaches a first-time user with an actionable example", async ({ page }) => {
     await page.goto(`${deployedUrl}/intake`);
-    await expect(page.getByText("Give DueBack the messy version.")).toBeVisible();
+    await expect(page.getByText("Give ActionOS the messy version.")).toBeVisible();
     await page.getByRole("button", { name: "Missing refund" }).click();
     await expect(
       page.getByRole("textbox", { name: "What happened, and what are you waiting for?" })

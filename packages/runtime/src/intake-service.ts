@@ -108,7 +108,7 @@ export function followUpMessage(draft: MissionGoal): { subject: string; body: st
     body: [
       "Hello,",
       "",
-      "DueBack is following up on an outcome requested by your customer.",
+      "ActionOS is following up on an outcome requested by your customer.",
       `Requested outcome: ${draft.result.value}`,
       `Reference: ${draft.transactionRef.value}`,
       amountLine,
@@ -192,7 +192,7 @@ function buildPlan(input: {
         maxAgeSeconds: 30 * 24 * 60 * 60,
         trustedIssuer: input.channel.channelType === "MANAGED_EMAIL"
           ? `managed-email:${stableHash({
-              namespace: "dueback/recipient/v1",
+              namespace: "actionos/recipient/v1",
               recipient: input.recipient.toLowerCase()
             }).slice(7, 31)}`
           : "merchant-sandbox"
@@ -215,7 +215,7 @@ export class IntakeService {
       readonly replyRoute: string;
     } = {
       channelType: "CONTROLLED_SANDBOX",
-      senderIdentity: "DueBack controlled demo",
+      senderIdentity: "ActionOS controlled demo",
       replyRoute: "Signed callback"
     }
   ) {}

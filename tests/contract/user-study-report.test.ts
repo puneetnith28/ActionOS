@@ -12,7 +12,7 @@ function row(id: string, overrides: Record<string, string> = {}): string {
     problem_multi_step: "yes",
     problem_delay_or_abandonment: "yes",
     problem_evidence_description: "A merchant confirmation",
-    choice: "dueback",
+    choice: "actionos",
     choice_reason: "It follows through within limits",
     completed_intake_approval_without_help: "yes",
     completion_seconds: "120",
