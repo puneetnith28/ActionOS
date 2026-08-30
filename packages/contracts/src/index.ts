@@ -416,6 +416,16 @@ export const technicalStepSchema = z.object({
   reasonCodes: z.array(z.string().min(1).max(100)).max(10)
 }).strict();
 
+export const executionHistoryEntrySchema = z.object({
+  historyId: opaqueIdSchema,
+  missionId: opaqueIdSchema,
+  occurredAt: isoDateSchema,
+  eventType: z.enum(["PLAN_CREATED", "ACTION_EXECUTED", "EVIDENCE_EVALUATED", "MISSION_CONCLUDED"]),
+  summary: z.string().min(1).max(500),
+  details: z.record(z.string(), z.any()).optional(),
+  outcome: verificationStatusSchema.optional()
+}).strict();
+
 export type MissionGoal = z.infer<typeof missionGoalSchema>;
 export type ChannelType = z.infer<typeof channelTypeSchema>;
 export type ChannelCapability = z.infer<typeof channelCapabilitySchema>;
@@ -435,3 +445,4 @@ export type CaseSummaryContract = z.infer<typeof caseSummarySchema>;
 export type ConversationEntry = z.infer<typeof conversationEntrySchema>;
 export type OutcomeComparison = z.infer<typeof outcomeComparisonSchema>;
 export type TechnicalStep = z.infer<typeof technicalStepSchema>;
+export type ExecutionHistoryEntry = z.infer<typeof executionHistoryEntrySchema>;

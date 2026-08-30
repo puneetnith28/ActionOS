@@ -17,7 +17,8 @@
     "./capability-registry": "./src/capability-registry.ts",
     "./inbound-service": "./src/inbound-service.ts",
     "./technical-run": "./src/technical-run.ts",
-    "./wake-outbox": "./src/wake-outbox.ts"
+    "./wake-outbox": "./src/wake-outbox.ts",
+    "./execution-history": "./src/execution-history.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

@@ -12,6 +12,8 @@ import type {
 import { firestoreDeleteAt } from "./expiry";
 import type { RuntimeTimelineEvent } from "@actionos/runtime/timeline";
 import { stableHash } from "@actionos/domain";
+import type { ExecutionHistoryEntry } from "@actionos/contracts";
+import type { ExecutionHistoryStore } from "@actionos/runtime/execution-history";
 import type { TechnicalRunSource } from "@actionos/runtime/technical-run";
 import type { DraftMission } from "@actionos/runtime/intake-service";
 import type { WakeIntent } from "@actionos/runtime/wake-outbox";
@@ -25,7 +27,8 @@ export class FirestoreRuntimeStore
     NotificationStore,
     InterventionStore,
     EmailDeliveryStore,
-    ExternalSendBudget
+    ExternalSendBudget,
+    ExecutionHistoryStore
 {
   constructor(private readonly db: Firestore) {}
 
@@ -108,6 +111,28 @@ export class FirestoreRuntimeStore
       .orderBy("sequence", "asc")
       .get();
     return snapshot.docs.map((document) => document.data() as RuntimeTimelineEvent);
+  }
+
+  async appendHistory(entry: ExecutionHistoryEntry): Promise<void> {
+    await this.db
+      .collection("missionRuns")
+      .doc(entry.missionId)
+      .collection("history")
+      .doc(entry.historyId)
+      .set({
+        ...entry,
+        deleteAt: firestoreDeleteAt(entry.occurredAt)
+      });
+  }
+
+  async listForMission(missionId: string): Promise<ExecutionHistoryEntry[]> {
+    const snapshot = await this.db
+      .collection("missionRuns")
+      .doc(missionId)
+      .collection("history")
+      .orderBy("occurredAt", "asc")
+      .get();
+    return snapshot.docs.map((document) => document.data() as ExecutionHistoryEntry);
   }
 
   async listChannelEvents(missionId: string): Promise<readonly {
