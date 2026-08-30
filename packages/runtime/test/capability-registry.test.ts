@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { ChannelRegistry, publicChannelCapabilities } from "../src/channel-registry";
+import { CapabilityRegistry, publicCapabilities } from "../src/capability-registry";
 
 const now = "2026-08-16T00:00:00.000Z";
 
 describe("channel registry", () => {
   it("reports managed email unavailable until outbound and inbound gates pass", () => {
-    const capabilities = publicChannelCapabilities({
+    const capabilities = publicCapabilities({
       now,
       sandboxAvailable: true,
       managedEmailOutbound: true,
@@ -19,21 +19,21 @@ describe("channel registry", () => {
   });
 
   it("refuses a future or adapterless channel", () => {
-    const capability = publicChannelCapabilities({
+    const capability = publicCapabilities({
       now,
       sandboxAvailable: false,
       managedEmailOutbound: false,
       managedEmailInbound: false
     })[2];
     if (!capability) throw new Error("fixture missing");
-    const registry = new ChannelRegistry([{ capability }]);
+    const registry = new CapabilityRegistry([{ capability }]);
     expect(() => registry.requireAvailable("GMAIL_CONNECTED")).toThrow(
       "CONTACT_CHANNEL_UNAVAILABLE"
     );
   });
 
   it("reports the partner proof only when its controlled fixture is configured", () => {
-    const capabilities = publicChannelCapabilities({
+    const capabilities = publicCapabilities({
       now,
       sandboxAvailable: true,
       managedEmailOutbound: false,

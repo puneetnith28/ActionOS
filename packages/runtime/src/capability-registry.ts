@@ -3,13 +3,13 @@ import type { ClosedActionAdapter } from "./action-broker";
 import type { ActionReceipt } from "./action-broker";
 import type { ProposedAction } from "@actionos/domain";
 
-export interface RegisteredChannel {
+export interface RegisteredCapability {
   readonly capability: ChannelCapability;
   readonly adapter?: ClosedActionAdapter;
 }
 
-export class RoutingChannelAdapter implements ClosedActionAdapter {
-  constructor(private readonly registry: ChannelRegistry) {}
+export class RoutingCapabilityAdapter implements ClosedActionAdapter {
+  constructor(private readonly registry: CapabilityRegistry) {}
 
   execute(
     proposal: ProposedAction,
@@ -33,10 +33,10 @@ export class RoutingChannelAdapter implements ClosedActionAdapter {
   }
 }
 
-export class ChannelRegistry {
-  private readonly channels: ReadonlyMap<ChannelType, RegisteredChannel>;
+export class CapabilityRegistry {
+  private readonly channels: ReadonlyMap<ChannelType, RegisteredCapability>;
 
-  constructor(channels: readonly RegisteredChannel[]) {
+  constructor(channels: readonly RegisteredCapability[]) {
     this.channels = new Map(channels.map((channel) => [channel.capability.channelType, channel]));
   }
 
@@ -54,7 +54,7 @@ export class ChannelRegistry {
   }
 }
 
-export function publicChannelCapabilities(input: {
+export function publicCapabilities(input: {
   readonly now: string;
   readonly sandboxAvailable: boolean;
   readonly managedEmailOutbound: boolean;

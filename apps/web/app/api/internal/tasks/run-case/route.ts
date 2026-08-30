@@ -3,10 +3,10 @@ import { MerchantSandboxAdapter } from "@actionos/channel-adapters/merchant-sand
 import { CompanyEmailActionAdapter } from "@actionos/channel-adapters/company-email";
 import { PartnerApiFixtureAdapter } from "@actionos/channel-adapters/partner-api";
 import {
-  ChannelRegistry,
-  publicChannelCapabilities,
-  RoutingChannelAdapter
-} from "@actionos/runtime/channel-registry";
+  CapabilityRegistry,
+  publicCapabilities,
+  RoutingCapabilityAdapter
+} from "@actionos/runtime/capability-registry";
 import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
 import { ActionBroker } from "@actionos/runtime/action-broker";
 import { CaseRunner } from "@actionos/runtime/case-runner";
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
       : {})
   }));
-  const capabilities = publicChannelCapabilities({
+  const capabilities = publicCapabilities({
     now: new Date().toISOString(),
     sandboxAvailable: Boolean(merchantUrl && actionSecret),
     managedEmailOutbound: Boolean(
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
   const partnerCapability = capabilities.find((item) => item.channelType === "PARTNER_API");
   if (!sandboxCapability || !emailCapability || !partnerCapability)
     return Response.json({ error: "CONTACT_CHANNEL_NOT_CONFIGURED" }, { status: 503 });
-  const registry = new ChannelRegistry([
+  const registry = new CapabilityRegistry([
     {
       capability: sandboxCapability,
       ...(merchantUrl && actionSecret
@@ -110,7 +110,7 @@ export async function POST(request: Request) {
   ]);
   const runner = new CaseRunner(
     store,
-    new ActionBroker(store, new RoutingChannelAdapter(registry), store),
+    new ActionBroker(store, new RoutingCapabilityAdapter(registry), store),
     scheduler,
     30,
     5,

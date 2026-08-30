@@ -5,7 +5,7 @@ import { TaskScheduler } from "@actionos/runtime/task-scheduler";
 import { authenticatedOwner, assertSameOrigin } from "../../../../../lib/authz";
 import { firestore } from "../../../../../lib/firebase-admin";
 import { handlePlanRequest } from "../../../../../lib/plan-controller";
-import { publicChannelCapabilities } from "@actionos/runtime/channel-registry";
+import { publicCapabilities } from "@actionos/runtime/capability-registry";
 import { stableHash } from "@actionos/domain";
 import { durableCaseScheduler } from "../../../../../lib/durable-case-scheduler";
 
@@ -37,7 +37,7 @@ function isRecoverableOwner(owner: { firebase?: { sign_in_provider?: string } })
 
 function isChannelAvailable(channelType: string | undefined): boolean {
   if (!channelType) return false;
-  const capabilities = publicChannelCapabilities({
+  const capabilities = publicCapabilities({
     now: new Date().toISOString(),
     sandboxAvailable: Boolean(
       process.env.MERCHANT_SANDBOX_URL && process.env.MERCHANT_CALLBACK_SECRET

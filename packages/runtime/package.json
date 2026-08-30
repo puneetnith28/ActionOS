@@ -14,7 +14,7 @@
     "./case-control": "./src/case-control.ts",
     "./evidence-service": "./src/evidence-service.ts",
     "./timeline": "./src/timeline.ts",
-    "./channel-registry": "./src/channel-registry.ts",
+    "./capability-registry": "./src/capability-registry.ts",
     "./inbound-service": "./src/inbound-service.ts",
     "./technical-run": "./src/technical-run.ts",
     "./wake-outbox": "./src/wake-outbox.ts"

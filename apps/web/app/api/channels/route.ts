@@ -1,4 +1,4 @@
-import { publicChannelCapabilities } from "@actionos/runtime/channel-registry";
+import { publicCapabilities } from "@actionos/runtime/capability-registry";
 
 export const runtime = "nodejs";
 
@@ -14,7 +14,7 @@ export function GET() {
     process.env.EMAIL_WEBHOOK_SIGNING_SECRET &&
     process.env.COMPANY_EMAIL_REPLY_DOMAIN
   );
-  return Response.json(publicChannelCapabilities({
+  return Response.json(publicCapabilities({
     now: new Date().toISOString(),
     sandboxAvailable: Boolean(
       process.env.MERCHANT_SANDBOX_URL && process.env.MERCHANT_CALLBACK_SECRET
