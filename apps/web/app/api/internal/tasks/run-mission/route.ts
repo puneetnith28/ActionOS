@@ -25,6 +25,8 @@ import { notificationDelivery } from "../../../../../lib/notification-delivery";
 import { durableCaseScheduler } from "../../../../../lib/durable-mission-scheduler";
 
 export const runtime = "nodejs";
+export const maxDuration = 120;
+
 
 export async function POST(request: Request) {
   const projectId = config.projectId;

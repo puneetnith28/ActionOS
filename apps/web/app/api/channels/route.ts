@@ -1,6 +1,7 @@
 import { publicCapabilities } from "@actionos/runtime/capability-registry";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
+export const revalidate = 60;
 
 export function GET() {
   const managedEmailOutbound = Boolean(

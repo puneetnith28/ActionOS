@@ -14,6 +14,8 @@ import {
 } from "../../../../../lib/security-limits";
 
 export const runtime = "nodejs";
+export const maxDuration = 120;
+
 
 function intakeService(
   store: FirestoreIntakeStore,
