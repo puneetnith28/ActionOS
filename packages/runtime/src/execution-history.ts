@@ -3,6 +3,7 @@ import type { ExecutionHistoryEntry } from "@actionos/contracts";
 export interface ExecutionHistoryStore {
   appendHistory(entry: ExecutionHistoryEntry): Promise<void>;
   listForMission(missionId: string): Promise<ExecutionHistoryEntry[]>;
+  listAll(limit?: number): Promise<ExecutionHistoryEntry[]>;
 }
 
 export class ExecutionHistoryService {

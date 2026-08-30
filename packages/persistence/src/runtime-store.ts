@@ -135,6 +135,15 @@ export class FirestoreRuntimeStore
     return snapshot.docs.map((document) => document.data() as ExecutionHistoryEntry);
   }
 
+  async listAll(limitCount = 50): Promise<ExecutionHistoryEntry[]> {
+    const snapshot = await this.db
+      .collectionGroup("history")
+      .orderBy("occurredAt", "desc")
+      .limit(limitCount)
+      .get();
+    return snapshot.docs.map((document) => document.data() as ExecutionHistoryEntry);
+  }
+
   async listChannelEvents(missionId: string): Promise<readonly {
     channelType: string;
     transportStatus: string;

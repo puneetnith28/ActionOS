@@ -1,25 +1,22 @@
 import type { RuntimeTimelineEvent } from "@actionos/runtime/timeline";
-import { channelCopy, type ActiveCaseChannel } from "../lib/channel-copy";
+// Removed unused channel copy
 
-function humanSummary(event: RuntimeTimelineEvent, channel: ActiveCaseChannel): string {
-  const copy = channelCopy(channel);
+function humanSummary(event: RuntimeTimelineEvent): string {
   if (event.reasonCodes.includes("CURRENT_PLAN_VERSION_APPROVED"))
-    return "You approved this exact version before ActionOS acted.";
+    return "Mission execution plan authorized with boundaries validated.";
   if (event.reasonCodes.includes("ACTION_ACCEPTED"))
-    return copy.actionSummary;
+    return "Agent executed capability successfully.";
   if (event.reasonCodes.includes("INSUFFICIENT_STATUS"))
-    return "Not enough: this reply only acknowledged the request, so the mission stayed open.";
+    return "Capability output did not satisfy the target state; execution loop remains active.";
   if (event.reasonCodes.includes("ACCEPTED"))
-    return copy.acceptedEvidence;
-  return "ActionOS recorded this step without changing the approved limits.";
+    return "Verification policy matched observed state; outcome verified.";
+  return "Agent recorded a lifecycle transition within approved boundaries.";
 }
 
 export function MissionTimeline({
-  events,
-  channel
+  events
 }: {
   readonly events: readonly RuntimeTimelineEvent[];
-  readonly channel: ActiveCaseChannel;
 }) {
   if (events.length === 0) {
     return <p>No persisted timeline events are available for this pre-ledger case.</p>;
@@ -27,12 +24,11 @@ export function MissionTimeline({
   return (
     <ol className="timeline">
       {events.map((event) => {
-        const copy = channelCopy(channel);
         const title: Record<RuntimeTimelineEvent["type"], string> = {
-          PLAN_APPROVED: "Plan approved by you",
-          ACTION_RESULT: copy.actionTitle,
-          EVIDENCE_RESULT: copy.evidenceTitle,
-          MISSION_CONTROL: "Mission control used"
+          PLAN_APPROVED: "Plan Authorized",
+          ACTION_RESULT: "Capability Executed",
+          EVIDENCE_RESULT: "State Verification",
+          MISSION_CONTROL: "Manual Intervention"
         };
         const rejected = event.reasonCodes.some((reason) =>
           ["INSUFFICIENT", "WRONG", "INVALID", "EXHAUSTED", "DENIED"].some((token) =>
@@ -49,7 +45,7 @@ export function MissionTimeline({
                   new Date(event.occurredAt)
                 )}
               </p>
-              <p>{humanSummary(event, channel)}</p>
+              <p>{humanSummary(event)}</p>
               <details className="technical-details">
                 <summary>Technical details</summary>
                 <code>actor: {event.actor}</code>
