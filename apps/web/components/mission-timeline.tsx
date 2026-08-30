@@ -14,7 +14,7 @@ function humanSummary(event: RuntimeTimelineEvent, channel: ActiveCaseChannel): 
   return "ActionOS recorded this step without changing the approved limits.";
 }
 
-export function CaseTimeline({
+export function MissionTimeline({
   events,
   channel
 }: {

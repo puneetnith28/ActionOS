@@ -25,7 +25,7 @@ export interface ConsumerCaseDetail {
   comparison: ReturnType<typeof outcomeComparison>;
   notifications: NotificationRecord[];
   interventions: Pick<InterventionRecord, "interventionId" | "question" | "consequence" | "allowedDecisions" | "status" | "createdAt">[];
-  timeline: Pick<RuntimeTimelineEvent, "eventId" | "type" | "actor" | "occurredAt" | "reasonCodes" | "state">[];
+  timeline: RuntimeTimelineEvent[];
   technicalTraceEligible: boolean;
 }
 
@@ -87,7 +87,7 @@ export function projectConsumerMission(input: {
     comparison: outcomeComparison(item, evidence),
     notifications: [...(input.notifications ?? [])],
     interventions: (input.interventions ?? []).map(({ interventionId, question, consequence, allowedDecisions, status, createdAt }) => ({ interventionId, question, consequence, allowedDecisions, status, createdAt })),
-    timeline: (input.events ?? []).map(({ eventId, type: eventType, actor, occurredAt, reasonCodes, state }) => ({ eventId, type: eventType, actor, occurredAt, reasonCodes, state })),
+    timeline: (input.events ?? []).map((event) => ({ ...event })),
     technicalTraceEligible: item.plan.executionMode === "ACCELERATED_DEMO"
   };
 }
