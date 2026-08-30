@@ -1,5 +1,5 @@
-import { vertexAI } from "@genkit-ai/google-genai";
-import { genkit, z } from "genkit";
+import { z } from "genkit";
+import { ai, primaryModel, fallbackModel } from "./config";
 import { missionGoalSchema, type MissionGoal } from "@actionos/contracts";
 import { stableHash } from "@actionos/domain";
 
@@ -160,16 +160,14 @@ export async function extractPromiseWithMetricsGateway(
   };
 }
 
-const ai = genkit({
-  plugins: [vertexAI({ location: process.env.GOOGLE_CLOUD_LOCATION ?? "global" })]
-});
+
 
 const gateway: PromiseModelGateway = {
   async generate(input) {
     let response;
     try {
       response = await ai.generate({
-        model: vertexAI.model("gemini-3.5-flash"),
+        model: primaryModel,
         system: input.system,
         prompt: input.prompt,
         output: { schema: promiseDraftFlowSchema },
@@ -177,7 +175,7 @@ const gateway: PromiseModelGateway = {
       });
     } catch (error) {
       response = await ai.generate({
-        model: vertexAI.model("gemini-1.5-pro"),
+        model: fallbackModel,
         system: input.system,
         prompt: input.prompt,
         output: { schema: promiseDraftFlowSchema },

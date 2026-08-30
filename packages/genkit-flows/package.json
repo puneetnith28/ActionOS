@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
+    ".": "./src/index.ts",
+    "./config": "./src/config.ts",
     "./extract-promise": "./src/extract-promise.ts",
     "./verify-outcome": "./src/verify-outcome.ts",
     "./plan-execution": "./src/plan-execution.ts",

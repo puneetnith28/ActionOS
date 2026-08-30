@@ -1,5 +1,5 @@
-import { vertexAI } from "@genkit-ai/google-genai";
-import { genkit, z } from "genkit";
+import { z } from "genkit";
+import { ai, primaryModel, fallbackModel } from "./config";
 import { resolutionPlanSchema, channelCapabilitySchema, executionHistoryEntrySchema, type ExecutionPlan, type ChannelCapability, type ExecutionHistoryEntry } from "@actionos/contracts";
 
 export const selectActionInputSchema = z.object({
@@ -64,16 +64,14 @@ Available Capabilities: ${availableCapabilities.map(c => c.channelType + (c.canS
   return output;
 }
 
-const ai = genkit({
-  plugins: [vertexAI({ location: process.env.GOOGLE_CLOUD_LOCATION ?? "global" })]
-});
+
 
 const gateway: ActionSelectionGateway = {
   async generate(input) {
     let response;
     try {
       response = await ai.generate({
-        model: vertexAI.model("gemini-3.5-flash"),
+        model: primaryModel,
         system: input.system,
         prompt: input.prompt,
         output: { schema: selectedActionSchema },
@@ -81,7 +79,7 @@ const gateway: ActionSelectionGateway = {
       });
     } catch (error) {
       response = await ai.generate({
-        model: vertexAI.model("gemini-1.5-pro"),
+        model: fallbackModel,
         system: input.system,
         prompt: input.prompt,
         output: { schema: selectedActionSchema },

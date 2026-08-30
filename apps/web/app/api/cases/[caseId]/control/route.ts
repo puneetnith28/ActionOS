@@ -8,7 +8,7 @@ import { firestore } from "../../../../../lib/firebase-admin";
 import { durableCaseScheduler } from "../../../../../lib/durable-mission-scheduler";
 
 export const runtime = "nodejs";
-type Context = { params: Promise<{ missionId: string }> };
+type Context = { params: Promise<{ caseId: string }> };
 
 function controlService() {
   const projectId = process.env.GOOGLE_CLOUD_PROJECT;
@@ -32,8 +32,8 @@ function controlService() {
 
 export async function POST(request: Request, context: Context) {
   assertSameOrigin(request);
-  const { missionId } = await context.params;
-  return handleMissionControl(request, missionId, {
+  const { caseId } = await context.params;
+  return handleMissionControl(request, caseId, {
     authenticate: authenticatedOwner,
     service: controlService(),
     now: () => new Date().toISOString()

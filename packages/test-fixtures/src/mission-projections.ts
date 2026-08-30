@@ -35,7 +35,7 @@ export const weakAcknowledgementFixture = {
   candidate: {
     outcomeId: "evidence_projection_1234",
     missionId: basePlan.missionId,
-    level: "ACTION_ATTEMPTED",
+    status: "ACTION_ATTEMPTED",
     transactionRef: "R-59",
     issuedAt: "2026-08-17T10:01:00.000Z",
     issuer: "managed-email:test",

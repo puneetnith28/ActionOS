@@ -1,5 +1,5 @@
-import { vertexAI } from "@genkit-ai/google-genai";
-import { genkit, z } from "genkit";
+import { z } from "genkit";
+import { ai, primaryModel } from "./config";
 import { missionGoalSchema, type MissionGoal } from "@actionos/contracts";
 
 export const decomposedPlanSchema = z.object({
@@ -45,14 +45,12 @@ export async function planExecutionWithGateway(
   return output;
 }
 
-const ai = genkit({
-  plugins: [vertexAI({ location: process.env.GOOGLE_CLOUD_LOCATION ?? "global" })]
-});
+
 
 const gateway: PlanningModelGateway = {
   async generate(input) {
     const response = await ai.generate({
-      model: vertexAI.model("gemini-3.5-flash"),
+      model: primaryModel,
       system: input.system,
       prompt: input.prompt,
       output: { schema: decomposedPlanSchema },

@@ -43,8 +43,13 @@ export class FirestoreMissionControlStore implements MissionControlStore {
   }): Promise<FollowThroughMission> {
     const reference = this.db.collection("caseRuns").doc(input.missionId);
     const commandRef = this.commandReference(input.idempotencyKey);
+    const openInterventionsQuery = this.db.collection("interventions").where("missionId", "==", input.missionId).where("status", "==", "OPEN");
     return this.db.runTransaction(async (transaction) => {
-      const [snapshot, prior] = await Promise.all([transaction.get(reference), transaction.get(commandRef)]);
+      const [snapshot, prior, interventionsSnapshot] = await Promise.all([
+        transaction.get(reference),
+        transaction.get(commandRef),
+        transaction.get(openInterventionsQuery)
+      ]);
       if (prior.exists) {
         if (prior.get("missionId") !== input.missionId || prior.get("ownerId") !== input.ownerId || prior.get("action") !== input.action)
           throw new Error("IDEMPOTENCY_KEY_REUSED");
@@ -96,6 +101,9 @@ export class FirestoreMissionControlStore implements MissionControlStore {
         state,
         deleteAt: firestoreDeleteAt(input.now)
       });
+      for (const doc of interventionsSnapshot.docs) {
+        transaction.update(doc.ref, { status: "RESOLVED" });
+      }
       return next;
     });
   }
@@ -111,9 +119,13 @@ export class FirestoreMissionControlStore implements MissionControlStore {
     const runRef = this.db.collection("caseRuns").doc(input.missionId);
     const draftRef = this.db.collection("caseDrafts").doc(input.missionId);
     const commandRef = this.commandReference(input.idempotencyKey);
+    const openInterventionsQuery = this.db.collection("interventions").where("missionId", "==", input.missionId).where("status", "==", "OPEN");
     return this.db.runTransaction(async (transaction) => {
-      const [runSnapshot, draftSnapshot, prior] = await Promise.all([
-        transaction.get(runRef), transaction.get(draftRef), transaction.get(commandRef)
+      const [runSnapshot, draftSnapshot, prior, interventionsSnapshot] = await Promise.all([
+        transaction.get(runRef),
+        transaction.get(draftRef),
+        transaction.get(commandRef),
+        transaction.get(openInterventionsQuery)
       ]);
       if (prior.exists) {
         if (prior.get("missionId") !== input.missionId || prior.get("ownerId") !== input.ownerId || prior.get("action") !== "REVISE")
@@ -157,6 +169,9 @@ export class FirestoreMissionControlStore implements MissionControlStore {
         state: next.state,
         deleteAt: firestoreDeleteAt(input.now)
       });
+      for (const doc of interventionsSnapshot.docs) {
+        transaction.update(doc.ref, { status: "RESOLVED" });
+      }
       return next;
     });
   }

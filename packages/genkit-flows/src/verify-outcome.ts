@@ -1,5 +1,5 @@
-import { vertexAI } from "@genkit-ai/google-genai";
-import { genkit, z } from "genkit";
+import { z } from "genkit";
+import { ai, primaryModel, fallbackModel } from "./config";
 import { executionOutcomeSchema, type ExecutionOutcomeContract } from "@actionos/contracts";
 
 export const verificationInputSchema = z.object({
@@ -59,15 +59,13 @@ export async function verifyOutcomeWithGateway(
   return { ...parsed, transactionRef: output.transactionRef, signatureValid: false as const };
 }
 
-const ai = genkit({
-  plugins: [vertexAI({ location: process.env.GOOGLE_CLOUD_LOCATION ?? "global" })]
-});
+
 const gateway: VerificationModelGateway = {
   async generate(input) {
     let response;
     try {
       response = await ai.generate({
-        model: vertexAI.model("gemini-3.5-flash"),
+        model: primaryModel,
         system: input.system,
         prompt: input.prompt,
         output: { schema: candidateOutputSchema },
@@ -75,7 +73,7 @@ const gateway: VerificationModelGateway = {
       });
     } catch (error) {
       response = await ai.generate({
-        model: vertexAI.model("gemini-1.5-pro"),
+        model: fallbackModel,
         system: input.system,
         prompt: input.prompt,
         output: { schema: candidateOutputSchema },

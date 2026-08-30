@@ -1,5 +1,5 @@
-import { vertexAI } from "@genkit-ai/google-genai";
-import { genkit, z } from "genkit";
+import { z } from "genkit";
+import { ai, primaryModel, fallbackModel } from "./config";
 
 export const inboundExtractionInputSchema = z.object({
   inboundId: z.string().min(8).max(128),
@@ -66,13 +66,13 @@ export async function extractInboundWithGateway(
   return parsed;
 }
 
-const ai = genkit({ plugins: [vertexAI({ location: process.env.GOOGLE_CLOUD_LOCATION ?? "global" })] });
+
 const gateway: InboundModelGateway = {
   async generate(input) {
     let response;
     try {
       response = await ai.generate({
-        model: vertexAI.model("gemini-3.5-flash"),
+        model: primaryModel,
         system: input.system,
         prompt: input.prompt,
         output: { schema: executionResultSchema },
@@ -80,7 +80,7 @@ const gateway: InboundModelGateway = {
       });
     } catch (error) {
       response = await ai.generate({
-        model: vertexAI.model("gemini-1.5-pro"),
+        model: fallbackModel,
         system: input.system,
         prompt: input.prompt,
         output: { schema: executionResultSchema },
