@@ -13,7 +13,7 @@ const requirement: EvidenceRequirement = {
 
 const candidate: EvidenceCandidate = {
   evidenceId: "ev_1",
-  caseId: "case_1",
+  missionId: "case_1",
   level: "MERCHANT_CONFIRMED",
   amountMinor: 7900,
   currency: "USD",
@@ -25,7 +25,7 @@ const candidate: EvidenceCandidate = {
 
 function verify(overrides: Partial<EvidenceCandidate> = {}) {
   return verifyEvidence({
-    caseId: "case_1",
+    missionId: "case_1",
     requirement,
     candidate: { ...candidate, ...overrides },
     now: "2026-08-15T12:05:00.000Z"
@@ -43,7 +43,7 @@ describe("verifyEvidence", () => {
 
   it.each([
     ["acknowledgement", { level: "REQUEST_ACKNOWLEDGED" }, "INSUFFICIENT_LEVEL"],
-    ["wrong case", { caseId: "case_2" }, "WRONG_CASE"],
+    ["wrong mission", { missionId: "case_2" }, "WRONG_MISSION"],
     ["wrong amount", { amountMinor: 7800 }, "WRONG_AMOUNT"],
     ["missing amount", { amountMinor: undefined }, "WRONG_AMOUNT"],
     ["wrong currency", { currency: "ARS" }, "WRONG_CURRENCY"],
@@ -83,11 +83,11 @@ describe("verifyEvidence", () => {
       trustedIssuer: "merchant-sandbox"
     };
     const result = verifyEvidence({
-      caseId: "case_1",
+      missionId: "case_1",
       requirement: replacementRequirement,
       candidate: {
         evidenceId: "ev_replacement",
-        caseId: "case_1",
+        missionId: "case_1",
         level: "MERCHANT_CONFIRMED",
         transactionRef: "ORDER-79",
         subject: "damaged headphones",

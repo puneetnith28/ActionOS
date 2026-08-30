@@ -11,15 +11,15 @@ function levelRank(level: EvidenceCandidate["level"]): number {
 }
 
 export function verifyEvidence(input: {
-  readonly caseId: string;
+  readonly missionId: string;
   readonly requirement: EvidenceRequirement;
   readonly candidate: EvidenceCandidate;
   readonly now: string;
 }): VerificationResult {
-  const { caseId, requirement, candidate } = input;
+  const { missionId, requirement, candidate } = input;
   const reasons: VerificationReason[] = [];
 
-  if (candidate.caseId !== caseId) reasons.push("WRONG_CASE");
+  if (candidate.missionId !== missionId) reasons.push("WRONG_MISSION");
   if (levelRank(candidate.level) < levelRank(requirement.minimumLevel))
     reasons.push("INSUFFICIENT_LEVEL");
   if (requirement.amountMinor !== undefined && candidate.amountMinor !== requirement.amountMinor)

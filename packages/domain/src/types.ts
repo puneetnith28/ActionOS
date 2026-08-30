@@ -8,7 +8,7 @@ export const evidenceLevels = [
 
 export type EvidenceLevel = (typeof evidenceLevels)[number];
 
-export type CaseState =
+export type MissionState =
   | "DRAFT"
   | "AWAITING_APPROVAL"
   | "READY"
@@ -29,10 +29,10 @@ export interface ApprovalBoundary {
   readonly revokedAt?: string;
 }
 
-export interface CaseSnapshot {
-  readonly caseId: string;
+export interface MissionSnapshot {
+  readonly missionId: string;
   readonly ownerId: string;
-  readonly state: CaseState;
+  readonly state: MissionState;
   readonly version: number;
   readonly planVersion: number;
   readonly planHash: string;
@@ -42,16 +42,16 @@ export interface CaseSnapshot {
 
 export interface DomainEvent {
   readonly type: string;
-  readonly caseId: string;
-  readonly from: CaseState;
-  readonly to: CaseState;
+  readonly missionId: string;
+  readonly from: MissionState;
+  readonly to: MissionState;
   readonly reasonCode: string;
   readonly actor: "PERSON" | "SYSTEM";
 }
 
 export interface TransitionCommand {
   readonly expectedVersion: number;
-  readonly target: CaseState;
+  readonly target: MissionState;
   readonly reasonCode: string;
   readonly actor: "PERSON" | "SYSTEM";
   readonly approval?: ApprovalBoundary;
@@ -74,7 +74,7 @@ export interface EvidenceRequirement {
 
 export interface EvidenceCandidate {
   readonly evidenceId: string;
-  readonly caseId: string;
+  readonly missionId: string;
   readonly level: EvidenceLevel;
   readonly amountMinor?: number | undefined;
   readonly currency?: string | undefined;
@@ -89,7 +89,7 @@ export interface EvidenceCandidate {
 
 export type VerificationReason =
   | "ACCEPTED"
-  | "WRONG_CASE"
+  | "WRONG_MISSION"
   | "INSUFFICIENT_LEVEL"
   | "WRONG_AMOUNT"
   | "WRONG_CURRENCY"

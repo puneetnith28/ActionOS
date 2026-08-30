@@ -14,13 +14,13 @@ describe("stable identities", () => {
   });
 
   it("keeps retries on one logical action key", () => {
-    const input = { caseId: "case_1", planVersion: 1, actionType: "SEND_FOLLOW_UP", ordinal: 1 };
+    const input = { missionId: "case_1", planVersion: 1, actionType: "SEND_FOLLOW_UP", ordinal: 1 };
     expect(actionIdempotencyKey(input)).toBe(actionIdempotencyKey(input));
   });
 
   it("separates external events by source identity", () => {
-    expect(eventDedupeKey({ source: "merchant", externalId: "1", caseId: "case_1" })).not.toBe(
-      eventDedupeKey({ source: "merchant", externalId: "2", caseId: "case_1" })
+    expect(eventDedupeKey({ source: "merchant", externalId: "1", missionId: "case_1" })).not.toBe(
+      eventDedupeKey({ source: "merchant", externalId: "2", missionId: "case_1" })
     );
   });
 
@@ -37,7 +37,7 @@ describe("stable identities", () => {
     const callbackKey = callbackDedupeKey({
       issuer: "merchant",
       nonce: "nonce_1",
-      caseId: "case_1"
+      missionId: "case_1"
     });
     expect(new Set([caseKey, artifactKey, callbackKey])).toHaveLength(3);
   });

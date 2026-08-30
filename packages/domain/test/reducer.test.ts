@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { DomainTransitionError, reduceCase } from "../src/reducer";
-import type { ApprovalBoundary, CaseSnapshot } from "../src/types";
+import { DomainTransitionError, reduceMission } from "../src/reducer";
+import type { ApprovalBoundary, MissionSnapshot } from "../src/types";
 
 const approval: ApprovalBoundary = {
   ownerId: "person_1",
@@ -9,8 +9,8 @@ const approval: ApprovalBoundary = {
   expiresAt: "2999-08-15T12:00:00.000Z"
 };
 
-const running: CaseSnapshot = {
-  caseId: "case_1",
+const running: MissionSnapshot = {
+  missionId: "case_1",
   ownerId: "person_1",
   state: "RUNNING",
   version: 3,
@@ -19,10 +19,10 @@ const running: CaseSnapshot = {
   approval
 };
 
-describe("reduceCase", () => {
+describe("reduceMission", () => {
   it("never treats tool success or acknowledgement as DONE", () => {
     expect(() =>
-      reduceCase(running, {
+      reduceMission(running, {
         expectedVersion: 3,
         target: "DONE",
         reasonCode: "TOOL_SUCCEEDED",
@@ -37,7 +37,7 @@ describe("reduceCase", () => {
   });
 
   it("allows DONE only with accepted deterministic verification", () => {
-    const result = reduceCase(running, {
+    const result = reduceMission(running, {
       expectedVersion: 3,
       target: "DONE",
       reasonCode: "EVIDENCE_ACCEPTED",
@@ -54,18 +54,18 @@ describe("reduceCase", () => {
 
   it("rejects stale concurrent commands", () => {
     expect(() =>
-      reduceCase(running, {
+      reduceMission(running, {
         expectedVersion: 2,
         target: "WAITING_EXTERNAL",
         reasonCode: "REQUEST_SENT",
         actor: "SYSTEM"
       })
-    ).toThrow(new DomainTransitionError("Case version changed", "VERSION_CONFLICT"));
+    ).toThrow(new DomainTransitionError("Mission version changed", "VERSION_CONFLICT"));
   });
 
   it("rejects an approval for another owner or plan", () => {
-    const awaitingApproval: CaseSnapshot = {
-      caseId: running.caseId,
+    const awaitingApproval: MissionSnapshot = {
+      missionId: running.missionId,
       ownerId: running.ownerId,
       state: "AWAITING_APPROVAL",
       version: 1,
@@ -73,7 +73,7 @@ describe("reduceCase", () => {
       planHash: running.planHash
     };
     expect(() =>
-      reduceCase(awaitingApproval, {
+      reduceMission(awaitingApproval, {
         expectedVersion: 1,
         target: "READY",
         reasonCode: "PLAN_APPROVED",
@@ -84,8 +84,8 @@ describe("reduceCase", () => {
   });
 
   it("rejects an illegal direct transition from draft to running", () => {
-    const draft: CaseSnapshot = {
-      caseId: "case_1",
+    const draft: MissionSnapshot = {
+      missionId: "case_1",
       ownerId: "person_1",
       state: "DRAFT",
       version: 0,
@@ -93,7 +93,7 @@ describe("reduceCase", () => {
       planHash: "sha256:plan"
     };
     expect(() =>
-      reduceCase(draft, {
+      reduceMission(draft, {
         expectedVersion: 0,
         target: "RUNNING",
         reasonCode: "BYPASS_APPROVAL",
@@ -105,7 +105,7 @@ describe("reduceCase", () => {
   it.each(["CANCELLED", "EXPIRED"] as const)(
     "allows a user-controlled %s terminal state",
     (target) => {
-      const result = reduceCase(running, {
+      const result = reduceMission(running, {
         expectedVersion: 3,
         target,
         reasonCode: target,
@@ -116,12 +116,12 @@ describe("reduceCase", () => {
   );
 
   it("reopens DONE into NEEDS_ATTENTION while preserving the evidence level", () => {
-    const done: CaseSnapshot = {
+    const done: MissionSnapshot = {
       ...running,
       state: "DONE",
       completedLevel: "MERCHANT_CONFIRMED"
     };
-    const result = reduceCase(done, {
+    const result = reduceMission(done, {
       expectedVersion: 3,
       target: "NEEDS_ATTENTION",
       reasonCode: "USER_REPORTS_UNRESOLVED",

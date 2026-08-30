@@ -15,7 +15,7 @@ export function stableHash(value: unknown): `sha256:${string}` {
 }
 
 export function actionIdempotencyKey(input: {
-  readonly caseId: string;
+  readonly missionId: string;
   readonly planVersion: number;
   readonly actionType: string;
   readonly ordinal: number;
@@ -26,7 +26,7 @@ export function actionIdempotencyKey(input: {
 export function eventDedupeKey(input: {
   readonly source: string;
   readonly externalId: string;
-  readonly caseId: string;
+  readonly missionId: string;
 }): `sha256:${string}` {
   return stableHash({ namespace: "dueback/event/v1", ...input });
 }
@@ -49,7 +49,7 @@ export function artifactDedupeKey(input: {
 export function callbackDedupeKey(input: {
   readonly issuer: string;
   readonly nonce: string;
-  readonly caseId: string;
+  readonly missionId: string;
 }): `sha256:${string}` {
   return stableHash({ namespace: "dueback/callback/v1", ...input });
 }

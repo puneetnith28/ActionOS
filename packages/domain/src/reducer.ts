@@ -1,6 +1,6 @@
-import type { CaseSnapshot, CaseState, DomainEvent, TransitionCommand } from "./types";
+import type { MissionSnapshot, MissionState, DomainEvent, TransitionCommand } from "./types";
 
-const transitions: Readonly<Record<CaseState, readonly CaseState[]>> = {
+const transitions: Readonly<Record<MissionState, readonly MissionState[]>> = {
   DRAFT: ["AWAITING_APPROVAL", "CANCELLED", "EXPIRED"],
   AWAITING_APPROVAL: ["DRAFT", "READY", "CANCELLED", "EXPIRED"],
   READY: ["RUNNING", "CANCELLED", "EXPIRED"],
@@ -36,7 +36,7 @@ export class DomainTransitionError extends Error {
   }
 }
 
-function assertApproval(snapshot: CaseSnapshot, command: TransitionCommand): void {
+function assertApproval(snapshot: MissionSnapshot, command: TransitionCommand): void {
   const approval = command.approval ?? snapshot.approval;
   if (!approval)
     throw new DomainTransitionError("Current plan has no approval", "APPROVAL_REQUIRED");
@@ -55,12 +55,12 @@ function assertApproval(snapshot: CaseSnapshot, command: TransitionCommand): voi
   }
 }
 
-export function reduceCase(
-  snapshot: CaseSnapshot,
+export function reduceMission(
+  snapshot: MissionSnapshot,
   command: TransitionCommand
-): { snapshot: CaseSnapshot; event: DomainEvent } {
+): { snapshot: MissionSnapshot; event: DomainEvent } {
   if (command.expectedVersion !== snapshot.version) {
-    throw new DomainTransitionError("Case version changed", "VERSION_CONFLICT");
+    throw new DomainTransitionError("Mission version changed", "VERSION_CONFLICT");
   }
   if (!transitions[snapshot.state].includes(command.target)) {
     throw new DomainTransitionError(
@@ -78,7 +78,7 @@ export function reduceCase(
     );
   }
 
-  const next: CaseSnapshot = {
+  const next: MissionSnapshot = {
     ...snapshot,
     state: command.target,
     version: snapshot.version + 1,
@@ -91,8 +91,8 @@ export function reduceCase(
   return {
     snapshot: next,
     event: {
-      type: "CASE_STATE_CHANGED",
-      caseId: snapshot.caseId,
+      type: "MISSION_STATE_CHANGED",
+      missionId: snapshot.missionId,
       from: snapshot.state,
       to: command.target,
       reasonCode: command.reasonCode,
