@@ -36,7 +36,7 @@ export function estimateGemini35FlashGlobalCost(input: {
   );
 }
 
-export async function consumeNewCaseBudget(
+export async function consumeNewMissionBudget(
   db: Firestore,
   ownerId: string,
   now: string

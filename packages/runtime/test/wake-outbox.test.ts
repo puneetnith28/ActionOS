@@ -42,7 +42,7 @@ describe("durable wake outbox", () => {
   it("reconciles a persisted intent after enqueue recovers", async () => {
     const outbox = new MemoryOutbox();
     const intent = wakeIntent({
-      missionId: "case_outbox_1234",
+      missionId: "mission_outbox_1234",
       expectedVersion: 2,
       wakeAt: "2026-08-18T15:00:00.000Z",
       createdAt: "2026-08-18T14:00:00.000Z"

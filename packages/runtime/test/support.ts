@@ -1,6 +1,6 @@
-import type { DraftCase } from "../src/intake-service";
+import type { DraftMission } from "../src/intake-service";
 
-export function makeDraft(): DraftCase {
+export function makeDraft(): DraftMission {
   const hash = `sha256:${"a".repeat(64)}`;
   const provenance = [
     {
@@ -11,7 +11,7 @@ export function makeDraft(): DraftCase {
     }
   ];
   return {
-    missionId: "case_12345678",
+    missionId: "mission_12345678",
     ownerId: "person_12345678",
     artifactId: "artifact_12345678",
     dedupeKey: hash,
@@ -27,7 +27,7 @@ export function makeDraft(): DraftCase {
     },
     plan: {
       planId: "plan_12345678",
-      missionId: "case_12345678",
+      missionId: "mission_12345678",
       ownerId: "person_12345678",
       version: 1,
       planHash: hash,

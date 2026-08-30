@@ -19,7 +19,7 @@ function controlService() {
       ? durableCaseScheduler(new TaskScheduler(new CloudTasksClient(), {
           projectId,
           location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
-          queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-cases",
+          queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-missions",
           workerUrl,
           serviceAccountEmail,
           ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE

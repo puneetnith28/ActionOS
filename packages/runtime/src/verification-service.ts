@@ -18,7 +18,7 @@ import {
 } from "./interventions";
 import { wakeIntent, type WakeIntent } from "./wake-outbox";
 
-export interface EvidenceCase {
+export interface EvidenceMission {
   readonly missionId: string;
   readonly ownerId: string;
   readonly state: MissionState;
@@ -35,8 +35,8 @@ export interface EvidenceRecord {
   readonly correlationId: string;
 }
 
-export interface EvidenceCaseStore {
-  get(missionId: string): Promise<EvidenceCase | undefined>;
+export interface EvidenceMissionStore {
+  get(missionId: string): Promise<EvidenceMission | undefined>;
   record(input: {
     missionId: string;
     expectedVersion: number;
@@ -58,7 +58,7 @@ export interface EvidenceScheduler {
 
 export class VerificationService {
   constructor(
-    private readonly cases: EvidenceCaseStore,
+    private readonly cases: EvidenceMissionStore,
     private readonly notifications: NotificationStore,
     private readonly interventions?: InterventionStore,
     private readonly delivery?: NotificationDeliveryService,
@@ -151,7 +151,7 @@ export class VerificationService {
     const record = notificationRecord({
       missionId: item.missionId,
       ownerId: item.ownerId,
-      kind: "CASE_COMPLETED",
+      kind: "MISSION_COMPLETED",
       createdAt: now,
       correlationId
     });

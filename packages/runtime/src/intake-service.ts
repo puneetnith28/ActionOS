@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { outcomeContractSchema, missionGoalSchema, resolutionPlanSchema } from "@actionos/contracts";
 import type { ChannelType, OutcomeContract, MissionGoal, ExecutionPlan } from "@actionos/contracts";
-import { caseDedupeKey, stableHash } from "@actionos/domain";
+import { missionDedupeKey, stableHash } from "@actionos/domain";
 
 export interface IntakeArtifact {
   readonly missionId?: string;
@@ -22,7 +22,7 @@ export interface PromiseExtractor {
   extract(artifact: IntakeArtifact): Promise<MissionGoal>;
 }
 
-export interface DraftCase {
+export interface DraftMission {
   readonly missionId: string;
   readonly ownerId: string;
   readonly artifactId: string;
@@ -69,11 +69,11 @@ export interface PlanApproval {
 }
 
 export interface IntakeStore {
-  findByDedupeKey(ownerId: string, dedupeKey: string): Promise<DraftCase | undefined>;
-  createDraft(draft: DraftCase): Promise<void>;
+  findByDedupeKey(ownerId: string, dedupeKey: string): Promise<DraftMission | undefined>;
+  createDraft(draft: DraftMission): Promise<void>;
 }
 
-export interface NewCaseBudget {
+export interface NewMissionBudget {
   consume(ownerId: string, now: string): Promise<void>;
 }
 
@@ -208,7 +208,7 @@ export class IntakeService {
     private readonly store: IntakeStore,
     private readonly extractor: PromiseExtractor,
     private readonly merchantRecipient: string,
-    private readonly budget?: NewCaseBudget,
+    private readonly budget?: NewMissionBudget,
     private readonly channel: {
       readonly channelType: ChannelType;
       readonly senderIdentity: string;
@@ -223,8 +223,8 @@ export class IntakeService {
   async intake(
     artifact: IntakeArtifact,
     now: string
-  ): Promise<{ draft: DraftCase; duplicate: boolean }> {
-    const dedupeKey = caseDedupeKey({
+  ): Promise<{ draft: DraftMission; duplicate: boolean }> {
+    const dedupeKey = missionDedupeKey({
       ownerId: artifact.ownerId,
       sourceChannel: artifact.sourceChannel,
       sourceIdentity: artifact.sha256
@@ -235,7 +235,7 @@ export class IntakeService {
     await this.budget?.consume(artifact.ownerId, now);
 
     const promiseDraft = missionGoalSchema.parse(await this.extractor.extract(artifact));
-    const missionId = artifact.missionId ?? `case_${randomUUID()}`;
+    const missionId = artifact.missionId ?? `mission_${randomUUID()}`;
     const plan = buildPlan({
       missionId,
       ownerId: artifact.ownerId,
@@ -249,7 +249,7 @@ export class IntakeService {
       plan.followUpAt,
       plan.allowedRecipient
     );
-    const draft: DraftCase = {
+    const draft: DraftMission = {
       missionId,
       ownerId: artifact.ownerId,
       artifactId: artifact.artifactId,

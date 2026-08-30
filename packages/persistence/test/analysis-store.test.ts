@@ -6,7 +6,7 @@ describe("analysis persistence projection", () => {
   it("removes Firestore TTL metadata before strict contract validation", () => {
     expect(parseAnalysisDocument({
       jobId: "analysis_persisted123",
-      missionId: "case_persisted123",
+      missionId: "mission_persisted123",
       ownerId: "owner_persisted123",
       artifactId: "artifact_persisted123",
       artifactPath: "analysis/owner/source",

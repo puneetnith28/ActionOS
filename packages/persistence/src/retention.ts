@@ -88,7 +88,7 @@ export class FirestoreMissionControlStore implements MissionControlStore {
         eventId: `control-${String(next.version)}`,
         missionId: input.missionId,
         sequence: next.version,
-        type: "CASE_CONTROL",
+        type: "MISSION_CONTROL",
         actor: "PERSON",
         reasonCodes: [input.reason],
         occurredAt: input.now,

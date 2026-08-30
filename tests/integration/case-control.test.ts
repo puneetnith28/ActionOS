@@ -7,11 +7,11 @@ import {
 import type { FollowThroughMission } from "../../packages/runtime/src/mission-runner";
 import { EvidenceService, type EvidenceRecord } from "../../packages/runtime/src/evidence-service";
 import type { NotificationRecord } from "../../packages/runtime/src/notifications";
-import { makeDraftCase } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-case";
 import type { WakeIntent } from "../../packages/runtime/src/wake-outbox";
 
 function activeCase(state: FollowThroughMission["state"] = "WAITING_EXTERNAL"): FollowThroughMission {
-  const draft = makeDraftCase();
+  const draft = makeDraftMission();
   return {
     caseId: draft.caseId,
     ownerId: draft.ownerId,

@@ -33,7 +33,7 @@ export class TaskScheduler {
       input.correlationId ??
       `corr_${stableHash({ namespace: "dueback/correlation/v1", missionId: input.missionId }).slice(7, 31)}`;
     const stableName = stableHash({ namespace: "dueback/task/v1", ...input }).slice(7, 39);
-    const taskName = `${parent}/tasks/case-${stableName}`;
+    const taskName = `${parent}/tasks/mission-${stableName}`;
     const body = Buffer.from(
       JSON.stringify({
         missionId: input.missionId,

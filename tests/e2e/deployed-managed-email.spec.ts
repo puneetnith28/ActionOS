@@ -19,13 +19,13 @@ test.describe("deployed managed email pilot", () => {
       "The refund was due by August 16, 2026. This is an authorized controlled email test."
     );
     await page.getByRole("button", { name: "Build my plan" }).click();
-    await expect(page).toHaveURL(/\/cases\/case_[^/]+\/review/, { timeout: 45_000 });
+    await expect(page).toHaveURL(/\/cases\/mission_[^/]+\/review/, { timeout: 45_000 });
     await page.getByRole("button", { name: /Managed email Available/ }).click();
     await expect(page.getByRole("button", { name: /Managed email Selected/ })).toBeVisible();
     await expect(page.getByText(liveRecipient, { exact: true }).first()).toBeVisible();
     await page.getByRole("checkbox", { name: /authorized to contact/ }).check();
     await page.getByRole("button", { name: "Approve and start follow-up" }).click();
-    await expect(page).toHaveURL(/\/cases\/case_[^/]+\/result/);
+    await expect(page).toHaveURL(/\/cases\/mission_[^/]+\/result/);
     await expect(page.getByText(/follow-up|waiting|provider|email/i).first()).toBeVisible({
       timeout: 45_000
     });

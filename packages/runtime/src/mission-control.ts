@@ -123,7 +123,7 @@ export class MissionControlService {
       throw new Error("NEW_BOUNDARY_REQUIRED");
     }
     if (["STOP", "REVOKE", "EXPIRE"].includes(input.action) && item.state === "DONE") {
-      throw new Error("TERMINAL_CASE_CONTROL_DENIED");
+      throw new Error("TERMINAL_MISSION_CONTROL_DENIED");
     }
     if (input.action === "REOPEN" && !input.reason?.trim())
       throw new Error("REOPEN_REASON_REQUIRED");

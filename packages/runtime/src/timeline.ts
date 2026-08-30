@@ -2,7 +2,7 @@ export interface RuntimeTimelineEvent {
   readonly eventId: string;
   readonly missionId: string;
   readonly sequence: number;
-  readonly type: "PLAN_APPROVED" | "ACTION_RESULT" | "EVIDENCE_RESULT" | "CASE_CONTROL";
+  readonly type: "PLAN_APPROVED" | "ACTION_RESULT" | "EVIDENCE_RESULT" | "MISSION_CONTROL";
   readonly actor: "PERSON" | "SYSTEM" | "COUNTERPARTY";
   readonly occurredAt: string;
   readonly reasonCodes: readonly string[];

@@ -10,7 +10,7 @@ import {
 } from "../../packages/domain/src/index";
 
 const now = "2026-08-15T12:00:00.000Z";
-const body = JSON.stringify({ caseId: "case_12345678", transactionRef: "ORDER-79" });
+const body = JSON.stringify({ caseId: "mission_12345678", transactionRef: "ORDER-79" });
 const secret = "callback-test-secret";
 
 describe("merchant callbacks", () => {
@@ -51,7 +51,7 @@ describe("merchant callbacks", () => {
     };
     const base: EvidenceCandidate = {
       evidenceId: "evidence_12345678",
-      caseId: "case_12345678",
+      caseId: "mission_12345678",
       level: "MERCHANT_CONFIRMED",
       amountMinor: 7900,
       currency: "USD",
@@ -64,7 +64,7 @@ describe("merchant callbacks", () => {
       verifyEvidence({
         caseId: base.caseId,
         requirement,
-        candidate: { ...base, caseId: "case_wrong" },
+        candidate: { ...base, caseId: "mission_wrong" },
         now
       }).reasonCodes
     ).toContain("WRONG_CASE");

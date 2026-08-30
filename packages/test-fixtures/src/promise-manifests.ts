@@ -10,7 +10,7 @@ export const billCreditFixture = {
   manifest: goalTypeManifests.BILL_CREDIT,
   plan: plan({
     planId: "plan_bill_credit_1234",
-    missionId: "case_bill_credit_1234",
+    missionId: "mission_bill_credit_1234",
     ownerId: "person_portability_1",
     version: 1,
     goal: "Apply the promised USD 25 credit to the September 2026 bill",
@@ -34,7 +34,7 @@ export const billCreditFixture = {
   }),
   acceptedEvidence: {
     outcomeId: "evidence_bill_credit_ok",
-    missionId: "case_bill_credit_1234",
+    missionId: "mission_bill_credit_1234",
     level: "OUTCOME_CONFIRMED",
     amountMinor: 2500,
     currency: "USD",
@@ -50,7 +50,7 @@ export const replacementFixture = {
   manifest: goalTypeManifests.REPLACEMENT,
   plan: plan({
     planId: "plan_replacement_1234",
-    missionId: "case_replacement_1234",
+    missionId: "mission_replacement_1234",
     ownerId: "person_portability_1",
     version: 1,
     goal: "Ship the promised replacement headphones with tracking",
@@ -72,7 +72,7 @@ export const replacementFixture = {
   }),
   acceptedEvidence: {
     outcomeId: "evidence_replacement_ok",
-    missionId: "case_replacement_1234",
+    missionId: "mission_replacement_1234",
     level: "OUTCOME_CONFIRMED",
     transactionRef: "RMA-808",
     subject: "Noise-cancelling headphones",

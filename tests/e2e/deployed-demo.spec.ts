@@ -23,14 +23,14 @@ test.describe("deployed mobile judge path", () => {
         `On August 1, 2026 Northstar Store confirmed it would refund USD 19.00 for order ${reference} by August 15, 2026. The refund is still missing.`
       );
     await page.getByRole("button", { name: "Build my plan" }).click();
-    await expect(page).toHaveURL(/\/cases\/case_[^/]+\/analyzing/, { timeout: 10_000 });
+    await expect(page).toHaveURL(/\/cases\/mission_[^/]+\/analyzing/, { timeout: 10_000 });
     await expect(page.getByText("Saved and running in the background")).toBeVisible();
     await page.getByRole("link", { name: "My follow-ups" }).click();
     await expect(page.getByRole("link", { name: /New promise/ })).toContainText(
       "Gemini is building the plan"
     );
     await page.getByRole("link", { name: /New promise/ }).click();
-    await expect(page).toHaveURL(/\/cases\/case_[^/]+\/review/, { timeout: 35_000 });
+    await expect(page).toHaveURL(/\/cases\/mission_[^/]+\/review/, { timeout: 35_000 });
     await expect(page.getByText("Before you start")).toBeVisible();
     await expect(
       page.getByText(/It cannot spend, change the outcome, or call an acknowledgement done/)

@@ -35,7 +35,7 @@ describe("attention notification replay", () => {
       listInterventions: () => Promise.resolve([...interventions.values()])
     }, notificationStore, new NotificationDeliveryService(notificationStore, { deliver }));
     const input = {
-      caseId: "case_12345678", ownerId: "owner_12345678", correlationId: "corr_attention_12345678",
+      caseId: "mission_12345678", ownerId: "owner_12345678", correlationId: "corr_attention_12345678",
       kind: "EVIDENCE_CONFLICT" as const, reasonCodes: ["WRONG_AMOUNT"], requestedField: "amount",
       notificationRecipient: "owner@example.test", createdAt: "2026-08-17T19:00:00.000Z"
     };
@@ -48,8 +48,8 @@ describe("attention notification replay", () => {
   it.each(["BOUNCED", "SUPPRESSED"] as const)("treats %s as a terminal transport state, not case truth", (deliveryStatus) => {
     const record = {
       notificationId: "notification_12345678", dedupeKey: `sha256:${"a".repeat(64)}`,
-      caseId: "case_12345678", correlationId: "corr_12345678", ownerId: "owner_12345678",
-      kind: "NEEDS_ATTENTION", deepLinkPath: "/cases/case_12345678/result",
+      caseId: "mission_12345678", correlationId: "corr_12345678", ownerId: "owner_12345678",
+      kind: "NEEDS_ATTENTION", deepLinkPath: "/cases/mission_12345678/result",
       createdAt: "2026-08-17T19:00:00.000Z", deliveryChannel: "EMAIL", deliveryStatus
     } satisfies NotificationRecord;
     expect(record.deliveryStatus).toBe(deliveryStatus);

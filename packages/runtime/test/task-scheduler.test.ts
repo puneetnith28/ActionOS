@@ -18,7 +18,7 @@ describe("TaskScheduler", () => {
 
     await expect(
       scheduler.scheduleMission({
-        missionId: "case_1",
+        missionId: "mission_1",
         expectedVersion: 2,
         wakeAt: "2026-08-15T12:00:00.000Z"
       })
@@ -64,7 +64,7 @@ describe("TaskScheduler", () => {
       serviceAccountEmail: "tasks@demo.iam.gserviceaccount.com"
     });
     await scheduler.scheduleMission({
-      missionId: "case_fractional",
+      missionId: "mission_fractional",
       expectedVersion: 2,
       wakeAt: "2026-08-15T12:00:00.823Z"
     });
@@ -98,7 +98,7 @@ describe("TaskScheduler", () => {
       oidcAudience: "https://dueback.test"
     });
     await scheduler.scheduleMission({
-      missionId: "case_oidc",
+      missionId: "mission_oidc",
       expectedVersion: 1,
       wakeAt: "2026-08-15T12:00:00.000Z"
     });

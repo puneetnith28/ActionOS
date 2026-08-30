@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   const scheduler = new TaskScheduler(new CloudTasksClient(), {
     projectId,
     location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
-    queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-cases",
+    queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-missions",
     workerUrl: `${baseUrl}/api/internal/tasks/run-mission`,
     inboundWorkerUrl: `${baseUrl}/api/internal/tasks/process-inbound`,
     serviceAccountEmail,

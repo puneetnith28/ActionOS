@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import { handleTechnicalRun } from "../../apps/web/lib/technical-run-controller";
-import { makeDraftCase } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-case";
 
 describe("technical run access", () => {
   it("returns the same 404 to a non-owner without reading trace facts", async () => {
-    const draft = makeDraftCase();
+    const draft = makeDraftMission();
     const technicalRunSource = vi.fn();
     const response = await handleTechnicalRun(new Request("https://dueback.test/trace"), draft.caseId, {
       authenticate: () => Promise.resolve({ uid: "other_12345678" }),
@@ -15,7 +15,7 @@ describe("technical run access", () => {
   });
 
   it("denies technical evidence for non-synthetic real-email cases", async () => {
-    const draft = makeDraftCase();
+    const draft = makeDraftMission();
     const technicalRunSource = vi.fn();
     const response = await handleTechnicalRun(new Request("https://dueback.test/trace"), draft.caseId, {
       authenticate: () => Promise.resolve({ uid: draft.ownerId }),

@@ -10,7 +10,7 @@ import {
   type FollowThroughMission,
   type FollowThroughStore
 } from "../../packages/runtime/src/mission-runner";
-import { makeDraftCase } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-case";
 import {
   InterventionService,
   type InterventionRecord
@@ -63,7 +63,7 @@ class Cases implements FollowThroughStore {
 }
 
 function readyCase(): FollowThroughMission {
-  const draft = makeDraftCase();
+  const draft = makeDraftMission();
   return {
     caseId: draft.caseId,
     ownerId: draft.ownerId,
@@ -466,6 +466,6 @@ describe("durable follow-through", () => {
     expect(cases.value).toMatchObject({ state: "FAILED", updatedAt: "2026-08-15T12:00:00.000Z" });
     expect(scheduleMission).not.toHaveBeenCalled();
     expect(notifications.size).toBe(1);
-    expect([...notifications.values()][0]?.kind).toBe("CASE_FAILED");
+    expect([...notifications.values()][0]?.kind).toBe("MISSION_FAILED");
   });
 });

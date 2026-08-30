@@ -6,7 +6,7 @@ import { handlePlanRequest } from "../lib/plan-controller";
 describe("plan API contract", () => {
   it("does not allow another owner to inspect a case", async () => {
     const service = new PlanService({
-      get: () => Promise.resolve({ ownerId: "person_12345678" } as DraftCase),
+      get: () => Promise.resolve({ ownerId: "person_12345678" } as DraftMission),
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(
@@ -26,7 +26,7 @@ describe("plan API contract", () => {
       get: () => Promise.resolve({
         ownerId: "person_12345678",
         plan: { channelType: "MANAGED_EMAIL" }
-      } as DraftCase),
+      } as DraftMission),
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(
@@ -56,7 +56,7 @@ describe("plan API contract", () => {
       get: () => Promise.resolve({
         ownerId: "person_12345678",
         plan: { channelType: "MANAGED_EMAIL" }
-      } as DraftCase),
+      } as DraftMission),
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(
@@ -93,7 +93,7 @@ describe("plan API contract", () => {
           channelType: "MANAGED_EMAIL",
           notificationRecipient: "third-party@example.test"
         }
-      } as DraftCase),
+      } as DraftMission),
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(
@@ -177,7 +177,7 @@ describe("plan API contract", () => {
 
   it("rejects a client-selected channel unless the server resolves it as available", async () => {
     const service = new PlanService({
-      get: () => Promise.resolve({ ownerId: "person_12345678" } as DraftCase),
+      get: () => Promise.resolve({ ownerId: "person_12345678" } as DraftMission),
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(new Request(

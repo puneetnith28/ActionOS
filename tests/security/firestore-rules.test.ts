@@ -20,11 +20,11 @@ beforeAll(async () => {
     }
   });
   await environment.withSecurityRulesDisabled(async (context) => {
-    await setDoc(doc(context.firestore(), "cases/case_owned"), { ownerId: "owner_a" });
-    await setDoc(doc(context.firestore(), "cases/case_owned/events/event_1"), { caseId: "case_owned" });
+    await setDoc(doc(context.firestore(), "cases/mission_owned"), { ownerId: "owner_a" });
+    await setDoc(doc(context.firestore(), "cases/mission_owned/events/event_1"), { caseId: "mission_owned" });
     await setDoc(doc(context.firestore(), "providerEvents/provider_1"), { status: "FAILED" });
     await setDoc(doc(context.firestore(), "inboundEnvelopes/inbound_1"), { text: "private" });
-    await setDoc(doc(context.firestore(), "messageThreads/thread_1"), { caseId: "case_owned" });
+    await setDoc(doc(context.firestore(), "messageThreads/thread_1"), { caseId: "mission_owned" });
   });
 });
 
@@ -34,10 +34,10 @@ describe("Firestore ownership and server-only channel records", () => {
   it("allows only the owner to read the case and its event history", async () => {
     const owner = environment.authenticatedContext("owner_a").firestore();
     const attacker = environment.authenticatedContext("owner_b").firestore();
-    await assertSucceeds(getDoc(doc(owner, "cases/case_owned")));
-    await assertSucceeds(getDoc(doc(owner, "cases/case_owned/events/event_1")));
-    await assertFails(getDoc(doc(attacker, "cases/case_owned")));
-    await assertFails(getDoc(doc(attacker, "cases/case_owned/events/event_1")));
+    await assertSucceeds(getDoc(doc(owner, "cases/mission_owned")));
+    await assertSucceeds(getDoc(doc(owner, "cases/mission_owned/events/event_1")));
+    await assertFails(getDoc(doc(attacker, "cases/mission_owned")));
+    await assertFails(getDoc(doc(attacker, "cases/mission_owned/events/event_1")));
   });
 
   it.each(["providerEvents/provider_1", "inboundEnvelopes/inbound_1", "messageThreads/thread_1"])(

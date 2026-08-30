@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import { validateCapabilityExecution } from "../../packages/domain/src/capability-validator";
 import { EvidenceService } from "../../packages/runtime/src/evidence-service";
-import { makeDraftCase } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-case";
 
 describe("case control races", () => {
   it("rejects the old approval after authority revision revokes it", () => {
-    const draft = makeDraftCase();
+    const draft = makeDraftMission();
     const requirement = draft.plan.evidenceRequirements[0];
     expect(requirement).toBeTruthy();
     const decision = validateCapabilityExecution({
@@ -34,7 +34,7 @@ describe("case control races", () => {
   });
 
   it.each(["CANCELLED", "EXPIRED", "DONE"] as const)("rejects late evidence after %s", async (state) => {
-    const draft = makeDraftCase();
+    const draft = makeDraftMission();
     const record = vi.fn();
     const service = new EvidenceService({
       get: () => Promise.resolve({

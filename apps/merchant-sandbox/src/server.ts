@@ -144,7 +144,7 @@ export function createMerchantServer(input: {
             JSON.stringify({
               outcomeId: `evidence_${randomUUID()}`,
               missionId,
-              level,
+              level: status,
               ...(sharedFields.amountMinor !== undefined
                 ? { amountMinor: step.mismatch === "amount" ? 1 : Number(sharedFields.amountMinor) }
                 : {}),
@@ -161,7 +161,7 @@ export function createMerchantServer(input: {
               issuer: "merchant-sandbox"
             });
           const send = (status: typeof step.outcome) => {
-            const callback = callbackPayload(level);
+            const callback = callbackPayload(status);
             return async () => {
               const timestamp = now();
               return outbound(callbackUrl, {

@@ -2,7 +2,7 @@ import { FieldValue, type Firestore } from "firebase-admin/firestore";
 import type { ExecutionReceipt, ExecutionRecordStore, Reservation } from "@actionos/runtime/capability-broker";
 import type { ExternalSendBudget } from "@actionos/runtime/capability-broker";
 import type { FollowThroughMission, FollowThroughStore } from "@actionos/runtime/mission-runner";
-import type { EvidenceCaseStore, EvidenceRecord } from "@actionos/runtime/verification-service";
+import type { EvidenceMissionStore, EvidenceRecord } from "@actionos/runtime/verification-service";
 import type { NotificationRecord, NotificationStore } from "@actionos/runtime/notifications";
 import type { InterventionRecord, InterventionStore } from "@actionos/runtime/interventions";
 import type {
@@ -13,7 +13,7 @@ import { firestoreDeleteAt } from "./expiry";
 import type { RuntimeTimelineEvent } from "@actionos/runtime/timeline";
 import { stableHash } from "@actionos/domain";
 import type { TechnicalRunSource } from "@actionos/runtime/technical-run";
-import type { DraftCase } from "@actionos/runtime/intake-service";
+import type { DraftMission } from "@actionos/runtime/intake-service";
 import type { WakeIntent } from "@actionos/runtime/wake-outbox";
 import { persistWakeIntent } from "./wake-outbox-store";
 
@@ -21,7 +21,7 @@ export class FirestoreRuntimeStore
   implements
     FollowThroughStore,
     ExecutionRecordStore,
-    EvidenceCaseStore,
+    EvidenceMissionStore,
     NotificationStore,
     InterventionStore,
     EmailDeliveryStore,
@@ -471,7 +471,7 @@ export class FirestoreRuntimeStore
     ]);
     let modelUsage: TechnicalRunSource["modelUsage"];
     if (run && draft.exists) {
-      const typedDraft = draft.data() as DraftCase;
+      const typedDraft = draft.data() as DraftMission;
       const budgetKey = `${run.ownerId}:${typedDraft.artifactId}`;
       const usage = await this.db.collection("modelUsage").doc(stableHash(budgetKey).slice(7, 39)).get();
       if (usage.exists) {

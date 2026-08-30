@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { MissionGoal } from "@actionos/contracts";
 import { IntakeService } from "../src/intake-service";
-import type { DraftCase, IntakeStore, PromiseExtractor } from "../src/intake-service";
+import type { DraftMission, IntakeStore, PromiseExtractor } from "../src/intake-service";
 
 const hash = `sha256:${"a".repeat(64)}`;
 
@@ -26,9 +26,9 @@ function promiseDraft(uncertainty: "NONE" | "CONTRADICTORY" = "NONE"): MissionGo
 }
 
 class MemoryIntakeStore implements IntakeStore {
-  private readonly cases = new Map<string, DraftCase>();
+  private readonly cases = new Map<string, DraftMission>();
 
-  findByDedupeKey(ownerId: string, dedupeKey: string): Promise<DraftCase | undefined> {
+  findByDedupeKey(ownerId: string, dedupeKey: string): Promise<DraftMission | undefined> {
     return Promise.resolve(
       [...this.cases.values()].find(
         (draft) => draft.ownerId === ownerId && draft.dedupeKey === dedupeKey
@@ -36,7 +36,7 @@ class MemoryIntakeStore implements IntakeStore {
     );
   }
 
-  createDraft(draft: DraftCase): Promise<void> {
+  createDraft(draft: DraftMission): Promise<void> {
     this.cases.set(draft.missionId, draft);
     return Promise.resolve();
   }

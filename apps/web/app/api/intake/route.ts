@@ -1,7 +1,7 @@
 import { FirestoreAnalysisStore } from "@actionos/persistence/analysis-store";
 import { authenticatedOwner, assertSameOrigin } from "../../../lib/authz";
 import { firestore, artifactBucket } from "../../../lib/firebase-admin";
-import { consumeNewCaseBudget } from "../../../lib/security-limits";
+import { consumeNewMissionBudget } from "../../../lib/security-limits";
 import { PrivateArtifactStorage } from "../../../lib/artifact-storage";
 import { handleAnalysisIntake } from "../../../lib/analysis-intake-controller";
 import { analysisScheduler } from "../../../lib/analysis-scheduler";
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     authenticate: authenticatedOwner,
     store: new FirestoreAnalysisStore(firestore),
     storage: new PrivateArtifactStorage(artifactBucket()),
-    consumeBudget: (ownerId, now) => consumeNewCaseBudget(firestore, ownerId, now),
+    consumeBudget: (ownerId, now) => consumeNewMissionBudget(firestore, ownerId, now),
     schedule: (jobId, wakeAt) => tasks.scheduleAnalysis({ jobId, wakeAt }),
     now: () => new Date().toISOString()
   });

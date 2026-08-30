@@ -1,8 +1,8 @@
-import type { DraftCase } from "../../packages/runtime/src/intake-service";
+import type { DraftMission } from "../../packages/runtime/src/intake-service";
 
 export const testHash = `sha256:${"a".repeat(64)}`;
 
-export function makeDraftCase(overrides: Partial<DraftCase> = {}): DraftCase {
+export function makeDraftMission(overrides: Partial<DraftMission> = {}): DraftMission {
   const provenance = [
     {
       artifactId: "artifact_12345678",
@@ -12,7 +12,7 @@ export function makeDraftCase(overrides: Partial<DraftCase> = {}): DraftCase {
     }
   ];
   return {
-    caseId: "case_12345678",
+    caseId: "mission_12345678",
     ownerId: "person_12345678",
     artifactId: "artifact_12345678",
     dedupeKey: testHash,
@@ -28,7 +28,7 @@ export function makeDraftCase(overrides: Partial<DraftCase> = {}): DraftCase {
     },
     plan: {
       planId: "plan_12345678",
-      caseId: "case_12345678",
+      caseId: "mission_12345678",
       ownerId: "person_12345678",
       version: 1,
       planHash: testHash,

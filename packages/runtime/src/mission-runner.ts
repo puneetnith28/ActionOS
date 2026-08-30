@@ -122,10 +122,10 @@ export class MissionRunner {
 
     const maxLogicalSends = item.plan.maxLogicalSends ?? 3;
     if (item.actionOrdinal > maxLogicalSends) {
-      const caseWithoutWake = { ...item };
-      delete caseWithoutWake.nextWakeAt;
+      const missionWithoutWake = { ...item };
+      delete missionWithoutWake.nextWakeAt;
       const exhausted: FollowThroughMission = {
-        ...caseWithoutWake,
+        ...missionWithoutWake,
         state: "NEEDS_ATTENTION",
         version: item.version + 1,
         lastError: "ACTION_BUDGET_EXHAUSTED",
@@ -229,7 +229,7 @@ export class MissionRunner {
         await this.terminalNotifications?.notify({
           missionId: item.missionId,
           ownerId: item.ownerId,
-          kind: "CASE_FAILED",
+          kind: "MISSION_FAILED",
           createdAt: input.now,
           correlationId,
           ...(item.plan.notificationRecipient ? { recipient: item.plan.notificationRecipient } : {})

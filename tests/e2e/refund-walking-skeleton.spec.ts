@@ -20,19 +20,19 @@ import {
 } from "../../packages/runtime/src/mission-runner";
 import {
   EvidenceService,
-  type EvidenceCaseStore,
+  type EvidenceMissionStore,
   type EvidenceRecord
 } from "../../packages/runtime/src/evidence-service";
 import type {
   NotificationRecord,
   NotificationStore
 } from "../../packages/runtime/src/notifications";
-import { makeDraftCase } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-case";
 
 class WalkingStore
   implements
     FollowThroughStore,
-    EvidenceCaseStore,
+    EvidenceMissionStore,
     ExecutionRecordStore,
     NotificationStore,
     CallbackRecordStore
@@ -123,7 +123,7 @@ async function eventually(check: () => boolean): Promise<void> {
 
 describe("refund walking skeleton", () => {
   it("crosses HTTP, rejects acknowledgement, verifies completion, and emits one notification", async () => {
-    const draft = makeDraftCase();
+    const draft = makeDraftMission();
     const store = new WalkingStore({
       caseId: draft.caseId,
       ownerId: draft.ownerId,

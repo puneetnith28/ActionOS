@@ -31,7 +31,7 @@ export function eventDedupeKey(input: {
   return stableHash({ namespace: "dueback/event/v1", ...input });
 }
 
-export function caseDedupeKey(input: {
+export function missionDedupeKey(input: {
   readonly ownerId: string;
   readonly sourceChannel: string;
   readonly sourceIdentity: string;

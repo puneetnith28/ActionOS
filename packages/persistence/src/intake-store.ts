@@ -1,12 +1,12 @@
 import type { Firestore } from "firebase-admin/firestore";
-import type { DraftCase, IntakeStore } from "@actionos/runtime/intake-service";
+import type { DraftMission, IntakeStore } from "@actionos/runtime/intake-service";
 import type { PlanStore } from "@actionos/runtime/plan-service";
 import { stableHash } from "@actionos/domain";
 import { firestoreDeleteAt } from "./expiry";
 import type { WakeIntent } from "@actionos/runtime/wake-outbox";
 import { persistWakeIntent } from "./wake-outbox-store";
 
-export function firstRunDueAt(draft: DraftCase): string {
+export function firstRunDueAt(draft: DraftMission): string {
   return draft.plan.followUpAt ?? draft.promiseDraft.dueAt?.value ??
     new Date(Date.parse(draft.createdAt) + 1000).toISOString();
 }
@@ -14,15 +14,15 @@ export function firstRunDueAt(draft: DraftCase): string {
 export class FirestoreIntakeStore implements IntakeStore, PlanStore {
   constructor(private readonly db: Firestore) {}
 
-  async findByDedupeKey(ownerId: string, dedupeKey: string): Promise<DraftCase | undefined> {
+  async findByDedupeKey(ownerId: string, dedupeKey: string): Promise<DraftMission | undefined> {
     const document = await this.db.collection("intakeDedupe").doc(dedupeKey.slice(7)).get();
     if (!document.exists || document.get("ownerId") !== ownerId) return undefined;
     const missionId = document.get("missionId") as string;
     const draftDocument = await this.db.collection("caseDrafts").doc(missionId).get();
-    return draftDocument.exists ? (draftDocument.data() as DraftCase) : undefined;
+    return draftDocument.exists ? (draftDocument.data() as DraftMission) : undefined;
   }
 
-  async createDraft(draft: DraftCase): Promise<void> {
+  async createDraft(draft: DraftMission): Promise<void> {
     const dedupeRef = this.db.collection("intakeDedupe").doc(draft.dedupeKey.slice(7));
     const draftRef = this.db.collection("caseDrafts").doc(draft.missionId);
     await this.db.runTransaction(async (transaction) => {
@@ -39,9 +39,9 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
     });
   }
 
-  async get(missionId: string): Promise<DraftCase | undefined> {
+  async get(missionId: string): Promise<DraftMission | undefined> {
     const document = await this.db.collection("caseDrafts").doc(missionId).get();
-    return document.exists ? (document.data() as DraftCase) : undefined;
+    return document.exists ? (document.data() as DraftMission) : undefined;
   }
 
   async deleteDraft(missionId: string, ownerId: string): Promise<void> {
@@ -49,7 +49,7 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
     await this.db.runTransaction(async (transaction) => {
       const current = await transaction.get(draftRef);
       if (!current.exists) return;
-      const draft = current.data() as DraftCase;
+      const draft = current.data() as DraftMission;
       if (draft.ownerId !== ownerId) throw new Error("CASE_OWNERSHIP_REQUIRED");
       transaction.delete(draftRef);
       transaction.delete(this.db.collection("intakeDedupe").doc(draft.dedupeKey.slice(7)));
@@ -59,7 +59,7 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
   async replace(
     missionId: string,
     expectedPlanVersion: number,
-    next: DraftCase,
+    next: DraftMission,
     wake?: WakeIntent
   ): Promise<void> {
     const reference = this.db.collection("caseDrafts").doc(missionId);
@@ -67,7 +67,7 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
     await this.db.runTransaction(async (transaction) => {
       const current = await transaction.get(reference);
       if (!current.exists) throw new Error("MISSION_NOT_FOUND");
-      const currentDraft = current.data() as DraftCase;
+      const currentDraft = current.data() as DraftMission;
       if (currentDraft.plan.version !== expectedPlanVersion) throw new Error("STALE_PLAN_VERSION");
       transaction.set(reference, next);
       persistWakeIntent(transaction, this.db, wake);

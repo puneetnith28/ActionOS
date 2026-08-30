@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { DraftCase } from "../src/intake-service";
+import type { DraftMission } from "../src/intake-service";
 import { PlanService } from "../src/plan-service";
 import type { PlanStore } from "../src/plan-service";
 
@@ -13,9 +13,9 @@ const provenance = [
   }
 ];
 
-function caseDraft(): DraftCase {
+function caseDraft(): DraftMission {
   return {
-    missionId: "case_12345678",
+    missionId: "mission_12345678",
     ownerId: "person_12345678",
     artifactId: "artifact_12345678",
     dedupeKey: hash,
@@ -31,7 +31,7 @@ function caseDraft(): DraftCase {
     },
     plan: {
       planId: "plan_12345678",
-      missionId: "case_12345678",
+      missionId: "mission_12345678",
       ownerId: "person_12345678",
       version: 1,
       planHash: hash,
@@ -58,11 +58,11 @@ function caseDraft(): DraftCase {
 }
 
 class MemoryPlanStore implements PlanStore {
-  constructor(private draft: DraftCase = caseDraft()) {}
-  get(): Promise<DraftCase> {
+  constructor(private draft: DraftMission = caseDraft()) {}
+  get(): Promise<DraftMission> {
     return Promise.resolve(this.draft);
   }
-  replace(_missionId: string, expectedPlanVersion: number, next: DraftCase): Promise<void> {
+  replace(_missionId: string, expectedPlanVersion: number, next: DraftMission): Promise<void> {
     if (this.draft.plan.version !== expectedPlanVersion)
       return Promise.reject(new Error("CONFLICT"));
     this.draft = next;
@@ -70,7 +70,7 @@ class MemoryPlanStore implements PlanStore {
   }
   deleteDraft(_missionId: string, ownerId: string): Promise<void> {
     if (this.draft.ownerId !== ownerId) return Promise.reject(new Error("CASE_OWNERSHIP_REQUIRED"));
-    this.draft = undefined as unknown as DraftCase;
+    this.draft = undefined as unknown as DraftMission;
     return Promise.resolve();
   }
 }
@@ -78,7 +78,7 @@ class MemoryPlanStore implements PlanStore {
 describe("PlanService", () => {
   it("simulates without performing an external action", async () => {
     const service = new PlanService(new MemoryPlanStore());
-    await expect(service.simulate("case_12345678", "person_12345678")).resolves.toMatchObject({
+    await expect(service.simulate("mission_12345678", "person_12345678")).resolves.toMatchObject({
       completionLevel: "OUTCOME_CONFIRMED",
       externalActionPerformed: false
     });
@@ -86,7 +86,7 @@ describe("PlanService", () => {
 
   it("invalidates the prior hash and version after correction", async () => {
     const service = new PlanService(new MemoryPlanStore());
-    const revised = await service.revise("case_12345678", "person_12345678", 1, {
+    const revised = await service.revise("mission_12345678", "person_12345678", 1, {
       amountMinor: 5900
     });
     expect(revised.plan.version).toBe(2);
@@ -100,7 +100,7 @@ describe("PlanService", () => {
       ...initial,
       plan: { ...initial.plan, goalType: "GENERAL" }
     }));
-    const revised = await service.revise("case_12345678", "person_12345678", 1, {
+    const revised = await service.revise("mission_12345678", "person_12345678", 1, {
       promisor: "Northstar Argentina",
       result: "Replacement delivered",
       amountMinor: null,
@@ -128,7 +128,7 @@ describe("PlanService", () => {
 
   it("binds a corrected company email into a new plan version", async () => {
     const service = new PlanService(new MemoryPlanStore());
-    const revised = await service.revise("case_12345678", "person_12345678", 1, {
+    const revised = await service.revise("mission_12345678", "person_12345678", 1, {
       allowedRecipient: "support@northstar.example"
     });
     expect(revised.plan.allowedRecipient).toBe("support@northstar.example");
@@ -138,7 +138,7 @@ describe("PlanService", () => {
 
   it("switches channels only through trusted server configuration and invalidates approval fields", async () => {
     const service = new PlanService(new MemoryPlanStore());
-    const revised = await service.selectChannel("case_12345678", "person_12345678", 1, {
+    const revised = await service.selectChannel("mission_12345678", "person_12345678", 1, {
       channelType: "MANAGED_EMAIL",
       allowedRecipient: "support@northstar.example",
       senderIdentity: "DueBack <followup@dueback.example>",
@@ -159,7 +159,7 @@ describe("PlanService", () => {
 
   it("keeps the message derived from the current contract across a return-channel revision", async () => {
     const initial = caseDraft();
-    const configured: DraftCase = {
+    const configured: DraftMission = {
       ...initial,
       plan: {
         ...initial.plan,
@@ -174,7 +174,7 @@ describe("PlanService", () => {
       }
     };
     const service = new PlanService(new MemoryPlanStore(configured));
-    const revised = await service.revise("case_12345678", "person_12345678", 1, {
+    const revised = await service.revise("mission_12345678", "person_12345678", 1, {
       notificationRecipient: "OWNER@EXAMPLE.TEST"
     });
     expect(revised.plan).toMatchObject({
@@ -213,7 +213,7 @@ describe("PlanService", () => {
 
   it("lets a person resolve every critical field exposed by intake", async () => {
     const initial = caseDraft();
-    const blocked: DraftCase = {
+    const blocked: DraftMission = {
       ...initial,
       promiseDraft: {
         ...initial.promiseDraft,
@@ -233,7 +233,7 @@ describe("PlanService", () => {
     };
     const service = new PlanService(new MemoryPlanStore(blocked));
 
-    const revised = await service.revise("case_12345678", "person_12345678", 1, {
+    const revised = await service.revise("mission_12345678", "person_12345678", 1, {
       promisor: "Northstar Store",
       result: "USD 59 refund",
       amountMinor: 5900,
@@ -257,7 +257,7 @@ describe("PlanService", () => {
     const scheduleMission = vi.fn(() => Promise.resolve({}));
     const service = new PlanService(new MemoryPlanStore(), { scheduleMission });
     const approved = await service.approve({
-      missionId: "case_12345678",
+      missionId: "mission_12345678",
       ownerId: "person_12345678",
       expectedPlanVersion: 1,
       expectedPlanHash: hash,
@@ -270,7 +270,7 @@ describe("PlanService", () => {
       planHash: hash
     });
     expect(scheduleMission).toHaveBeenCalledWith(expect.objectContaining({
-      missionId: "case_12345678",
+      missionId: "mission_12345678",
       expectedVersion: 1,
       wakeAt: "2026-08-20T00:00:00.000Z"
     }));
@@ -280,7 +280,7 @@ describe("PlanService", () => {
     const service = new PlanService(new MemoryPlanStore());
     await expect(
       service.approve({
-        missionId: "case_12345678",
+        missionId: "mission_12345678",
         ownerId: "person_12345678",
         expectedPlanVersion: 1,
         expectedPlanHash: "sha256:stale",
@@ -292,7 +292,7 @@ describe("PlanService", () => {
   it("deletes a pre-activation draft owned by the person", async () => {
     const store = new MemoryPlanStore();
     const service = new PlanService(store);
-    await expect(service.deleteDraft("case_12345678", "person_12345678")).resolves.toBeUndefined();
+    await expect(service.deleteDraft("mission_12345678", "person_12345678")).resolves.toBeUndefined();
     await expect(store.get()).resolves.toBeUndefined();
   });
 });

@@ -6,7 +6,7 @@ describe("privacy-safe observability", () => {
     expect(
       safeEvent({
         runId: "run_12345678",
-        missionId: "case_12345678",
+        missionId: "mission_12345678",
         correlationId: "corr_12345678",
         event: "EVIDENCE_REJECTED",
         outcome: "REJECTED",
@@ -14,7 +14,7 @@ describe("privacy-safe observability", () => {
       })
     ).toEqual({
       runId: "run_12345678",
-      missionId: "case_12345678",
+      missionId: "mission_12345678",
       correlationId: "corr_12345678",
       event: "EVIDENCE_REJECTED",
       outcome: "REJECTED",
@@ -25,14 +25,14 @@ describe("privacy-safe observability", () => {
   it("drops raw source, prompt, email, and nested values from unknown fields", () => {
     expect(
       redactUnknownFields({
-        missionId: "case_12345678",
+        missionId: "mission_12345678",
         prompt: "secret prompt",
         email: "person@example.test",
         raw: "receipt contents",
         nested: { source: "private" },
         attempt: 2
       })
-    ).toEqual({ missionId: "case_12345678", attempt: 2 });
+    ).toEqual({ missionId: "mission_12345678", attempt: 2 });
   });
 
   it("drops channel addresses, message content, headers and credentials regardless of casing", () => {

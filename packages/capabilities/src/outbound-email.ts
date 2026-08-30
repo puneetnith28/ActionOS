@@ -42,7 +42,7 @@ export class OutboundEmailAdapter {
       if (reservation === "IN_FLIGHT") throw new Error("EMAIL_DELIVERY_IN_FLIGHT");
       return { receipt: reservation, duplicate: true };
     }
-    const completed = notification.kind === "CASE_COMPLETED";
+    const completed = notification.kind === "MISSION_COMPLETED";
     try {
       const receipt = await this.transport.send({
         recipient,

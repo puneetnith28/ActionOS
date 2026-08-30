@@ -24,7 +24,7 @@ describe("FirestoreCaseRepository", () => {
 
     const repository = new FirestoreCaseRepository(fakeFirestore);
     const snapshot: MissionSnapshot = {
-      missionId: "case_12345678",
+      missionId: "mission_12345678",
       ownerId: "person_12345678",
       state: "DRAFT",
       version: 0,

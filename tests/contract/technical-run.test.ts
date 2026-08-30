@@ -6,7 +6,7 @@ describe("technical run projection", () => {
     const steps = technicalRunProjection({
       hasTypedDraft: true,
       events: [{
-        eventId: "event_12345678", caseId: "case_12345678", sequence: 1,
+        eventId: "event_12345678", caseId: "mission_12345678", sequence: 1,
         type: "PLAN_APPROVED", actor: "PERSON", occurredAt: "2026-08-17T19:00:00.000Z",
         reasonCodes: ["CURRENT_PLAN_VERSION_APPROVED"], correlationId: "corr_private_abcdef123456",
         state: "READY"
@@ -23,7 +23,7 @@ describe("technical run projection", () => {
 
   it("shows rejected and accepted deterministic evidence decisions", () => {
     const base = {
-      candidate: { caseId: "case_12345678", issuedAt: "2026-08-17T19:00:00.000Z" },
+      candidate: { caseId: "mission_12345678", issuedAt: "2026-08-17T19:00:00.000Z" },
       recordedAt: "2026-08-17T19:00:01.000Z", correlationId: "corr_abcdef123456"
     };
     const steps = technicalRunProjection({

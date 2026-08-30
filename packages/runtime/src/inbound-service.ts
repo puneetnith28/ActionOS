@@ -61,23 +61,23 @@ export class InboundService {
     ))).filter((missionId): missionId is string => Boolean(missionId));
     const uniqueCases = [...new Set(correlations)];
     if (uniqueCases.length !== 1) {
-      return { status: "REJECTED", reasonCodes: [uniqueCases.length ? "AMBIGUOUS_CASE" : "UNKNOWN_CASE"] };
+      return { status: "REJECTED", reasonCodes: [uniqueCases.length ? "AMBIGUOUS_MISSION" : "UNKNOWN_MISSION"] };
     }
     const missionId = uniqueCases[0];
-    if (!missionId) return { status: "REJECTED", reasonCodes: ["UNKNOWN_CASE"] };
+    if (!missionId) return { status: "REJECTED", reasonCodes: ["UNKNOWN_MISSION"] };
     if (email.inReplyTo && this.cases.caseForProviderMessageId) {
-      const threadedCaseId = await this.cases.caseForProviderMessageId(email.inReplyTo);
+      const threadedMissionId = await this.cases.caseForProviderMessageId(email.inReplyTo);
       // Provider delivery IDs and RFC Message-IDs are different namespaces.
       // An indexed thread may veto an opaque route, but absence of an index
       // must not reject an otherwise exact case-specific reply address.
-      if (threadedCaseId && threadedCaseId !== missionId) {
+      if (threadedMissionId && threadedMissionId !== missionId) {
         return { status: "REJECTED", reasonCodes: ["THREAD_CORRELATION_MISMATCH"] };
       }
     }
     const item = await this.cases.get(missionId);
     if (!item) return { status: "REJECTED", reasonCodes: ["MISSION_NOT_FOUND"] };
     if (!["RUNNING", "WAITING_EXTERNAL"].includes(item.state)) {
-      return { status: "REJECTED", reasonCodes: ["CASE_NOT_ACCEPTING_INBOUND"] };
+      return { status: "REJECTED", reasonCodes: ["MISSION_NOT_ACCEPTING_INBOUND"] };
     }
     const correlationId = item.correlationId ?? `corr_${stableHash({ missionId }).slice(7, 31)}`;
     const expectedSender = address(item.plan.allowedRecipient);

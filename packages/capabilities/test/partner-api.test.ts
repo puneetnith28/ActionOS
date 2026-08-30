@@ -7,7 +7,7 @@ const proposal = {
   planHash: `sha256:${"a".repeat(64)}`,
   actionType: "SEND_FOLLOW_UP" as const,
   channelType: "PARTNER_API",
-  recipient: "partner_case_79",
+  recipient: "partner_mission_79",
   sharedFields: { transactionRef: "ORDER-79" }
 };
 
@@ -26,8 +26,8 @@ describe("controlled partner API fixture", () => {
       signingSecret: "fixture-secret",
       request
     });
-    await expect(adapter.execute(proposal, "action/case/1", { missionId: "case_12345678" }))
-      .resolves.toMatchObject({ channelType: "PARTNER_API", missionId: "case_12345678" });
+    await expect(adapter.execute(proposal, "action/case/1", { missionId: "mission_12345678" }))
+      .resolves.toMatchObject({ channelType: "PARTNER_API", missionId: "mission_12345678" });
     const [, init] = request.mock.calls[0] ?? [];
     const headers = init?.headers as Record<string, string> | undefined;
     expect(headers?.["idempotency-key"]).toBe("action/case/1");

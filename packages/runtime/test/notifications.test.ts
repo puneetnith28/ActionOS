@@ -10,10 +10,10 @@ import { InterventionService, type InterventionRecord } from "../src/interventio
 
 function fixture(): NotificationRecord {
   return notificationRecord({
-    missionId: "case_12345678",
+    missionId: "mission_12345678",
     ownerId: "owner_12345678",
     correlationId: "corr_12345678",
-    kind: "CASE_COMPLETED",
+    kind: "MISSION_COMPLETED",
     createdAt: "2026-08-16T12:00:00.000Z"
   });
 }
@@ -44,7 +44,7 @@ describe("notification delivery", () => {
       new NotificationDeliveryService(notificationStore, { deliver })
     );
     const input = {
-      missionId: "case_12345678", ownerId: "owner_12345678", correlationId: "corr_attention_12345678",
+      missionId: "mission_12345678", ownerId: "owner_12345678", correlationId: "corr_attention_12345678",
       kind: "EVIDENCE_CONFLICT" as const, reasonCodes: ["UNEXPECTED_SENDER"],
       notificationRecipient: "owner@example.test", createdAt: "2026-08-16T12:00:00.000Z"
     };
@@ -114,7 +114,7 @@ describe("notification delivery", () => {
     };
     const service = new MissionNotificationService(store, new NotificationDeliveryService(store, { deliver }));
     const input = {
-      missionId: "case_12345678", ownerId: "owner_12345678", kind: "CASE_FAILED" as const,
+      missionId: "mission_12345678", ownerId: "owner_12345678", kind: "MISSION_FAILED" as const,
       createdAt: "2026-08-16T12:00:00.000Z", correlationId: "corr_failed_12345678",
       recipient: "owner@example.test"
     };

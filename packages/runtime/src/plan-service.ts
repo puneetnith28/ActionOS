@@ -3,15 +3,15 @@ import { missionGoalSchema, resolutionPlanSchema } from "@actionos/contracts";
 import type { MissionGoal, ExecutionPlan } from "@actionos/contracts";
 import { stableHash } from "@actionos/domain";
 import { blockingCriticalFields, commercialOutcomeContract, followUpMessage } from "./intake-service";
-import type { DraftCase, PlanApproval } from "./intake-service";
+import type { DraftMission, PlanApproval } from "./intake-service";
 import { wakeIntent, type WakeIntent } from "./wake-outbox";
 
 export interface PlanStore {
-  get(missionId: string): Promise<DraftCase | undefined>;
+  get(missionId: string): Promise<DraftMission | undefined>;
   replace(
     missionId: string,
     expectedPlanVersion: number,
-    next: DraftCase,
+    next: DraftMission,
     wake?: WakeIntent
   ): Promise<void>;
   deleteDraft?(missionId: string, ownerId: string): Promise<void>;
@@ -177,18 +177,18 @@ export class PlanService {
     private readonly scheduler?: ActivationScheduler
   ) {}
 
-  private activationWake(draft: DraftCase, now: string): WakeIntent {
+  private activationWake(draft: DraftMission, now: string): WakeIntent {
     const requestedAt = draft.plan.followUpAt ?? draft.promiseDraft.dueAt?.value;
     const wakeAt = requestedAt && Date.parse(requestedAt) > Date.parse(now) ? requestedAt : now;
     return wakeIntent({ missionId: draft.missionId, expectedVersion: 1, wakeAt, createdAt: now });
   }
 
-  private async schedule(draft: DraftCase, now: string): Promise<void> {
+  private async schedule(draft: DraftMission, now: string): Promise<void> {
     if (!this.scheduler) return;
     await this.scheduler.scheduleMission(this.activationWake(draft, now));
   }
 
-  async inspect(missionId: string, ownerId: string): Promise<DraftCase> {
+  async inspect(missionId: string, ownerId: string): Promise<DraftMission> {
     const draft = await this.store.get(missionId);
     if (!draft) throw new Error("MISSION_NOT_FOUND");
     if (draft.ownerId !== ownerId) throw new Error("CASE_OWNERSHIP_REQUIRED");
@@ -214,7 +214,7 @@ export class PlanService {
     ownerId: string,
     expectedPlanVersion: number,
     revision: PlanRevision
-  ): Promise<DraftCase> {
+  ): Promise<DraftMission> {
     const current = await this.inspect(missionId, ownerId);
     if (current.plan.version !== expectedPlanVersion) throw new Error("STALE_PLAN_VERSION");
     if (current.state !== "AWAITING_APPROVAL") throw new Error("PLAN_NOT_EDITABLE");
@@ -225,7 +225,7 @@ export class PlanService {
       plan.followUpAt,
       plan.allowedRecipient
     );
-    const next: DraftCase = {
+    const next: DraftMission = {
       ...current,
       promiseDraft,
       outcomeContract: commercialOutcomeContract(
@@ -245,7 +245,7 @@ export class PlanService {
     ownerId: string,
     expectedPlanVersion: number,
     channel: TrustedChannelSelection
-  ): Promise<DraftCase> {
+  ): Promise<DraftMission> {
     const current = await this.inspect(missionId, ownerId);
     if (current.plan.version !== expectedPlanVersion) throw new Error("STALE_PLAN_VERSION");
     if (current.state !== "AWAITING_APPROVAL") throw new Error("PLAN_NOT_EDITABLE");
@@ -256,7 +256,7 @@ export class PlanService {
       plan.followUpAt,
       plan.allowedRecipient
     );
-    const next: DraftCase = {
+    const next: DraftMission = {
       ...current,
       plan,
       blockingFields,
@@ -272,7 +272,7 @@ export class PlanService {
     readonly expectedPlanVersion: number;
     readonly expectedPlanHash: string;
     readonly now: string;
-  }): Promise<DraftCase> {
+  }): Promise<DraftMission> {
     const current = await this.inspect(input.missionId, input.ownerId);
     if (
       current.state === "READY" &&
@@ -302,24 +302,24 @@ export class PlanService {
       approvedAt: input.now,
       expiresAt: current.plan.expiresAt
     };
-    const next: DraftCase = { ...current, state: "READY", boundary };
+    const next: DraftMission = { ...current, state: "READY", boundary };
     const wake = this.activationWake(next, input.now);
     await this.store.replace(input.missionId, input.expectedPlanVersion, next, wake);
     await this.schedule(next, input.now);
     return next;
   }
 
-  async reject(missionId: string, ownerId: string, expectedPlanVersion: number): Promise<DraftCase> {
+  async reject(missionId: string, ownerId: string, expectedPlanVersion: number): Promise<DraftMission> {
     const current = await this.inspect(missionId, ownerId);
     if (current.plan.version !== expectedPlanVersion) throw new Error("STALE_PLAN_VERSION");
-    const next: DraftCase = { ...current, state: "CANCELLED" };
+    const next: DraftMission = { ...current, state: "CANCELLED" };
     await this.store.replace(missionId, expectedPlanVersion, next);
     return next;
   }
 
   async deleteDraft(missionId: string, ownerId: string): Promise<void> {
     const current = await this.inspect(missionId, ownerId);
-    if (current.state === "READY") throw new Error("USE_ACTIVE_CASE_CONTROLS");
+    if (current.state === "READY") throw new Error("USE_ACTIVE_MISSION_CONTROLS");
     if (!this.store.deleteDraft) throw new Error("DRAFT_DELETION_UNAVAILABLE");
     await this.store.deleteDraft(missionId, ownerId);
   }

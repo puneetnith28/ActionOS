@@ -13,7 +13,7 @@ const requirement: VerificationRequirement = {
 
 const candidate: ExecutionOutcome = {
   outcomeId: "ev_1",
-  missionId: "case_1",
+  missionId: "mission_1",
   status: "OUTCOME_CONFIRMED",
   amountMinor: 7900,
   currency: "USD",
@@ -25,7 +25,7 @@ const candidate: ExecutionOutcome = {
 
 function verify(overrides: Partial<ExecutionOutcome> = {}) {
   return verifyOutcome({
-    missionId: "case_1",
+    missionId: "mission_1",
     requirement,
     candidate: { ...candidate, ...overrides },
     now: "2026-08-15T12:05:00.000Z"
@@ -43,7 +43,7 @@ describe("verifyOutcome", () => {
 
   it.each([
     ["acknowledgement", { status: "ACTION_ATTEMPTED" }, "INSUFFICIENT_STATUS"],
-    ["wrong mission", { missionId: "case_2" }, "WRONG_MISSION"],
+    ["wrong mission", { missionId: "mission_2" }, "WRONG_MISSION"],
     ["wrong amount", { amountMinor: 7800 }, "WRONG_AMOUNT"],
     ["missing amount", { amountMinor: undefined }, "WRONG_AMOUNT"],
     ["wrong currency", { currency: "ARS" }, "WRONG_CURRENCY"],
@@ -83,11 +83,11 @@ describe("verifyOutcome", () => {
       trustedIssuer: "merchant-sandbox"
     };
     const result = verifyOutcome({
-      missionId: "case_1",
+      missionId: "mission_1",
       requirement: replacementRequirement,
       candidate: {
         outcomeId: "ev_replacement",
-        missionId: "case_1",
+        missionId: "mission_1",
         status: "OUTCOME_CONFIRMED",
         transactionRef: "ORDER-79",
         subject: "damaged headphones",

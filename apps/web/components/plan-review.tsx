@@ -24,7 +24,7 @@ export function PlanReview({
   const copy = getReviewCopy(locale);
   const tr = (english: string, spanish: string, portuguese: string) =>
     locale === "es" ? spanish : locale === "pt" ? portuguese : english;
-  const [draft, setDraft] = useState<DraftCase>();
+  const [draft, setDraft] = useState<DraftMission>();
   const [simulation, setSimulation] = useState<PlanSimulation>();
   const [amount, setAmount] = useState("");
   const [company, setCompany] = useState("");

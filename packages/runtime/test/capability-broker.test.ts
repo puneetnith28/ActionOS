@@ -65,7 +65,7 @@ describe("ExecutionBroker", () => {
     };
     const broker = new ExecutionBroker(new MemoryActionStore(), adapter);
     const input = {
-      missionId: "case_1",
+      missionId: "mission_1",
       actionOrdinal: 1,
       policy,
       proposal,
@@ -89,7 +89,7 @@ describe("ExecutionBroker", () => {
     const broker = new ExecutionBroker(new MemoryActionStore(), adapter);
     await expect(
       broker.execute({
-        missionId: "case_1",
+        missionId: "mission_1",
         actionOrdinal: 1,
         policy,
         proposal: { ...proposal, recipient: "attacker@example.test" },
@@ -105,7 +105,7 @@ describe("ExecutionBroker", () => {
     );
     const broker = new ExecutionBroker(new MemoryActionStore(), { execute });
     const input = {
-      missionId: "case_1",
+      missionId: "mission_1",
       actionOrdinal: 1,
       policy,
       proposal,
@@ -123,11 +123,11 @@ describe("ExecutionBroker", () => {
       execute: () => Promise.reject(new CapabilityOutcomeUnknownError("TRANSPORT_UNKNOWN"))
     });
     await expect(broker.execute({
-      missionId: "case_1", actionOrdinal: 1, policy, proposal,
+      missionId: "mission_1", actionOrdinal: 1, policy, proposal,
       now: "2026-08-15T12:00:00.000Z", correlationId: "corr_12345678"
     })).rejects.toThrow("TRANSPORT_UNKNOWN");
     expect(markUnknown).toHaveBeenCalledWith(expect.objectContaining({
-      missionId: "case_1", channelType: "UNKNOWN",
+      missionId: "mission_1", channelType: "UNKNOWN",
       correlationId: "corr_12345678", reasonCode: "TRANSPORT_UNKNOWN"
     }));
     expect(JSON.stringify(markUnknown.mock.calls)).toContain('"recipientFingerprint":"sha256:');
@@ -142,7 +142,7 @@ describe("ExecutionBroker", () => {
     }));
     const broker = new ExecutionBroker(new MemoryActionStore(), { execute }, { reserveExternalSend });
     const input = {
-      missionId: "case_1",
+      missionId: "mission_1",
       actionOrdinal: 1,
       policy,
       proposal,
@@ -163,7 +163,7 @@ describe("ExecutionBroker", () => {
       reserveExternalSend: () => Promise.reject(new Error("EXTERNAL_SEND_BUDGET_EXHAUSTED"))
     });
     await expect(broker.execute({
-      missionId: "case_1",
+      missionId: "mission_1",
       actionOrdinal: 1,
       policy,
       proposal,

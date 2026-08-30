@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { makeDraftCase } from "../helpers/draft-case";
-import type { DraftCase } from "../../packages/runtime/src/intake-service";
+import { makeDraftMission } from "../helpers/draft-case";
+import type { DraftMission } from "../../packages/runtime/src/intake-service";
 
 const deployedUrl = process.env.DUEBACK_DEPLOYED_URL;
 
@@ -10,8 +10,8 @@ test.describe("channel plan authorization", () => {
   test("shows the exact contract, versions a return-address change, and approves an available channel", async ({
     page
   }) => {
-    const initial = makeDraftCase();
-    let draft: DraftCase = {
+    const initial = makeDraftMission();
+    let draft: DraftMission = {
       ...initial,
       plan: {
         ...initial.plan,
@@ -45,7 +45,7 @@ test.describe("channel plan authorization", () => {
         ])
       })
     );
-    await page.route("**/api/cases/case_12345678/plan", async (route) => {
+    await page.route("**/api/cases/mission_12345678/plan", async (route) => {
       if (route.request().method() === "GET") {
         await route.fulfill({
           status: 200,
@@ -78,7 +78,7 @@ test.describe("channel plan authorization", () => {
       });
     });
 
-    await page.goto(`${deployedUrl}/cases/case_12345678/review`);
+    await page.goto(`${deployedUrl}/cases/mission_12345678/review`);
     await expect(page.getByText("Follow-up for ORDER-79")).toBeVisible();
     await expect(page.getByText("3 sends", { exact: true })).toBeVisible();
     await expect(page.getByText("Every 2 days")).toBeVisible();
@@ -89,14 +89,14 @@ test.describe("channel plan authorization", () => {
     await expect(page.getByText(/Plan updated to version 2/)).toBeVisible();
     await page.getByRole("checkbox", { name: /authorized to contact/ }).check();
     await page.getByRole("button", { name: "Approve and start follow-up" }).click();
-    await expect(page).toHaveURL(/\/cases\/case_12345678\/result$/);
+    await expect(page).toHaveURL(/\/cases\/mission_12345678\/result$/);
   });
 
   test("keeps approval blocked when the active channel is unavailable", async ({ page }) => {
     const draft = {
-      ...makeDraftCase(),
+      ...makeDraftMission(),
       plan: {
-        ...makeDraftCase().plan,
+        ...makeDraftMission().plan,
         channelType: "MANAGED_EMAIL" as const,
         senderIdentity: "DueBack <followup@example.test>",
         replyRoute: "case+opaque@inbound.example.test",
@@ -124,14 +124,14 @@ test.describe("channel plan authorization", () => {
         ])
       })
     );
-    await page.route("**/api/cases/case_12345678/plan", (route) =>
+    await page.route("**/api/cases/mission_12345678/plan", (route) =>
       route.fulfill({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify(draft)
       })
     );
-    await page.goto(`${deployedUrl}/cases/case_12345678/review`);
+    await page.goto(`${deployedUrl}/cases/mission_12345678/review`);
     await page.getByRole("checkbox", { name: /authorized to contact/ }).check();
     await expect(page.getByRole("button", { name: "Approve and start follow-up" })).toBeDisabled();
     await expect(page.getByText(/cannot be activated until/)).toBeVisible();
@@ -140,7 +140,7 @@ test.describe("channel plan authorization", () => {
   test("lets a person edit Gemini's certain fields and creates a new contract version", async ({
     page
   }) => {
-    let draft = makeDraftCase();
+    let draft = makeDraftMission();
     await page.route("**/api/channels", (route) =>
       route.fulfill({
         status: 200,
@@ -161,7 +161,7 @@ test.describe("channel plan authorization", () => {
         ])
       })
     );
-    await page.route("**/api/cases/case_12345678/plan", async (route) => {
+    await page.route("**/api/cases/mission_12345678/plan", async (route) => {
       if (route.request().method() === "GET") {
         await route.fulfill({
           status: 200,
@@ -202,7 +202,7 @@ test.describe("channel plan authorization", () => {
       });
     });
 
-    await page.goto(`${deployedUrl}/cases/case_12345678/review`);
+    await page.goto(`${deployedUrl}/cases/mission_12345678/review`);
     await page.getByText("Edit what Gemini understood").click();
     await page.getByRole("textbox", { name: "Company name" }).fill("Northstar Argentina");
     await page.getByRole("textbox", { name: "Promised result" }).fill("USD 59 refund");
@@ -215,8 +215,8 @@ test.describe("channel plan authorization", () => {
   test("switches between available channels with a keyboard-operable authorization control", async ({
     page
   }) => {
-    const initial = makeDraftCase();
-    let draft: DraftCase = {
+    const initial = makeDraftMission();
+    let draft: DraftMission = {
       ...initial,
       plan: {
         ...initial.plan,
@@ -257,7 +257,7 @@ test.describe("channel plan authorization", () => {
         ])
       })
     );
-    await page.route("**/api/cases/case_12345678/plan", async (route) => {
+    await page.route("**/api/cases/mission_12345678/plan", async (route) => {
       if (route.request().method() === "GET") {
         await route.fulfill({
           status: 200,
@@ -286,7 +286,7 @@ test.describe("channel plan authorization", () => {
         body: JSON.stringify(draft)
       });
     });
-    await page.goto(`${deployedUrl}/cases/case_12345678/review`);
+    await page.goto(`${deployedUrl}/cases/mission_12345678/review`);
     const email = page.getByRole("button", { name: /Controlled email pilot/ });
     await email.focus();
     await page.keyboard.press("Enter");

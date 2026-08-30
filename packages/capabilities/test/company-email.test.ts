@@ -23,7 +23,7 @@ describe("company email action adapter", () => {
       replyDomain: "inbound.example.com",
       request
     });
-    await expect(adapter.execute(proposal, "action/case-79/1", { missionId: "case_12345678" }))
+    await expect(adapter.execute(proposal, "action/case-79/1", { missionId: "mission_12345678" }))
       .resolves.toMatchObject({ receiptId: "email_12345678" });
     expect(request).toHaveBeenCalledOnce();
     const [, init] = request.mock.calls[0] ?? [];
@@ -44,7 +44,7 @@ describe("company email action adapter", () => {
       return Promise.resolve(new Response(null, { status: 500 }));
     });
     const adapter = new CompanyEmailActionAdapter({ apiKey: "test-key", from: "a@example.com", replyDomain: "inbound.example.com", request });
-    await expect(adapter.execute({ ...proposal, recipient: "not-an-email" }, "key", { missionId: "case_12345678" }))
+    await expect(adapter.execute({ ...proposal, recipient: "not-an-email" }, "key", { missionId: "mission_12345678" }))
       .rejects.toThrow("COMPANY_EMAIL_RECIPIENT_INVALID");
     expect(request).not.toHaveBeenCalled();
   });
@@ -56,7 +56,7 @@ describe("company email action adapter", () => {
       replyDomain: "inbound.example.com",
       request: () => Promise.resolve(new Response(null, { status }))
     });
-    await expect(adapter.execute(proposal, "key", { missionId: "case_12345678" }))
+    await expect(adapter.execute(proposal, "key", { missionId: "mission_12345678" }))
       .rejects.toThrow(`COMPANY_EMAIL_TRANSPORT_${String(status)}`);
   });
 
@@ -65,13 +65,13 @@ describe("company email action adapter", () => {
       apiKey: "test-key", from: "a@example.com", replyDomain: "inbound.example.com",
       request: () => Promise.reject(new Error("socket closed"))
     });
-    await expect(networkFailure.execute(proposal, "key", { missionId: "case_12345678" }))
+    await expect(networkFailure.execute(proposal, "key", { missionId: "mission_12345678" }))
       .rejects.toMatchObject({ name: "CapabilityOutcomeUnknownError" });
     const missingReceipt = new CompanyEmailActionAdapter({
       apiKey: "test-key", from: "a@example.com", replyDomain: "inbound.example.com",
       request: () => Promise.resolve(new Response("{}"))
     });
-    await expect(missingReceipt.execute(proposal, "key", { missionId: "case_12345678" }))
+    await expect(missingReceipt.execute(proposal, "key", { missionId: "mission_12345678" }))
       .rejects.toMatchObject({ name: "CapabilityOutcomeUnknownError" });
   });
 });

@@ -3,7 +3,7 @@ import type { MissionControlStore, DeletionReceipt } from "../../packages/runtim
 import { MissionControlService } from "../../packages/runtime/src/mission-control";
 import type { FollowThroughMission } from "../../packages/runtime/src/mission-runner";
 import { handleMissionControl } from "../../apps/web/lib/control-controller";
-import { makeDraftCase } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-case";
 
 class ExceptionStore implements MissionControlStore {
   readonly evidenceIds = ["evidence_original_completion"];
@@ -49,7 +49,7 @@ function request(caseId: string, action: string, expectedVersion: number, reason
 
 describe("exception and reopen journey", () => {
   it("reopens, preserves proof, resumes within approval, then stops future work", async () => {
-    const draft = makeDraftCase();
+    const draft = makeDraftMission();
     const store = new ExceptionStore({
       caseId: draft.caseId,
       ownerId: draft.ownerId,
@@ -103,7 +103,7 @@ describe("exception and reopen journey", () => {
   });
 
   it("returns an observable deletion receipt", async () => {
-    const draft = makeDraftCase();
+    const draft = makeDraftMission();
     const store = new ExceptionStore({
       caseId: draft.caseId, ownerId: draft.ownerId, state: "READY", version: 2,
       plan: draft.plan, approval: { ownerId: draft.ownerId, planVersion: draft.plan.version, planHash: draft.plan.planHash, expiresAt: draft.plan.expiresAt },

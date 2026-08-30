@@ -32,7 +32,7 @@ export function CaseTimeline({
           PLAN_APPROVED: "Plan approved by you",
           ACTION_RESULT: copy.actionTitle,
           EVIDENCE_RESULT: copy.evidenceTitle,
-          CASE_CONTROL: "Mission control used"
+          MISSION_CONTROL: "Mission control used"
         };
         const rejected = event.reasonCodes.some((reason) =>
           ["INSUFFICIENT", "WRONG", "INVALID", "EXHAUSTED", "DENIED"].some((token) =>

@@ -71,7 +71,7 @@ describe("cross-package domain invariants", () => {
     );
     const broker = new ExecutionBroker(new ContractStore(), { execute });
     const action = {
-      caseId: "case_1",
+      caseId: "mission_1",
       actionOrdinal: 1,
       policy,
       proposal,
@@ -91,7 +91,7 @@ describe("cross-package domain invariants", () => {
     };
     const acknowledgement: EvidenceCandidate = {
       evidenceId: "evidence_1",
-      caseId: "case_1",
+      caseId: "mission_1",
       level: "REQUEST_ACKNOWLEDGED",
       amountMinor: 7900,
       currency: "USD",
@@ -101,7 +101,7 @@ describe("cross-package domain invariants", () => {
       signatureValid: true
     };
     const verification = verifyEvidence({
-      caseId: "case_1",
+      caseId: "mission_1",
       requirement,
       candidate: acknowledgement,
       now: "2026-08-15T12:05:00.000Z"
@@ -109,7 +109,7 @@ describe("cross-package domain invariants", () => {
     expect(verification.accepted).toBe(false);
 
     const running: CaseSnapshot = {
-      caseId: "case_1",
+      caseId: "mission_1",
       ownerId: approval.ownerId,
       state: "RUNNING",
       version: 3,

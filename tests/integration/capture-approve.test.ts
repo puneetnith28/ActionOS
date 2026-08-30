@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import { PlanService, type PlanStore } from "../../packages/runtime/src/plan-service";
-import type { DraftCase } from "../../packages/runtime/src/intake-service";
-import { makeDraftCase, testHash } from "../helpers/draft-case";
+import type { DraftMission } from "../../packages/runtime/src/intake-service";
+import { makeDraftMission, testHash } from "../helpers/draft-case";
 
 class MemoryStore implements PlanStore {
-  constructor(public current: DraftCase = makeDraftCase()) {}
-  get(caseId: string): Promise<DraftCase | undefined> {
+  constructor(public current: DraftMission = makeDraftMission()) {}
+  get(caseId: string): Promise<DraftMission | undefined> {
     return Promise.resolve(caseId === this.current.caseId ? this.current : undefined);
   }
-  replace(_caseId: string, expectedPlanVersion: number, next: DraftCase): Promise<void> {
+  replace(_caseId: string, expectedPlanVersion: number, next: DraftMission): Promise<void> {
     if (this.current.plan.version !== expectedPlanVersion) throw new Error("CONFLICT");
     this.current = next;
     return Promise.resolve();
@@ -19,14 +19,14 @@ describe("capture then approve boundary", () => {
   it("performs no external action before approval", async () => {
     const externalAction = vi.fn();
     const service = new PlanService(new MemoryStore());
-    await service.inspect("case_12345678", "person_12345678");
-    await service.simulate("case_12345678", "person_12345678");
+    await service.inspect("mission_12345678", "person_12345678");
+    await service.simulate("mission_12345678", "person_12345678");
     expect(externalAction).not.toHaveBeenCalled();
   });
 
   it("invalidates approval material when a correction creates a new plan", async () => {
     const service = new PlanService(new MemoryStore());
-    const revised = await service.revise("case_12345678", "person_12345678", 1, {
+    const revised = await service.revise("mission_12345678", "person_12345678", 1, {
       amountMinor: 5900
     });
     expect(revised.plan.version).toBe(2);
@@ -46,7 +46,7 @@ describe("capture then approve boundary", () => {
     const expired = new PlanService(new MemoryStore());
     await expect(
       expired.approve({
-        caseId: "case_12345678",
+        caseId: "mission_12345678",
         ownerId: "person_12345678",
         expectedPlanVersion: 1,
         expectedPlanHash: testHash,
@@ -56,7 +56,7 @@ describe("capture then approve boundary", () => {
 
     const active = new PlanService(new MemoryStore());
     const approval = {
-      caseId: "case_12345678",
+      caseId: "mission_12345678",
       ownerId: "person_12345678",
       expectedPlanVersion: 1,
       expectedPlanHash: testHash,
@@ -68,10 +68,10 @@ describe("capture then approve boundary", () => {
 
   it("denies cross-owner inspection and control", async () => {
     const service = new PlanService(new MemoryStore());
-    await expect(service.inspect("case_12345678", "person_attacker")).rejects.toThrow(
+    await expect(service.inspect("mission_12345678", "person_attacker")).rejects.toThrow(
       "CASE_OWNERSHIP_REQUIRED"
     );
-    await expect(service.reject("case_12345678", "person_attacker", 1)).rejects.toThrow(
+    await expect(service.reject("mission_12345678", "person_attacker", 1)).rejects.toThrow(
       "CASE_OWNERSHIP_REQUIRED"
     );
   });

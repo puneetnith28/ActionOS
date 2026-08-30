@@ -3,11 +3,11 @@ import { emailEventFixtures } from "../../packages/test-fixtures/src/email-event
 import { InboundService } from "../../packages/runtime/src/inbound-service";
 import type { EvidenceService } from "../../packages/runtime/src/evidence-service";
 import type { InterventionService } from "../../packages/runtime/src/interventions";
-import { makeDraftCase } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-case";
 
 describe("hostile inbound email", () => {
   it("treats injected instructions as data and keeps acknowledgement below DONE", async () => {
-    const draft = makeDraftCase();
+    const draft = makeDraftMission();
     const item = {
       caseId: draft.caseId,
       ownerId: draft.ownerId,

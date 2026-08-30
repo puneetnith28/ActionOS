@@ -1,6 +1,6 @@
 import { stableHash } from "@actionos/domain";
 
-export type NotificationKind = "NEEDS_ATTENTION" | "CASE_COMPLETED" | "CASE_FAILED";
+export type NotificationKind = "NEEDS_ATTENTION" | "MISSION_COMPLETED" | "MISSION_FAILED";
 
 export interface NotificationRecord {
   readonly notificationId: string;

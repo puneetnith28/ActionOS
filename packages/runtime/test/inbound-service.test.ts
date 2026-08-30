@@ -130,7 +130,7 @@ describe("inbound service", () => {
       { verifyOutcome: vi.fn() } as unknown as VerificationService,
       { raise: vi.fn() } as unknown as InterventionService
     );
-    await expect(service.process(email, "2026-08-16T00:00:00.000Z")).resolves.toMatchObject({ status: "REJECTED", reasonCodes: ["UNKNOWN_CASE"] });
+    await expect(service.process(email, "2026-08-16T00:00:00.000Z")).resolves.toMatchObject({ status: "REJECTED", reasonCodes: ["UNKNOWN_MISSION"] });
     expect(interpret).not.toHaveBeenCalled();
   });
 
@@ -140,7 +140,7 @@ describe("inbound service", () => {
       {
         get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(),
         caseForReplyRoute: () => Promise.resolve(item.missionId),
-        caseForProviderMessageId: () => Promise.resolve("case_other")
+        caseForProviderMessageId: () => Promise.resolve("mission_other")
       },
       { interpret },
       { verifyOutcome: vi.fn() } as unknown as VerificationService,
@@ -195,14 +195,14 @@ describe("inbound service", () => {
       {
         get: () => Promise.resolve(item),
         compareAndSet: () => Promise.resolve(),
-        caseForReplyRoute: (route) => Promise.resolve(route.includes("other") ? "case_other" : item.missionId)
+        caseForReplyRoute: (route) => Promise.resolve(route.includes("other") ? "mission_other" : item.missionId)
       },
       { interpret },
       { verifyOutcome: vi.fn() } as unknown as VerificationService,
       { raise: vi.fn() } as unknown as InterventionService
     );
     await expect(ambiguous.process({ ...email, to: [email.to[0] ?? "", "case+other@inbound.example.test"] }, "2026-08-16T00:00:00.000Z"))
-      .resolves.toMatchObject({ status: "REJECTED", reasonCodes: ["AMBIGUOUS_CASE"] });
+      .resolves.toMatchObject({ status: "REJECTED", reasonCodes: ["AMBIGUOUS_MISSION"] });
 
     const terminal = new InboundService(
       {
@@ -215,7 +215,7 @@ describe("inbound service", () => {
       { raise: vi.fn() } as unknown as InterventionService
     );
     await expect(terminal.process(email, "2026-08-16T00:00:00.000Z"))
-      .resolves.toMatchObject({ status: "REJECTED", reasonCodes: ["CASE_NOT_ACCEPTING_INBOUND"] });
+      .resolves.toMatchObject({ status: "REJECTED", reasonCodes: ["MISSION_NOT_ACCEPTING_INBOUND"] });
     expect(interpret).not.toHaveBeenCalled();
   });
 

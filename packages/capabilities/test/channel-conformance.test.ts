@@ -41,7 +41,7 @@ function cases(): readonly [string, CapabilityExecutor][] {
 describe("common channel adapter contract", () => {
   it.each(cases())("%s consumes one authorized proposal and returns a receipt", async (_name, adapter) => {
     const receipt = await adapter.execute(proposal, "action/case/1", {
-      missionId: "case_12345678",
+      missionId: "mission_12345678",
       correlationId: "corr_12345678"
     });
     expect(typeof receipt.receiptId).toBe("string");

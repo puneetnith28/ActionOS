@@ -3,13 +3,13 @@ import { acceptUpload } from "../../packages/capabilities/src/upload";
 import { validateCapabilityExecution } from "../../packages/domain/src/capability-validator";
 import { ExecutionBroker } from "../../packages/runtime/src/capability-broker";
 import { MissionRunner, type FollowThroughMission } from "../../packages/runtime/src/mission-runner";
-import { IntakeService, type DraftCase } from "../../packages/runtime/src/intake-service";
+import { IntakeService, type DraftMission } from "../../packages/runtime/src/intake-service";
 import { assertLogicalActionBudget, redactedPublicError } from "../../apps/web/lib/security-limits";
-import { makeDraftCase } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-case";
 
 describe("hostile input and budget boundaries", () => {
   it("treats prompt injection as data and denies its requested authority", () => {
-    const draft = makeDraftCase();
+    const draft = makeDraftMission();
     const decision = validateCapabilityExecution(
       {
         ownerId: draft.ownerId,
@@ -56,7 +56,7 @@ describe("hostile input and budget boundaries", () => {
   });
 
   it("deduplicates before consuming another new-case budget", async () => {
-    let saved: DraftCase | undefined;
+    let saved: DraftMission | undefined;
     const consume = vi.fn(() => Promise.resolve());
     const service = new IntakeService(
       {
@@ -66,7 +66,7 @@ describe("hostile input and budget boundaries", () => {
           return Promise.resolve();
         }
       },
-      { extract: () => Promise.resolve(makeDraftCase().promiseDraft) },
+      { extract: () => Promise.resolve(makeDraftMission().promiseDraft) },
       "merchant@controlled.test",
       { consume }
     );
@@ -83,7 +83,7 @@ describe("hostile input and budget boundaries", () => {
   });
 
   it("moves an over-budget action to attention without calling the adapter", async () => {
-    const draft = makeDraftCase();
+    const draft = makeDraftMission();
     let item: FollowThroughMission = {
       caseId: draft.caseId,
       ownerId: draft.ownerId,

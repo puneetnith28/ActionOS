@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { caseExportText } from "../../apps/web/lib/case-export";
 import { handleCaseExport } from "../../apps/web/lib/export-controller";
-import { makeDraftCase } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-case";
 
 describe("safe case export", () => {
   it("contains the decision and limitation without access capabilities or raw identifiers", () => {
-    const draft = makeDraftCase();
+    const draft = makeDraftMission();
     const item = {
       ...draft, state: "DONE", version: 3,
       plan: { ...draft.plan, allowedRecipient: "private@example.com", replyRoute: "case+secret@inbound.example.com", planHash: `sha256:${"a".repeat(64)}` }
@@ -27,7 +27,7 @@ describe("safe case export", () => {
   });
 
   it("returns 404 without reading evidence for another owner", async () => {
-    const draft = makeDraftCase();
+    const draft = makeDraftMission();
     let evidenceRead = false;
     const response = await handleCaseExport(new Request("https://dueback.test/export"), draft.caseId, {
       authenticate: () => Promise.resolve({ uid: "other_12345678" }),

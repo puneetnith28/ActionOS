@@ -10,7 +10,7 @@ const boundary: ExecutionBoundary = {
 };
 
 const running: MissionSnapshot = {
-  missionId: "case_1",
+  missionId: "mission_1",
   ownerId: "person_1",
   state: "RUNNING",
   version: 3,
@@ -85,7 +85,7 @@ describe("reduceMission", () => {
 
   it("rejects an illegal direct transition from draft to running", () => {
     const draft: MissionSnapshot = {
-      missionId: "case_1",
+      missionId: "mission_1",
       ownerId: "person_1",
       state: "DRAFT",
       version: 0,

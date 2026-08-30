@@ -1,6 +1,6 @@
 const basePlan = {
   planId: "plan_projection_1234",
-  missionId: "case_projection_1234",
+  missionId: "mission_projection_1234",
   ownerId: "person_projection_1234",
   version: 1,
   goal: "Receive the promised USD 59 refund",

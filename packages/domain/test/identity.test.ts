@@ -3,7 +3,7 @@ import {
   capabilityIdempotencyKey,
   artifactDedupeKey,
   callbackDedupeKey,
-  caseDedupeKey,
+  missionDedupeKey,
   eventDedupeKey,
   stableHash
 } from "../src/identity";
@@ -14,18 +14,18 @@ describe("stable identities", () => {
   });
 
   it("keeps retries on one logical action key", () => {
-    const input = { missionId: "case_1", planVersion: 1, actionType: "SEND_FOLLOW_UP", ordinal: 1 };
+    const input = { missionId: "mission_1", planVersion: 1, actionType: "SEND_FOLLOW_UP", ordinal: 1 };
     expect(capabilityIdempotencyKey(input)).toBe(capabilityIdempotencyKey(input));
   });
 
   it("separates external events by source identity", () => {
-    expect(eventDedupeKey({ source: "merchant", externalId: "1", missionId: "case_1" })).not.toBe(
-      eventDedupeKey({ source: "merchant", externalId: "2", missionId: "case_1" })
+    expect(eventDedupeKey({ source: "merchant", externalId: "1", missionId: "mission_1" })).not.toBe(
+      eventDedupeKey({ source: "merchant", externalId: "2", missionId: "mission_1" })
     );
   });
 
   it("namespaces case, artifact, and callback identities", () => {
-    const caseKey = caseDedupeKey({
+    const caseKey = missionDedupeKey({
       ownerId: "person_1",
       sourceChannel: "upload",
       sourceIdentity: "source_1"
@@ -37,7 +37,7 @@ describe("stable identities", () => {
     const callbackKey = callbackDedupeKey({
       issuer: "merchant",
       nonce: "nonce_1",
-      missionId: "case_1"
+      missionId: "mission_1"
     });
     expect(new Set([caseKey, artifactKey, callbackKey])).toHaveLength(3);
   });

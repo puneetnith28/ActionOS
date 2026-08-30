@@ -2,23 +2,23 @@ import { describe, expect, it } from "vitest";
 import type { ExecutionOutcomeContract } from "@actionos/contracts";
 import {
   VerificationService,
-  type EvidenceCase,
-  type EvidenceCaseStore,
+  type EvidenceMission,
+  type EvidenceMissionStore,
   type EvidenceRecord
 } from "../src/verification-service";
 import type { NotificationRecord, NotificationStore } from "../src/notifications";
 import { makeDraft } from "./support";
 
-class Cases implements EvidenceCaseStore {
+class Cases implements EvidenceMissionStore {
   records: EvidenceRecord[] = [];
-  constructor(public item: EvidenceCase) {}
-  get(): Promise<EvidenceCase> {
+  constructor(public item: EvidenceMission) {}
+  get(): Promise<EvidenceMission> {
     return Promise.resolve(this.item);
   }
   record(input: {
     missionId: string;
     expectedVersion: number;
-    nextState: EvidenceCase["state"];
+    nextState: EvidenceMission["state"];
     nextWakeAt?: string;
     verification: EvidenceRecord;
   }): Promise<{ duplicate: boolean }> {
@@ -48,7 +48,7 @@ class Notifications implements NotificationStore {
 function candidate(status: ExecutionOutcomeContract["status"]): ExecutionOutcomeContract {
   return {
     outcomeId: `evidence_${status}`,
-    missionId: "case_12345678",
+    missionId: "mission_12345678",
     status,
     amountMinor: 7900,
     currency: "USD",
