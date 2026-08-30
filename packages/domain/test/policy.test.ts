@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { authorizeAction } from "../src/policy";
-import type { ExecutionPolicy, ProposedAction } from "../src/policy";
+import { validateCapabilityExecution } from "../src/capability-validator";
+import type { CapabilityPolicy, ProposedCapabilityExecution } from "../src/capability-validator";
 
-const policy: ExecutionPolicy = {
+const policy: CapabilityPolicy = {
   ownerId: "person_1",
   planVersion: 1,
   planHash: "sha256:plan",
@@ -18,7 +18,7 @@ const policy: ExecutionPolicy = {
   }
 };
 
-const proposal: ProposedAction = {
+const proposal: ProposedCapabilityExecution = {
   ownerId: "person_1",
   planVersion: 1,
   planHash: "sha256:plan",
@@ -28,9 +28,9 @@ const proposal: ProposedAction = {
   sharedFields: { transactionRef: "ORDER-79" }
 };
 
-describe("authorizeAction", () => {
+describe("validateCapabilityExecution", () => {
   it("authorizes only the exact approved action", () => {
-    expect(authorizeAction(policy, proposal, "2026-08-15T12:00:00.000Z")).toEqual({
+    expect(validateCapabilityExecution(policy, proposal, "2026-08-15T12:00:00.000Z")).toEqual({
       authorized: true,
       reasonCodes: ["AUTHORIZED"]
     });
@@ -44,7 +44,7 @@ describe("authorizeAction", () => {
     ["different owner", { ownerId: "person_2" }, "OWNER_MISMATCH"],
     ["changed plan", { planVersion: 2 }, "PLAN_MISMATCH"]
   ] as const)("blocks %s", (_name, override, reason) => {
-    const decision = authorizeAction(
+    const decision = validateCapabilityExecution(
       { ...policy },
       { ...proposal, ...override },
       "2026-08-15T12:00:00.000Z"

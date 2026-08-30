@@ -1,6 +1,6 @@
 import type { ExecutionBoundary } from "./types";
 
-export interface ExecutionPolicy {
+export interface CapabilityPolicy {
   readonly ownerId: string;
   readonly planVersion: number;
   readonly planHash: string;
@@ -11,7 +11,7 @@ export interface ExecutionPolicy {
   readonly boundary: ExecutionBoundary;
 }
 
-export interface ProposedAction {
+export interface ProposedCapabilityExecution {
   readonly ownerId: string;
   readonly planVersion: number;
   readonly planHash: string;
@@ -38,9 +38,9 @@ export interface AuthorizationDecision {
   readonly reasonCodes: readonly AuthorizationReason[];
 }
 
-export function authorizeAction(
-  policy: ExecutionPolicy,
-  proposal: ProposedAction,
+export function validateCapabilityExecution(
+  policy: CapabilityPolicy,
+  proposal: ProposedCapabilityExecution,
   now: string
 ): AuthorizationDecision {
   const reasons: AuthorizationReason[] = [];

@@ -1,5 +1,5 @@
 import { stableHash } from "@actionos/domain";
-import type { ProposedAction } from "@actionos/domain";
+import type { ProposedCapabilityExecution } from "@actionos/domain";
 import {
   ActionOutcomeUnknownError,
   type ActionReceipt,
@@ -13,7 +13,7 @@ export interface CompanyEmailConfig {
   readonly request?: typeof globalThis.fetch;
 }
 
-function messageFor(proposal: ProposedAction, missionId: string) {
+function messageFor(proposal: ProposedCapabilityExecution, missionId: string) {
   const reference = proposal.sharedFields.transactionRef ?? missionId;
   const amount = proposal.sharedFields.amountMinor;
   const currency = proposal.sharedFields.currency;
@@ -44,7 +44,7 @@ export class CompanyEmailActionAdapter implements ClosedActionAdapter {
   }
 
   async execute(
-    proposal: ProposedAction,
+    proposal: ProposedCapabilityExecution,
     idempotencyKey: string,
     context: { readonly missionId: string; readonly correlationId?: string }
   ): Promise<ActionReceipt> {

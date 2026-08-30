@@ -7,7 +7,7 @@ import {
   type ActionRecordStore,
   type Reservation
 } from "../../packages/runtime/src/action-broker";
-import type { ApprovedActionPolicy, ProposedAction } from "../../packages/domain/src/index";
+import type { ApprovedActionPolicy, ProposedCapabilityExecution } from "../../packages/domain/src/index";
 
 class Records implements ActionRecordStore {
   readonly values = new Map<string, Reservation>();
@@ -45,7 +45,7 @@ const policy: ApprovedActionPolicy = {
   sharedFields: ["transactionRef", "amountMinor", "currency"],
   approval
 };
-const proposal: ProposedAction = {
+const proposal: ProposedCapabilityExecution = {
   ownerId: "person_1",
   planVersion: 1,
   planHash: hash,

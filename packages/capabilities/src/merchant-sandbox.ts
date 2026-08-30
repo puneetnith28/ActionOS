@@ -1,4 +1,4 @@
-import type { ProposedAction } from "@actionos/domain";
+import type { ProposedCapabilityExecution } from "@actionos/domain";
 import type { ActionReceipt, ClosedActionAdapter } from "@actionos/runtime/action-broker";
 
 export interface MerchantSandboxAdapterConfig {
@@ -16,7 +16,7 @@ export class MerchantSandboxAdapter implements ClosedActionAdapter {
   }
 
   async execute(
-    proposal: ProposedAction,
+    proposal: ProposedCapabilityExecution,
     idempotencyKey: string,
     context: { readonly missionId: string; readonly correlationId?: string }
   ): Promise<ActionReceipt> {

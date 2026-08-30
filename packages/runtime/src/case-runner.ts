@@ -1,5 +1,5 @@
 import type { ExecutionPlan } from "@actionos/contracts";
-import type { ExecutionBoundary, MissionState, VerificationStatus, ProposedAction } from "@actionos/domain";
+import type { ExecutionBoundary, MissionState, VerificationStatus, ProposedCapabilityExecution } from "@actionos/domain";
 import { ActionOutcomeUnknownError, type ActionBroker, type BrokerResult } from "./action-broker";
 import type { InterventionService } from "./interventions";
 import type { CaseNotificationService } from "./notifications";
@@ -56,7 +56,7 @@ export type RunResult =
   | { readonly status: "FAILED"; readonly reason: "ACTION_DENIED" }
   | { readonly status: "NEEDS_ATTENTION"; readonly reason: "RECOVERY_EXHAUSTED" | "ACTION_BUDGET_EXHAUSTED" };
 
-function actionProposal(item: FollowThroughCase): ProposedAction {
+function actionProposal(item: FollowThroughCase): ProposedCapabilityExecution {
   const requirement = item.plan.evidenceRequirements[0];
   if (!requirement) throw new Error("EVIDENCE_REQUIREMENT_MISSING");
   const sharedFields: Record<string, string> = { transactionRef: requirement.transactionRef };

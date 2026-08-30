@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { authorizeAction } from "../../packages/domain/src/policy";
+import { validateCapabilityExecution } from "../../packages/domain/src/capability-validator";
 import { EvidenceService } from "../../packages/runtime/src/evidence-service";
 import { makeDraftCase } from "../helpers/draft-case";
 
@@ -8,7 +8,7 @@ describe("case control races", () => {
     const draft = makeDraftCase();
     const requirement = draft.plan.evidenceRequirements[0];
     expect(requirement).toBeTruthy();
-    const decision = authorizeAction({
+    const decision = validateCapabilityExecution({
       ownerId: draft.ownerId,
       planVersion: draft.plan.version,
       planHash: draft.plan.planHash,

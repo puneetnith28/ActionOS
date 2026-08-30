@@ -1,7 +1,7 @@
 import type { ChannelCapability, ChannelType } from "@actionos/contracts";
 import type { ClosedActionAdapter } from "./action-broker";
 import type { ActionReceipt } from "./action-broker";
-import type { ProposedAction } from "@actionos/domain";
+import type { ProposedCapabilityExecution } from "@actionos/domain";
 
 export interface RegisteredCapability {
   readonly capability: ChannelCapability;
@@ -12,7 +12,7 @@ export class RoutingCapabilityAdapter implements ClosedActionAdapter {
   constructor(private readonly registry: CapabilityRegistry) {}
 
   execute(
-    proposal: ProposedAction,
+    proposal: ProposedCapabilityExecution,
     idempotencyKey: string,
     context: { readonly missionId: string; readonly correlationId?: string }
   ): Promise<ActionReceipt> {

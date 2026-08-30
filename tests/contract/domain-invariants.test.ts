@@ -13,7 +13,7 @@ import {
   type CaseSnapshot,
   type EvidenceCandidate,
   type EvidenceRequirement,
-  type ProposedAction
+  type ProposedCapabilityExecution
 } from "../../packages/domain/src/index";
 
 class ContractStore implements ActionRecordStore {
@@ -55,7 +55,7 @@ const policy: ApprovedActionPolicy = {
   approval
 };
 
-const proposal: ProposedAction = {
+const proposal: ProposedCapabilityExecution = {
   ownerId: approval.ownerId,
   planVersion: approval.planVersion,
   planHash: approval.planHash,

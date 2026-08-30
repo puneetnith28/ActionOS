@@ -6,9 +6,9 @@ import type {
   ClosedActionAdapter,
   Reservation
 } from "../src/action-broker";
-import type { ExecutionPolicy, ProposedAction } from "@actionos/domain";
+import type { CapabilityPolicy, ProposedCapabilityExecution } from "@actionos/domain";
 
-const policy: ExecutionPolicy = {
+const policy: CapabilityPolicy = {
   ownerId: "person_1",
   planVersion: 1,
   planHash: "sha256:plan",
@@ -23,7 +23,7 @@ const policy: ExecutionPolicy = {
   }
 };
 
-const proposal: ProposedAction = {
+const proposal: ProposedCapabilityExecution = {
   ownerId: "person_1",
   planVersion: 1,
   planHash: "sha256:plan",

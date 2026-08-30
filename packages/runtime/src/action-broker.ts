@@ -1,5 +1,5 @@
-import { actionIdempotencyKey, authorizeAction, stableHash } from "@actionos/domain";
-import type { ExecutionPolicy, AuthorizationDecision, ProposedAction } from "@actionos/domain";
+import { actionIdempotencyKey, validateCapabilityExecution, stableHash } from "@actionos/domain";
+import type { CapabilityPolicy, AuthorizationDecision, ProposedCapabilityExecution } from "@actionos/domain";
 
 export interface ActionReceipt {
   readonly receiptId: string;
@@ -36,7 +36,7 @@ export interface ActionRecordStore {
 
 export interface ClosedActionAdapter {
   execute(
-    proposal: ProposedAction,
+    proposal: ProposedCapabilityExecution,
     idempotencyKey: string,
     context: { readonly missionId: string; readonly correlationId?: string }
   ): Promise<ActionReceipt>;
@@ -82,12 +82,12 @@ export class ActionBroker {
   async execute(input: {
     readonly missionId: string;
     readonly actionOrdinal: number;
-    readonly policy: ExecutionPolicy;
-    readonly proposal: ProposedAction;
+    readonly policy: CapabilityPolicy;
+    readonly proposal: ProposedCapabilityExecution;
     readonly now: string;
     readonly correlationId?: string;
   }): Promise<BrokerResult> {
-    const decision = authorizeAction(input.policy, input.proposal, input.now);
+    const decision = validateCapabilityExecution(input.policy, input.proposal, input.now);
     if (!decision.authorized) return { status: "DENIED", decision };
 
     const idempotencyKey = actionIdempotencyKey({

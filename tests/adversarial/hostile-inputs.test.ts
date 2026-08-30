@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { acceptUpload } from "../../packages/capabilities/src/upload";
-import { authorizeAction } from "../../packages/domain/src/policy";
+import { validateCapabilityExecution } from "../../packages/domain/src/capability-validator";
 import { ActionBroker } from "../../packages/runtime/src/action-broker";
 import { CaseRunner, type FollowThroughCase } from "../../packages/runtime/src/case-runner";
 import { IntakeService, type DraftCase } from "../../packages/runtime/src/intake-service";
@@ -10,7 +10,7 @@ import { makeDraftCase } from "../helpers/draft-case";
 describe("hostile input and budget boundaries", () => {
   it("treats prompt injection as data and denies its requested authority", () => {
     const draft = makeDraftCase();
-    const decision = authorizeAction(
+    const decision = validateCapabilityExecution(
       {
         ownerId: draft.ownerId,
         planVersion: draft.plan.version,

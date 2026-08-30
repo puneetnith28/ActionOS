@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { authorizeAction } from "../../packages/domain/src/policy";
+import { validateCapabilityExecution } from "../../packages/domain/src/capability-validator";
 import { reduceCase } from "../../packages/domain/src/reducer";
 import { verifyEvidence } from "../../packages/domain/src/verifier";
 import { assertManifestRequirement } from "../../packages/domain/src/promise-types";
@@ -30,7 +30,7 @@ describe("promise type portability", () => {
           return [field, String(value)];
         })
       );
-      const authorization = authorizeAction(
+      const authorization = validateCapabilityExecution(
         {
           ownerId: plan.ownerId,
           planVersion: plan.version,
