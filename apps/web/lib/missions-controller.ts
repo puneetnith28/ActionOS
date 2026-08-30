@@ -33,7 +33,7 @@ function analysisSummary(job: AnalysisJob): CaseSummary {
       : "You can leave — ActionOS will keep working",
     attentionRequired: job.status === "FAILED",
     channelLabel: "Private analysis",
-    detailPath: `/cases/${job.missionId}/analyzing`
+    detailPath: `/missions/${job.missionId}/analyzing`
   };
 }
 
@@ -117,7 +117,7 @@ export function caseSummary(item: FollowThroughMission): CaseSummary {
   };
 }
 
-export async function handleCases(
+export async function handleMissions(
   request: Request,
   dependencies: {
     authenticate: (request: Request) => Promise<{ uid: string }>;

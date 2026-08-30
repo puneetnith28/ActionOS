@@ -51,7 +51,7 @@ export function PlanReview({
 
   async function api(method: "GET" | "POST", body?: object): Promise<PlanResponse> {
     const token = await anonymousIdToken();
-    const response = await fetch(`/api/cases/${missionId}/plan`, {
+    const response = await fetch(`/api/missions/${missionId}/plan`, {
       method,
       headers: {
         Authorization: `Bearer ${token}`,
@@ -116,7 +116,7 @@ export function PlanReview({
         window.setTimeout(() => statusRef.current?.focus(), 0);
       }
       if ("action" in body && body.action === "approve" && next.state === "READY") {
-        window.location.assign(localize(`/cases/${missionId}/result`));
+        window.location.assign(localize(`/missions/${missionId}/result`));
       }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "PLAN_REQUEST_FAILED");
@@ -130,7 +130,7 @@ export function PlanReview({
     setError(undefined);
     try {
       const token = await anonymousIdToken();
-      const response = await fetch(`/api/cases/${missionId}/plan`, {
+      const response = await fetch(`/api/missions/${missionId}/plan`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ action: "delete" })
@@ -152,7 +152,7 @@ export function PlanReview({
     setStatus(tr("Building a safe preview. Nothing is being sent.", "Creando una vista previa segura. No se está enviando nada.", "Criando uma visualização segura. Nada está sendo enviado."));
     try {
       const token = await anonymousIdToken();
-      const response = await fetch(`/api/cases/${missionId}/plan`, {
+      const response = await fetch(`/api/missions/${missionId}/plan`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ action: "simulate" })

@@ -9,7 +9,7 @@ describe("localized routing", () => {
   });
 
   it("adds or replaces a locale without changing the product path", () => {
-    expect(localizePath("/cases/mission_1/review", "es")).toBe("/es/cases/mission_1/review");
+    expect(localizePath("/missions/mission_1/review", "es")).toBe("/es/missions/mission_1/review");
     expect(localizePath("/en/privacy", "pt")).toBe("/pt/privacy");
     expect(localizePath("/", "en")).toBe("/en");
   });

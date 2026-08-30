@@ -3,14 +3,14 @@ import { handleIntake } from "../../apps/web/lib/intake-controller";
 import { handlePlanRequest } from "../../apps/web/lib/plan-controller";
 import { PlanService, type PlanStore } from "../../packages/runtime/src/plan-service";
 import type { DraftMission } from "../../packages/runtime/src/intake-service";
-import { makeDraftMission, testHash } from "../helpers/draft-case";
+import { makeDraftMission, testHash } from "../helpers/draft-mission";
 
 class MemoryStore implements PlanStore {
   constructor(public current: DraftMission = makeDraftMission()) {}
-  get(caseId: string): Promise<DraftMission | undefined> {
-    return Promise.resolve(caseId === this.current.caseId ? this.current : undefined);
+  get(missionId: string): Promise<DraftMission | undefined> {
+    return Promise.resolve(missionId === this.current.missionId ? this.current : undefined);
   }
-  replace(_caseId: string, expectedPlanVersion: number, next: DraftMission): Promise<void> {
+  replace(_missionId: string, expectedPlanVersion: number, next: DraftMission): Promise<void> {
     if (this.current.plan.version !== expectedPlanVersion) throw new Error("CONFLICT");
     this.current = next;
     return Promise.resolve();
@@ -21,7 +21,7 @@ const auth = () => Promise.resolve({ uid: "person_12345678" });
 const now = () => "2026-08-15T12:00:00.000Z";
 
 function command(body: object): Request {
-  return new Request("https://actionos.test/api/cases/mission_12345678/plan", {
+  return new Request("https://actionos.test/api/missions/mission_12345678/plan", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body)
@@ -39,7 +39,7 @@ describe("intake and plan HTTP contract", () => {
     );
     expect(response.status).toBe(201);
     await expect(response.json()).resolves.toEqual({
-      caseId: "mission_12345678",
+      missionId: "mission_12345678",
       duplicate: false,
       activationBlocked: false,
       blockingFields: []

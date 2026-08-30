@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { validateCapabilityExecution } from "../../packages/domain/src/capability-validator";
-import { reduceCase } from "../../packages/domain/src/reducer";
+import { reduceMission } from "../../packages/domain/src/reducer";
 import { verifyEvidence } from "../../packages/domain/src/verifier";
 import { assertManifestRequirement } from "../../packages/domain/src/promise-types";
 import { ExecutionBroker, type Reservation } from "../../packages/runtime/src/capability-broker";
@@ -76,7 +76,7 @@ describe("promise type portability", () => {
       );
       await expect(
         broker.execute({
-          caseId: plan.caseId,
+          missionId: plan.missionId,
           actionOrdinal: 1,
           policy: {
             ownerId: plan.ownerId,
@@ -100,7 +100,7 @@ describe("promise type portability", () => {
       ).resolves.toMatchObject({ status: "SUCCEEDED", duplicate: false });
 
       const verification = verifyEvidence({
-        caseId: plan.caseId,
+        missionId: plan.missionId,
         requirement,
         candidate: acceptedEvidence,
         now: "2026-09-01T12:01:00.000Z"
@@ -108,7 +108,7 @@ describe("promise type portability", () => {
       expect(verification).toMatchObject({ accepted: true, reasonCodes: ["ACCEPTED"] });
       const completed = reduceCase(
         {
-          caseId: plan.caseId,
+          missionId: plan.missionId,
           ownerId: plan.ownerId,
           state: "RUNNING",
           version: 2,
@@ -133,7 +133,7 @@ describe("promise type portability", () => {
     if (!requirement) throw new Error("FIXTURE_REQUIREMENT_MISSING");
     expect(
       verifyEvidence({
-        caseId: billCreditFixture.plan.caseId,
+        missionId: billCreditFixture.plan.missionId,
         requirement,
         candidate: { ...billCreditFixture.acceptedEvidence, billPeriod: "2026-10" },
         now: "2026-09-01T12:01:00.000Z"
@@ -148,7 +148,7 @@ describe("promise type portability", () => {
       replacementFixture.acceptedEvidence;
     expect(
       verifyEvidence({
-        caseId: replacementFixture.plan.caseId,
+        missionId: replacementFixture.plan.missionId,
         requirement,
         candidate: withoutTracking,
         now: "2026-09-01T12:01:00.000Z"

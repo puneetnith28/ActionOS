@@ -11,7 +11,7 @@ export default async function IntakePage() {
         <section className="hero">
           <div className="eyebrow">{copy.eyebrow}</div><h1>{copy.title}</h1><p className="lede">{copy.lede}</p>
           <p className="trust-line">{copy.trust} <span>•</span> {copy.rules}</p>
-          <div className="use-case-row" aria-label={copy.useCases}>
+          <div className="use-mission-row" aria-label={copy.useCases}>
             <span data-live="true">{copy.followup}</span><span>{copy.appointments}</span><span>{copy.documents}</span>
           </div>
           <details className="after-boundary.intake-process">

@@ -27,7 +27,7 @@ import type {
   NotificationRecord,
   NotificationStore
 } from "../../packages/runtime/src/notifications";
-import { makeDraftMission } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-mission";
 
 class WalkingStore
   implements
@@ -45,7 +45,7 @@ class WalkingStore
   get(): Promise<FollowThroughMission> {
     return Promise.resolve(this.item);
   }
-  compareAndSet(_caseId: string, expectedVersion: number, next: FollowThroughMission): Promise<void> {
+  compareAndSet(_missionId: string, expectedVersion: number, next: FollowThroughMission): Promise<void> {
     if (this.item.version !== expectedVersion) throw new Error("VERSION_CONFLICT");
     this.item = next;
     return Promise.resolve();
@@ -125,7 +125,7 @@ describe("refund walking skeleton", () => {
   it("crosses HTTP, rejects acknowledgement, verifies completion, and emits one notification", async () => {
     const draft = makeDraftMission();
     const store = new WalkingStore({
-      caseId: draft.caseId,
+      missionId: draft.missionId,
       ownerId: draft.ownerId,
       state: "READY",
       version: 1,
@@ -182,7 +182,7 @@ describe("refund walking skeleton", () => {
     );
     try {
       await expect(
-        runner.run({ caseId: draft.caseId, expectedVersion: 1, now: "2026-08-15T12:00:00.000Z" })
+        runner.run({ missionId: draft.missionId, expectedVersion: 1, now: "2026-08-15T12:00:00.000Z" })
       ).resolves.toMatchObject({ status: "WAITING_EXTERNAL" });
       await eventually(() => store.item.state === "DONE");
       expect(
@@ -198,7 +198,7 @@ describe("refund walking skeleton", () => {
       ).toBe(true);
       expect([...store.notifications.values()][0]?.correlationId).toBe(store.item.correlationId);
       await expect(
-        runner.run({ caseId: draft.caseId, expectedVersion: 1, now: "2026-08-15T12:01:00.000Z" })
+        runner.run({ missionId: draft.missionId, expectedVersion: 1, now: "2026-08-15T12:01:00.000Z" })
       ).resolves.toEqual({ status: "STALE_TASK" });
       expect(ledger.count()).toBe(1);
     } finally {

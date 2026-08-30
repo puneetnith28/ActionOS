@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { validateCapabilityExecution } from "../../packages/domain/src/capability-validator";
 import { EvidenceService } from "../../packages/runtime/src/evidence-service";
-import { makeDraftMission } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-mission";
 
 describe("case control races", () => {
   it("rejects the old approval after authority revision revokes it", () => {
@@ -38,11 +38,11 @@ describe("case control races", () => {
     const record = vi.fn();
     const service = new EvidenceService({
       get: () => Promise.resolve({
-        caseId: draft.caseId, ownerId: draft.ownerId, state, version: 4, plan: draft.plan
+        missionId: draft.missionId, ownerId: draft.ownerId, state, version: 4, plan: draft.plan
       }),
       record
     }, { createIfAbsent: vi.fn() });
-    await expect(service.reconcile({ caseId: draft.caseId } as never, "2026-08-17T19:00:02.000Z"))
+    await expect(service.reconcile({ missionId: draft.missionId } as never, "2026-08-17T19:00:02.000Z"))
       .rejects.toThrow("EVIDENCE_NOT_ACCEPTED_IN_STATE");
     expect(record).not.toHaveBeenCalled();
   });

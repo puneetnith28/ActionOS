@@ -1,9 +1,9 @@
-import type { CaseResultStore } from "./result-controller";
+import type { MissionResultStore } from "./result-controller";
 import { projectConsumerMission } from "./mission-projection";
 
 export async function handleCaseDetail(request: Request, missionId: string, dependencies: {
   authenticate: (request: Request) => Promise<{ uid: string }>;
-  store: CaseResultStore;
+  store: MissionResultStore;
 }): Promise<Response> {
   const headers = { "Cache-Control": "private, no-store" };
   try {

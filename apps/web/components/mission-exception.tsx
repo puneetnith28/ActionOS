@@ -12,7 +12,7 @@ interface ExceptionPayload {
   error?: string;
 }
 
-export function CaseException({ missionId }: { readonly missionId: string }) {
+export function MissionException({ missionId }: { readonly missionId: string }) {
   const { locale, localize } = useLocale();
   const tr = (en: string, es: string, pt: string) => locale === "es" ? es : locale === "pt" ? pt : en;
   const [payload, setPayload] = useState<ExceptionPayload>();
@@ -22,7 +22,7 @@ export function CaseException({ missionId }: { readonly missionId: string }) {
 
   async function load() {
     const token = await anonymousIdToken();
-    const response = await fetch(`/api/cases/${missionId}/result`, {
+    const response = await fetch(`/api/missions/${missionId}/result`, {
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store"
     });
@@ -43,7 +43,7 @@ export function CaseException({ missionId }: { readonly missionId: string }) {
     setError(undefined);
     try {
       const token = await anonymousIdToken();
-      const response = await fetch(`/api/cases/${missionId}/control`, {
+      const response = await fetch(`/api/missions/${missionId}/control`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ action, expectedVersion: payload.case.version, reason, idempotencyKey: crypto.randomUUID() })
@@ -55,7 +55,7 @@ export function CaseException({ missionId }: { readonly missionId: string }) {
         return;
       }
       if (action === "REVISE") {
-        window.location.assign(localize(`/cases/${missionId}/review`));
+        window.location.assign(localize(`/missions/${missionId}/review`));
         return;
       }
       await load();

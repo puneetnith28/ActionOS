@@ -15,10 +15,10 @@ test.describe("deployed general commercial promise", () => {
         name: "What happened, and what are you waiting for?"
       })
       .fill(
-        "Northstar Insurance promised to email the coverage certificate for case CASE-441 by August 16, 2026."
+        "Northstar Insurance promised to email the coverage certificate for mission MISSION-441 by August 16, 2026."
       );
     await page.getByRole("button", { name: "Build my plan" }).click();
-    await expect(page).toHaveURL(/\/cases\/mission_[^/]+\/review/, { timeout: 45_000 });
+    await expect(page).toHaveURL(/\/missions\/mission_[^/]+\/review/, { timeout: 45_000 });
     await expect(page.getByText("Not applicable", { exact: true })).toBeVisible();
     const sharedData = page
       .locator("summary")

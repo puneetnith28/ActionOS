@@ -14,7 +14,7 @@ export function TechnicalRun({ missionId }: { readonly missionId: string }) {
     setError(undefined);
     void anonymousIdToken()
       .then((token) =>
-        fetch(`/api/cases/${missionId}/technical-run`, {
+        fetch(`/api/missions/${missionId}/technical-run`, {
           headers: { Authorization: `Bearer ${token}` },
           cache: "no-store"
         })

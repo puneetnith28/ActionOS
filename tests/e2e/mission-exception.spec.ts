@@ -3,13 +3,13 @@ import type { MissionControlStore, DeletionReceipt } from "../../packages/runtim
 import { MissionControlService } from "../../packages/runtime/src/mission-control";
 import type { FollowThroughMission } from "../../packages/runtime/src/mission-runner";
 import { handleMissionControl } from "../../apps/web/lib/control-controller";
-import { makeDraftMission } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-mission";
 
 class ExceptionStore implements MissionControlStore {
   readonly evidenceIds = ["evidence_original_completion"];
   constructor(public item: FollowThroughMission) {}
-  get(caseId: string): Promise<FollowThroughMission | undefined> {
-    return Promise.resolve(caseId === this.item.caseId ? this.item : undefined);
+  get(missionId: string): Promise<FollowThroughMission | undefined> {
+    return Promise.resolve(missionId === this.item.missionId ? this.item : undefined);
   }
   transition(input: {
     expectedVersion: number;
@@ -35,12 +35,12 @@ class ExceptionStore implements MissionControlStore {
     return Promise.resolve(this.item);
   }
   requestDeletion(): Promise<DeletionReceipt> {
-    return Promise.resolve({ caseId: this.item.caseId, status: "DELETION_ACCEPTED", requestedAt: "2026-08-15T12:05:00.000Z", tombstoneId: "deletion_exception_12345678" });
+    return Promise.resolve({ missionId: this.item.missionId, status: "DELETION_ACCEPTED", requestedAt: "2026-08-15T12:05:00.000Z", tombstoneId: "deletion_exception_12345678" });
   }
 }
 
-function request(caseId: string, action: string, expectedVersion: number, reason?: string) {
-  return new Request(`https://actionos.test/api/cases/${caseId}/control`, {
+function request(missionId: string, action: string, expectedVersion: number, reason?: string) {
+  return new Request(`https://actionos.test/api/missions/${missionId}/control`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ action, expectedVersion, reason, idempotencyKey: `command-${action.toLowerCase()}-12345678` })
@@ -51,7 +51,7 @@ describe("exception and reopen journey", () => {
   it("reopens, preserves proof, resumes within approval, then stops future work", async () => {
     const draft = makeDraftMission();
     const store = new ExceptionStore({
-      caseId: draft.caseId,
+      missionId: draft.missionId,
       ownerId: draft.ownerId,
       state: "DONE",
       version: 4,
@@ -76,8 +76,8 @@ describe("exception and reopen journey", () => {
     };
 
     const reopened = await handleMissionControl(
-      request(draft.caseId, "REOPEN", 4, "The funds did not arrive"),
-      draft.caseId,
+      request(draft.missionId, "REOPEN", 4, "The funds did not arrive"),
+      draft.missionId,
       dependencies
     );
     expect(reopened.status).toBe(200);
@@ -85,8 +85,8 @@ describe("exception and reopen journey", () => {
     expect(store.evidenceIds).toEqual(["evidence_original_completion"]);
 
     const resumed = await handleMissionControl(
-      request(draft.caseId, "RESUME", 5, "Try the approved follow-up again"),
-      draft.caseId,
+      request(draft.missionId, "RESUME", 5, "Try the approved follow-up again"),
+      draft.missionId,
       dependencies
     );
     expect(resumed.status).toBe(200);
@@ -94,8 +94,8 @@ describe("exception and reopen journey", () => {
     expect(scheduleMission).toHaveBeenCalledOnce();
 
     const stopped = await handleMissionControl(
-      request(draft.caseId, "STOP", 6),
-      draft.caseId,
+      request(draft.missionId, "STOP", 6),
+      draft.missionId,
       dependencies
     );
     expect(stopped.status).toBe(200);
@@ -105,16 +105,16 @@ describe("exception and reopen journey", () => {
   it("returns an observable deletion receipt", async () => {
     const draft = makeDraftMission();
     const store = new ExceptionStore({
-      caseId: draft.caseId, ownerId: draft.ownerId, state: "READY", version: 2,
+      missionId: draft.missionId, ownerId: draft.ownerId, state: "READY", version: 2,
       plan: draft.plan, approval: { ownerId: draft.ownerId, planVersion: draft.plan.version, planHash: draft.plan.planHash, expiresAt: draft.plan.expiresAt },
       actionOrdinal: 1, dueAt: "2026-08-15T12:00:00.000Z", correlationId: "corr_delete_1234567890"
     });
-    const response = await handleMissionControl(request(draft.caseId, "DELETE", 2), draft.caseId, {
+    const response = await handleMissionControl(request(draft.missionId, "DELETE", 2), draft.missionId, {
       authenticate: vi.fn(() => Promise.resolve({ uid: draft.ownerId })),
       service: new MissionControlService(store, { scheduleMission: vi.fn(() => Promise.resolve({})) }),
       now: () => "2026-08-15T12:05:00.000Z"
     });
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toMatchObject({ status: "DELETION_ACCEPTED", caseId: draft.caseId });
+    await expect(response.json()).resolves.toMatchObject({ status: "DELETION_ACCEPTED", missionId: draft.missionId });
   });
 });

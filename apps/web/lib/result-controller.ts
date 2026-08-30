@@ -4,7 +4,7 @@ import type { InterventionRecord } from "@actionos/runtime/interventions";
 import type { RuntimeTimelineEvent } from "@actionos/runtime/timeline";
 import type { NotificationRecord } from "@actionos/runtime/notifications";
 
-export interface CaseResultStore {
+export interface MissionResultStore {
   get(missionId: string): Promise<FollowThroughMission | undefined>;
   listEvidence(missionId: string): Promise<readonly EvidenceRecord[]>;
   listInterventions?(missionId: string): Promise<readonly InterventionRecord[]>;
@@ -18,12 +18,12 @@ export interface CaseResultStore {
   }[]>;
 }
 
-export async function handleCaseResult(
+export async function handleMissionResult(
   request: Request,
   missionId: string,
   dependencies: {
     authenticate: (request: Request) => Promise<{ uid: string }>;
-    store: CaseResultStore;
+    store: MissionResultStore;
   }
 ): Promise<Response> {
   const privateHeaders = { "Cache-Control": "private, no-store" };

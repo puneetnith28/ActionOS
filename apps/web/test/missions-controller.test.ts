@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
-import { caseSummary, handleCases, type CaseSummary } from "../lib/missions-controller";
+import { caseSummary, handleMissions, type CaseSummary } from "../lib/missions-controller";
 
 function item(state: FollowThroughMission["state"], ownerId = "owner_12345678") {
   return {
@@ -41,7 +41,7 @@ describe("owner mission inbox", () => {
 
   it("queries only the authenticated owner and bounds the response", async () => {
     let queriedOwner = "";
-    const response = await handleCases(new Request("https://actionos.test/api/cases?limit=1"), {
+    const response = await handleMissions(new Request("https://actionos.test/api/missions?limit=1"), {
       authenticate: () => Promise.resolve({ uid: "owner_12345678" }),
       store: { listByOwner: (ownerId) => { queriedOwner = ownerId; return Promise.resolve([item("DONE"), item("NEEDS_ATTENTION")]); } }
     });
@@ -50,7 +50,7 @@ describe("owner mission inbox", () => {
   });
 
   it("keeps an unfinished Gemini analysis visible after the tab is closed", async () => {
-    const response = await handleCases(new Request("https://actionos.test/api/cases"), {
+    const response = await handleMissions(new Request("https://actionos.test/api/missions"), {
       authenticate: () => Promise.resolve({ uid: "owner_12345678" }),
       store: { listByOwner: () => Promise.resolve([]) },
       analysisStore: { listByOwner: () => Promise.resolve([{
@@ -72,7 +72,7 @@ describe("owner mission inbox", () => {
     await expect(response.json()).resolves.toMatchObject({ items: [{
       missionId: "mission_visible123",
       statusLabel: "Gemini is building the plan",
-      detailPath: "/cases/mission_visible123/analyzing"
+      detailPath: "/missions/mission_visible123/analyzing"
     }] });
   });
 
@@ -86,12 +86,12 @@ describe("owner mission inbox", () => {
       authenticate: () => Promise.resolve({ uid: "owner_12345678" }),
       store: { listByOwner: () => Promise.resolve(records) }
     };
-    const first = await handleCases(new Request("https://actionos.test/api/cases?limit=2&bucket=DONE"), dependencies);
+    const first = await handleMissions(new Request("https://actionos.test/api/missions?limit=2&bucket=DONE"), dependencies);
     const firstBody = await first.json() as { items: CaseSummary[]; nextCursor: string };
     expect(firstBody.items.map(({ missionId }) => missionId)).toEqual(["mission_newest_12345678", "mission_middle_12345678"]);
     expect(firstBody.nextCursor).toBeTruthy();
 
-    const second = await handleCases(new Request(`https://actionos.test/api/cases?limit=2&bucket=DONE&cursor=${encodeURIComponent(firstBody.nextCursor)}`), dependencies);
+    const second = await handleMissions(new Request(`https://actionos.test/api/missions?limit=2&bucket=DONE&cursor=${encodeURIComponent(firstBody.nextCursor)}`), dependencies);
     await expect(second.json()).resolves.toMatchObject({ items: [{ missionId: "mission_oldest_12345678" }], nextCursor: null });
   });
 
@@ -101,13 +101,13 @@ describe("owner mission inbox", () => {
       authenticate: () => Promise.resolve({ uid: "owner_12345678" }),
       store: { listByOwner: () => Promise.resolve(records) }
     };
-    const malformed = await handleCases(new Request("https://actionos.test/api/cases?cursor=not-json"), dependencies);
+    const malformed = await handleMissions(new Request("https://actionos.test/api/missions?cursor=not-json"), dependencies);
     expect(malformed.status).toBe(400);
     await expect(malformed.json()).resolves.toEqual({ error: "CURSOR_INVALID" });
 
-    const first = await handleCases(new Request("https://actionos.test/api/cases?limit=1&bucket=DONE"), dependencies);
+    const first = await handleMissions(new Request("https://actionos.test/api/missions?limit=1&bucket=DONE"), dependencies);
     const { nextCursor } = await first.json() as { nextCursor: string };
-    const changedFilter = await handleCases(new Request(`https://actionos.test/api/cases?bucket=WORKING&cursor=${encodeURIComponent(nextCursor)}`), dependencies);
+    const changedFilter = await handleMissions(new Request(`https://actionos.test/api/missions?bucket=WORKING&cursor=${encodeURIComponent(nextCursor)}`), dependencies);
     expect(changedFilter.status).toBe(400);
   });
 });

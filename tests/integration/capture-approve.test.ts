@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import { PlanService, type PlanStore } from "../../packages/runtime/src/plan-service";
 import type { DraftMission } from "../../packages/runtime/src/intake-service";
-import { makeDraftMission, testHash } from "../helpers/draft-case";
+import { makeDraftMission, testHash } from "../helpers/draft-mission";
 
 class MemoryStore implements PlanStore {
   constructor(public current: DraftMission = makeDraftMission()) {}
-  get(caseId: string): Promise<DraftMission | undefined> {
-    return Promise.resolve(caseId === this.current.caseId ? this.current : undefined);
+  get(missionId: string): Promise<DraftMission | undefined> {
+    return Promise.resolve(missionId === this.current.missionId ? this.current : undefined);
   }
-  replace(_caseId: string, expectedPlanVersion: number, next: DraftMission): Promise<void> {
+  replace(_missionId: string, expectedPlanVersion: number, next: DraftMission): Promise<void> {
     if (this.current.plan.version !== expectedPlanVersion) throw new Error("CONFLICT");
     this.current = next;
     return Promise.resolve();
@@ -33,7 +33,7 @@ describe("capture then approve boundary", () => {
     expect(revised.plan.planHash).not.toBe(testHash);
     await expect(
       service.approve({
-        caseId: revised.caseId,
+        missionId: revised.missionId,
         ownerId: revised.ownerId,
         expectedPlanVersion: 1,
         expectedPlanHash: testHash,
@@ -46,7 +46,7 @@ describe("capture then approve boundary", () => {
     const expired = new PlanService(new MemoryStore());
     await expect(
       expired.approve({
-        caseId: "mission_12345678",
+        missionId: "mission_12345678",
         ownerId: "person_12345678",
         expectedPlanVersion: 1,
         expectedPlanHash: testHash,
@@ -56,7 +56,7 @@ describe("capture then approve boundary", () => {
 
     const active = new PlanService(new MemoryStore());
     const approval = {
-      caseId: "mission_12345678",
+      missionId: "mission_12345678",
       ownerId: "person_12345678",
       expectedPlanVersion: 1,
       expectedPlanHash: testHash,

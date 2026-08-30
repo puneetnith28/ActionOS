@@ -21,14 +21,14 @@ test.describe("deployed visible example matrix", () => {
       });
       await page.getByRole("button", { name: example.label }).click();
       await page.getByRole("button", { name: "Build my plan" }).click();
-      await expect(page).toHaveURL(/\/cases\/mission_[^/]+\/review/, { timeout: 45_000 });
+      await expect(page).toHaveURL(/\/missions\/mission_[^/]+\/review/, { timeout: 45_000 });
       await expect(page.getByText(example.expected).first()).toBeVisible();
       await expect(page.getByText("Accelerated after approval")).toBeVisible();
       await expect(page.getByText(/real Cloud Tasks.*run in seconds/i)).toBeVisible();
       await expect(page.getByText(/could not complete/i)).toHaveCount(0);
       await page.getByRole("checkbox", { name: /authorized to contact/ }).check();
       await page.getByRole("button", { name: "Approve and start follow-up" }).click();
-      await expect(page).toHaveURL(/\/cases\/mission_[^/]+\/result/);
+      await expect(page).toHaveURL(/\/missions\/mission_[^/]+\/result/);
       await expect(page.getByRole("heading", {
         name: /Company confirmed the refund instruction|Company confirmed the promised outcome/
       })).toBeVisible({ timeout: 75_000 });

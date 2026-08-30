@@ -75,7 +75,7 @@ function resolveChannel(channelType: string) {
       channelType,
       allowedRecipient: recipient,
       senderIdentity,
-      replyRoute: `case-specific@${replyDomain}`,
+      replyRoute: `mission-specific@${replyDomain}`,
       trustedIssuer: `managed-email:${stableHash({ namespace: "actionos/recipient/v1", recipient: recipient.toLowerCase() }).slice(7, 31)}`
     } as const;
   }

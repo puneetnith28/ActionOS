@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import { handleTechnicalRun } from "../../apps/web/lib/technical-run-controller";
-import { makeDraftMission } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-mission";
 
 describe("technical run access", () => {
   it("returns the same 404 to a non-owner without reading trace facts", async () => {
     const draft = makeDraftMission();
     const technicalRunSource = vi.fn();
-    const response = await handleTechnicalRun(new Request("https://actionos.test/trace"), draft.caseId, {
+    const response = await handleTechnicalRun(new Request("https://actionos.test/trace"), draft.missionId, {
       authenticate: () => Promise.resolve({ uid: "other_12345678" }),
       store: { get: () => Promise.resolve({ ...draft, state: "DONE", version: 3 } as never), technicalRunSource }
     });
@@ -17,7 +17,7 @@ describe("technical run access", () => {
   it("denies technical evidence for non-synthetic real-email cases", async () => {
     const draft = makeDraftMission();
     const technicalRunSource = vi.fn();
-    const response = await handleTechnicalRun(new Request("https://actionos.test/trace"), draft.caseId, {
+    const response = await handleTechnicalRun(new Request("https://actionos.test/trace"), draft.missionId, {
       authenticate: () => Promise.resolve({ uid: draft.ownerId }),
       store: {
         get: () => Promise.resolve({ ...draft, state: "DONE", version: 3, plan: { ...draft.plan, executionMode: "CONTROLLED_REAL_PILOT" } } as never),

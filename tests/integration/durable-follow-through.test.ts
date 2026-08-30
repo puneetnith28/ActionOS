@@ -10,7 +10,7 @@ import {
   type FollowThroughMission,
   type FollowThroughStore
 } from "../../packages/runtime/src/mission-runner";
-import { makeDraftMission } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-mission";
 import {
   InterventionService,
   type InterventionRecord
@@ -46,7 +46,7 @@ class Cases implements FollowThroughStore {
     return Promise.resolve(this.value);
   }
   compareAndSet(
-    _caseId: string,
+    _missionId: string,
     expectedVersion: number,
     next: FollowThroughMission,
     wake?: WakeIntent
@@ -65,7 +65,7 @@ class Cases implements FollowThroughStore {
 function readyCase(): FollowThroughMission {
   const draft = makeDraftMission();
   return {
-    caseId: draft.caseId,
+    missionId: draft.missionId,
     ownerId: draft.ownerId,
     state: "READY",
     version: 1,
@@ -104,7 +104,7 @@ describe("durable follow-through", () => {
     );
 
     await expect(runner.run({
-      caseId: cases.value.caseId,
+      missionId: cases.value.missionId,
       expectedVersion: 1,
       now: "2026-08-15T12:00:00.000Z"
     })).resolves.toMatchObject({ status: "WAITING_EXTERNAL" });
@@ -115,14 +115,14 @@ describe("durable follow-through", () => {
       nextWakeAt: "2026-08-15T12:01:00.000Z"
     });
     expect(scheduleMission).toHaveBeenLastCalledWith(expect.objectContaining({
-      caseId: cases.value.caseId,
+      missionId: cases.value.missionId,
       expectedVersion: 2,
       wakeAt: "2026-08-15T12:01:00.000Z"
     }));
     const firstIdempotencyKey = cases.value.lastActionIdempotencyKey;
 
     await expect(runner.run({
-      caseId: cases.value.caseId,
+      missionId: cases.value.missionId,
       expectedVersion: 2,
       now: "2026-08-15T12:01:00.000Z"
     })).resolves.toMatchObject({ status: "WAITING_EXTERNAL" });
@@ -147,7 +147,7 @@ describe("durable follow-through", () => {
     );
     await expect(
       runner.run({
-        caseId: cases.value.caseId,
+        missionId: cases.value.missionId,
         expectedVersion: 1,
         now: "2026-08-15T12:00:00.000Z"
       })
@@ -156,7 +156,7 @@ describe("durable follow-through", () => {
     expect(scheduleMission).toHaveBeenCalledOnce();
     await expect(
       runner.run({
-        caseId: cases.value.caseId,
+        missionId: cases.value.missionId,
         expectedVersion: 2,
         now: "2026-08-15T12:00:31.000Z"
       })
@@ -187,7 +187,7 @@ describe("durable follow-through", () => {
     );
     await expect(
       firstProcess.run({
-        caseId: cases.value.caseId,
+        missionId: cases.value.missionId,
         expectedVersion: 1,
         now: "2026-08-15T12:00:00.000Z"
       })
@@ -200,7 +200,7 @@ describe("durable follow-through", () => {
       1
     );
     const result = await restarted.run({
-      caseId: cases.value.caseId,
+      missionId: cases.value.missionId,
       expectedVersion: 2,
       now: "2026-08-15T12:00:02.000Z"
     });
@@ -221,7 +221,7 @@ describe("durable follow-through", () => {
     });
     await expect(
       runner.run({
-        caseId: cases.value.caseId,
+        missionId: cases.value.missionId,
         expectedVersion: 1,
         now: "2026-08-15T12:00:00.000Z"
       })
@@ -240,7 +240,7 @@ describe("durable follow-through", () => {
     };
     const broker = new ExecutionBroker(records, blockingAdapter);
     const first = broker.execute({
-      caseId: initial.caseId,
+      missionId: initial.missionId,
       actionOrdinal: initial.actionOrdinal,
       policy: {
         ownerId: initial.ownerId,
@@ -267,7 +267,7 @@ describe("durable follow-through", () => {
     const runner = new MissionRunner(cases, broker, { scheduleMission });
 
     await expect(runner.run({
-      caseId: initial.caseId,
+      missionId: initial.missionId,
       expectedVersion: initial.version,
       now: "2026-08-15T12:00:00.100Z"
     })).resolves.toEqual({ status: "ACTION_IN_FLIGHT" });
@@ -293,28 +293,28 @@ describe("durable follow-through", () => {
     );
 
     await expect(runner.run({
-      caseId: cases.value.caseId,
+      missionId: cases.value.missionId,
       expectedVersion: 1,
       now: "2026-08-15T12:00:00.000Z"
     })).rejects.toThrow("WAKE_DISPATCH_FAILED");
 
     expect(cases.value).toMatchObject({ state: "WAITING_EXTERNAL", version: 2 });
     expect(cases.wakes).toEqual([expect.objectContaining({
-      caseId: cases.value.caseId,
+      missionId: cases.value.missionId,
       expectedVersion: 2,
       status: "PENDING"
     })]);
     expect(execute).toHaveBeenCalledOnce();
 
     await expect(runner.run({
-      caseId: cases.value.caseId,
+      missionId: cases.value.missionId,
       expectedVersion: 1,
       now: "2026-08-15T12:00:01.000Z"
     })).resolves.toEqual({ status: "STALE_TASK" });
 
     expect(scheduleMission).toHaveBeenCalledTimes(2);
     expect(scheduleMission).toHaveBeenLastCalledWith(expect.objectContaining({
-      caseId: cases.value.caseId,
+      missionId: cases.value.missionId,
       expectedVersion: 2
     }));
     expect(execute).toHaveBeenCalledOnce();
@@ -362,7 +362,7 @@ describe("durable follow-through", () => {
     );
 
     await expect(runner.run({
-      caseId: cases.value.caseId,
+      missionId: cases.value.missionId,
       expectedVersion: 2,
       now: "2026-08-15T12:00:00.000Z"
     })).resolves.toEqual({ status: "NEEDS_ATTENTION", reason: "ACTION_BUDGET_EXHAUSTED" });
@@ -379,7 +379,7 @@ describe("durable follow-through", () => {
     expect(notificationRecords.size).toBe(1);
 
     await expect(runner.run({
-      caseId: cases.value.caseId,
+      missionId: cases.value.missionId,
       expectedVersion: 2,
       now: "2026-08-15T12:00:01.000Z"
     })).resolves.toEqual({ status: "STALE_TASK" });
@@ -420,7 +420,7 @@ describe("durable follow-through", () => {
     );
     await expect(
       runner.run({
-        caseId: cases.value.caseId,
+        missionId: cases.value.missionId,
         expectedVersion: 1,
         now: "2026-08-15T12:00:00.000Z",
         correlationId: "corr_recovery_123456789012"
@@ -458,7 +458,7 @@ describe("durable follow-through", () => {
       notify
     );
     await expect(runner.run({
-      caseId: cases.value.caseId,
+      missionId: cases.value.missionId,
       expectedVersion: 1,
       now: "2026-08-15T12:00:00.000Z",
       correlationId: "corr_denied_12345678"

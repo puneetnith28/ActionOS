@@ -1,5 +1,5 @@
-import { CaseResult } from "../../../../components/case-result";
-import { CaseResultPreview } from "../../../../components/case-result-preview";
+import { MissionResult } from "../../../../components/mission-result";
+import { MissionResultPreview } from "../../../../components/mission-result-preview";
 import { AppHeader } from "../../../../components/app-header";
 import { getRequestMessages } from "../../../../lib/i18n-server";
 
@@ -21,9 +21,9 @@ export default async function ResultPage({
         </div>
       </section>
       {missionId === "demo-verified" && process.env.NODE_ENV === "development" ? (
-        <CaseResultPreview />
+        <MissionResultPreview />
       ) : (
-        <CaseResult missionId={missionId} />
+        <MissionResult missionId={missionId} />
       )}
     </main>
   );

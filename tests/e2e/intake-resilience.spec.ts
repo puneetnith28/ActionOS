@@ -13,7 +13,7 @@ test.describe("intake feedback and recovery", () => {
       })
     ).toBeVisible();
     await expect(page.getByText("“Request received” rejected")).toBeVisible();
-    await expect(page.getByText("Not another chatbot. A case that stays open.")).toBeVisible();
+    await expect(page.getByText("Not another chatbot. A mission that stays open.")).toBeVisible();
     await page.getByRole("link", { name: "Hand off a follow-up" }).click();
     await expect(page).toHaveURL(/\/intake$/);
   });

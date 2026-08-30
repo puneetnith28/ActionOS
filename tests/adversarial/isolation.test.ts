@@ -13,7 +13,7 @@ describe("case control isolation", () => {
     const service = new MissionControlService({
       get: vi.fn(() =>
         Promise.resolve({
-          caseId: "mission_victim_1234",
+          missionId: "mission_victim_1234",
           ownerId: "person_victim",
           state: "WAITING_EXTERNAL",
           version: 2,
@@ -27,7 +27,7 @@ describe("case control isolation", () => {
       requestDeletion: deletion
     });
     const response = await handleMissionControl(
-      new Request("https://actionos.test/api/cases/mission_victim_1234/control", {
+      new Request("https://actionos.test/api/missions/mission_victim_1234/control", {
         method: "POST",
         body: JSON.stringify({ action: "DELETE", expectedVersion: 2, idempotencyKey: "isolation-command-1234" })
       }),
@@ -43,13 +43,13 @@ describe("case control isolation", () => {
     expect(deletion).not.toHaveBeenCalled();
   });
 
-  it("does not accept late evidence after a case was stopped", async () => {
+  it("does not accept late evidence after a mission was stopped", async () => {
     const { EvidenceService } = await import("../../packages/runtime/src/evidence-service");
     const service = new EvidenceService(
       {
         get: vi.fn(() =>
           Promise.resolve({
-            caseId: "mission_stopped_1234",
+            missionId: "mission_stopped_1234",
             ownerId: "person_owner",
             state: "CANCELLED" as const,
             version: 4,
@@ -61,7 +61,7 @@ describe("case control isolation", () => {
       { createIfAbsent: vi.fn() }
     );
     await expect(
-      service.reconcile({ caseId: "mission_stopped_1234" } as never, "2026-08-15T12:00:00.000Z")
+      service.reconcile({ missionId: "mission_stopped_1234" } as never, "2026-08-15T12:00:00.000Z")
     ).rejects.toThrow("EVIDENCE_NOT_ACCEPTED_IN_STATE");
   });
 
@@ -70,7 +70,7 @@ describe("case control isolation", () => {
     const token = issueArtifactGrant(
       {
         ownerId: "person_owner",
-        caseId: "mission_owner_1234",
+        missionId: "mission_owner_1234",
         artifactId: "artifact_owner_1234",
         now: "2026-08-15T12:00:00.000Z"
       },
@@ -81,7 +81,7 @@ describe("case control isolation", () => {
         token,
         secret,
         ownerId: "person_attacker",
-        caseId: "mission_owner_1234",
+        missionId: "mission_owner_1234",
         artifactId: "artifact_owner_1234",
         now: "2026-08-15T12:01:00.000Z"
       })
@@ -91,7 +91,7 @@ describe("case control isolation", () => {
         token,
         secret,
         ownerId: "person_owner",
-        caseId: "mission_other_1234",
+        missionId: "mission_other_1234",
         artifactId: "artifact_owner_1234",
         now: "2026-08-15T12:01:00.000Z"
       })
@@ -101,7 +101,7 @@ describe("case control isolation", () => {
         token,
         secret,
         ownerId: "person_owner",
-        caseId: "mission_owner_1234",
+        missionId: "mission_owner_1234",
         artifactId: "artifact_owner_1234",
         now: "2026-08-15T12:10:00.000Z"
       })
@@ -111,7 +111,7 @@ describe("case control isolation", () => {
         token: `${token.slice(0, -1)}x`,
         secret,
         ownerId: "person_owner",
-        caseId: "mission_owner_1234",
+        missionId: "mission_owner_1234",
         artifactId: "artifact_owner_1234",
         now: "2026-08-15T12:01:00.000Z"
       })

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { InboundService } from "../../packages/runtime/src/inbound-service";
 import type { EvidenceService } from "../../packages/runtime/src/evidence-service";
 import type { InterventionService } from "../../packages/runtime/src/interventions";
-import { makeDraftMission } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-mission";
 
 describe("email case control races", () => {
   it.each(["CANCELLED", "DONE"] as const)("a late reply cannot reactivate a %s case", async (state) => {
@@ -11,7 +11,7 @@ describe("email case control races", () => {
     const reconcile = vi.fn();
     const service = new InboundService({
       get: () => Promise.resolve({
-        caseId: draft.caseId,
+        missionId: draft.missionId,
         ownerId: draft.ownerId,
         state,
         version: 3,
@@ -26,7 +26,7 @@ describe("email case control races", () => {
         dueAt: "2026-08-15T00:00:00.000Z"
       }),
       compareAndSet: vi.fn(() => Promise.resolve()),
-      caseForReplyRoute: () => Promise.resolve(draft.caseId)
+      caseForReplyRoute: () => Promise.resolve(draft.missionId)
     }, { interpret }, { reconcile } as unknown as EvidenceService,
     { raise: vi.fn() } as unknown as InterventionService);
     await expect(service.process({

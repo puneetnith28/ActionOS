@@ -10,7 +10,7 @@ describe("plan API contract", () => {
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(
-      new Request("https://actionos.test/api/cases/mission_12345678/plan"),
+      new Request("https://actionos.test/api/missions/mission_12345678/plan"),
       "mission_12345678",
       {
         authenticate: () => Promise.resolve({ uid: "person_attacker" }),
@@ -30,7 +30,7 @@ describe("plan API contract", () => {
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(
-      new Request("https://actionos.test/api/cases/mission_12345678/plan", {
+      new Request("https://actionos.test/api/missions/mission_12345678/plan", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -60,7 +60,7 @@ describe("plan API contract", () => {
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(
-      new Request("https://actionos.test/api/cases/mission_12345678/plan", {
+      new Request("https://actionos.test/api/missions/mission_12345678/plan", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -97,7 +97,7 @@ describe("plan API contract", () => {
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(
-      new Request("https://actionos.test/api/cases/mission_12345678/plan", {
+      new Request("https://actionos.test/api/missions/mission_12345678/plan", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -161,7 +161,7 @@ describe("plan API contract", () => {
       replace: (_missionId, _version, next) => { draft = next; return Promise.resolve(); }
     }, { scheduleMission });
     const response = await handlePlanRequest(new Request(
-      "https://actionos.test/api/cases/mission_12345678/plan",
+      "https://actionos.test/api/missions/mission_12345678/plan",
       { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({
         action: "approve", expectedPlanVersion: 1, expectedPlanHash: hash
       }) }
@@ -181,7 +181,7 @@ describe("plan API contract", () => {
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(new Request(
-      "https://actionos.test/api/cases/mission_12345678/plan",
+      "https://actionos.test/api/missions/mission_12345678/plan",
       { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({
         action: "select-channel", expectedPlanVersion: 1,
         revision: { channelType: "MANAGED_EMAIL", senderIdentity: "attacker@example.test" }

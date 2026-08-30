@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 const deployedUrl = process.env.ACTIONOS_DEPLOYED_URL;
 const detail = {
-  caseId: "mission_a11y_12345678",
+  missionId: "mission_a11y_12345678",
   version: 1,
   state: "NEEDS_ATTENTION",
   statusLabel: "Decision needed",
@@ -18,7 +18,7 @@ const detail = {
     reply: "A signed demo response returns",
     recipientHint: "Controlled endpoint"
   },
-  returnPath: "Durable case page",
+  returnPath: "Durable mission page",
   outcome: {
     accepted: false,
     acknowledgementOnly: false,
@@ -45,10 +45,10 @@ test.describe("case accessibility", () => {
   test.skip(!deployedUrl, "Set ACTIONOS_DEPLOYED_URL");
   test.use({ reducedMotion: "reduce" });
   test("supports keyboard landmarks, live state and 200 percent reflow", async ({ page }) => {
-    await page.route("**/api/cases/mission_a11y_12345678/detail", (route) =>
+    await page.route("**/api/missions/mission_a11y_12345678/detail", (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(detail) })
     );
-    await page.goto(`${deployedUrl}/cases/mission_a11y_12345678/result`);
+    await page.goto(`${deployedUrl}/missions/mission_a11y_12345678/result`);
     await expect(page.getByRole("status")).toContainText("Review one decision", {
       timeout: 15_000
     });

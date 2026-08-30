@@ -9,7 +9,7 @@ import { firestore } from "../../../../../lib/firebase-admin";
 import { durableCaseScheduler } from "../../../../../lib/durable-mission-scheduler";
 
 export const runtime = "nodejs";
-type Context = { params: Promise<{ caseId: string }> };
+type Context = { params: Promise<{ missionId: string }> };
 
 function controlService() {
   const projectId = config.projectId;
@@ -30,8 +30,8 @@ function controlService() {
 
 export async function POST(request: Request, context: Context) {
   assertSameOrigin(request);
-  const { caseId } = await context.params;
-  return handleMissionControl(request, caseId, {
+  const { missionId } = await context.params;
+  return handleMissionControl(request, missionId, {
     authenticate: authenticatedOwner,
     service: controlService(),
     now: () => new Date().toISOString()

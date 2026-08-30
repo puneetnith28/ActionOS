@@ -28,7 +28,7 @@ describe("partner adapter lifecycle", () => {
       request
     }));
     const input = {
-      caseId: "mission_12345678", actionOrdinal: 1,
+      missionId: "mission_12345678", actionOrdinal: 1,
       policy: {
         ownerId: "owner_12345678", planVersion: 1, planHash: "sha256:plan",
         allowedActions: ["SEND_FOLLOW_UP" as const], allowedRecipient: "partner.example",
@@ -46,7 +46,7 @@ describe("partner adapter lifecycle", () => {
     await expect(broker.execute(input)).rejects.toThrow("PARTNER_API_503");
     await expect(broker.execute(input)).resolves.toMatchObject({
       status: "SUCCEEDED",
-      receipt: { caseId: "mission_12345678", channelType: "PARTNER_API",
+      receipt: { missionId: "mission_12345678", channelType: "PARTNER_API",
         correlationId: "corr_12345678" }
     });
     await expect(broker.execute(input)).resolves.toMatchObject({

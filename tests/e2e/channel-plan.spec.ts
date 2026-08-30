@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { makeDraftMission } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-mission";
 import type { DraftMission } from "../../packages/runtime/src/intake-service";
 
 const deployedUrl = process.env.ACTIONOS_DEPLOYED_URL;
@@ -45,7 +45,7 @@ test.describe("channel plan authorization", () => {
         ])
       })
     );
-    await page.route("**/api/cases/mission_12345678/plan", async (route) => {
+    await page.route("**/api/missions/mission_12345678/plan", async (route) => {
       if (route.request().method() === "GET") {
         await route.fulfill({
           status: 200,
@@ -78,7 +78,7 @@ test.describe("channel plan authorization", () => {
       });
     });
 
-    await page.goto(`${deployedUrl}/cases/mission_12345678/review`);
+    await page.goto(`${deployedUrl}/missions/mission_12345678/review`);
     await expect(page.getByText("Follow-up for ORDER-79")).toBeVisible();
     await expect(page.getByText("3 sends", { exact: true })).toBeVisible();
     await expect(page.getByText("Every 2 days")).toBeVisible();
@@ -89,7 +89,7 @@ test.describe("channel plan authorization", () => {
     await expect(page.getByText(/Plan updated to version 2/)).toBeVisible();
     await page.getByRole("checkbox", { name: /authorized to contact/ }).check();
     await page.getByRole("button", { name: "Approve and start follow-up" }).click();
-    await expect(page).toHaveURL(/\/cases\/mission_12345678\/result$/);
+    await expect(page).toHaveURL(/\/missions\/mission_12345678\/result$/);
   });
 
   test("keeps approval blocked when the active channel is unavailable", async ({ page }) => {
@@ -124,14 +124,14 @@ test.describe("channel plan authorization", () => {
         ])
       })
     );
-    await page.route("**/api/cases/mission_12345678/plan", (route) =>
+    await page.route("**/api/missions/mission_12345678/plan", (route) =>
       route.fulfill({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify(draft)
       })
     );
-    await page.goto(`${deployedUrl}/cases/mission_12345678/review`);
+    await page.goto(`${deployedUrl}/missions/mission_12345678/review`);
     await page.getByRole("checkbox", { name: /authorized to contact/ }).check();
     await expect(page.getByRole("button", { name: "Approve and start follow-up" })).toBeDisabled();
     await expect(page.getByText(/cannot be activated until/)).toBeVisible();
@@ -161,7 +161,7 @@ test.describe("channel plan authorization", () => {
         ])
       })
     );
-    await page.route("**/api/cases/mission_12345678/plan", async (route) => {
+    await page.route("**/api/missions/mission_12345678/plan", async (route) => {
       if (route.request().method() === "GET") {
         await route.fulfill({
           status: 200,
@@ -202,7 +202,7 @@ test.describe("channel plan authorization", () => {
       });
     });
 
-    await page.goto(`${deployedUrl}/cases/mission_12345678/review`);
+    await page.goto(`${deployedUrl}/missions/mission_12345678/review`);
     await page.getByText("Edit what Gemini understood").click();
     await page.getByRole("textbox", { name: "Company name" }).fill("Northstar Argentina");
     await page.getByRole("textbox", { name: "Promised result" }).fill("USD 59 refund");
@@ -257,7 +257,7 @@ test.describe("channel plan authorization", () => {
         ])
       })
     );
-    await page.route("**/api/cases/mission_12345678/plan", async (route) => {
+    await page.route("**/api/missions/mission_12345678/plan", async (route) => {
       if (route.request().method() === "GET") {
         await route.fulfill({
           status: 200,
@@ -286,7 +286,7 @@ test.describe("channel plan authorization", () => {
         body: JSON.stringify(draft)
       });
     });
-    await page.goto(`${deployedUrl}/cases/mission_12345678/review`);
+    await page.goto(`${deployedUrl}/missions/mission_12345678/review`);
     const email = page.getByRole("button", { name: /Controlled email pilot/ });
     await email.focus();
     await page.keyboard.press("Enter");

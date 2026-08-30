@@ -1,4 +1,4 @@
-import { CaseException } from "../../../../components/case-exception";
+import { MissionException } from "../../../../components/mission-exception";
 import { AppHeader } from "../../../../components/app-header";
 import { getRequestMessages } from "../../../../lib/i18n-server";
 
@@ -15,7 +15,7 @@ export default async function ExceptionPage({
       <section className="hero compact">
         <div className="eyebrow">{copy.exceptionEye}</div><h1>{copy.exceptionTitle}</h1>
       </section>
-      <CaseException missionId={missionId} />
+      <MissionException missionId={missionId} />
     </main>
   );
 }

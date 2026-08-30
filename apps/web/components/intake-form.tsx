@@ -57,8 +57,8 @@ export function IntakeForm() {
       if (!response.ok || !result.missionId) throw new Error(result.error ?? "INTAKE_FAILED");
       router.push(
         result.status === "READY"
-          ? localize(`/cases/${result.missionId}/review`)
-          : localize(`/cases/${result.missionId}/analyzing`)
+          ? localize(`/missions/${result.missionId}/review`)
+          : localize(`/missions/${result.missionId}/analyzing`)
       );
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "INTAKE_FAILED");

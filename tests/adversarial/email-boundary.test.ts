@@ -13,7 +13,7 @@ describe("managed email authority boundary", () => {
       fail: () => Promise.resolve()
     }, { execute });
     await expect(broker.execute({
-      caseId: "mission_12345678",
+      missionId: "mission_12345678",
       actionOrdinal: 1,
       policy: {
         ownerId: "owner_expected", planVersion: 1, planHash: "sha256:plan",

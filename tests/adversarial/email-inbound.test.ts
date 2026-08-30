@@ -3,13 +3,13 @@ import { emailEventFixtures } from "../../packages/test-fixtures/src/email-event
 import { InboundService } from "../../packages/runtime/src/inbound-service";
 import type { EvidenceService } from "../../packages/runtime/src/evidence-service";
 import type { InterventionService } from "../../packages/runtime/src/interventions";
-import { makeDraftMission } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-mission";
 
 describe("hostile inbound email", () => {
   it("treats injected instructions as data and keeps acknowledgement below DONE", async () => {
     const draft = makeDraftMission();
     const item = {
-      caseId: draft.caseId,
+      missionId: draft.missionId,
       ownerId: draft.ownerId,
       state: "WAITING_EXTERNAL" as const,
       version: 2,
@@ -31,7 +31,7 @@ describe("hostile inbound email", () => {
       {
         get: () => Promise.resolve(item),
         compareAndSet: () => Promise.resolve(),
-        caseForReplyRoute: () => Promise.resolve(item.caseId)
+        caseForReplyRoute: () => Promise.resolve(item.missionId)
       },
       { interpret: ({ text }) => Promise.resolve({
         replyType: "ACKNOWLEDGEMENT",

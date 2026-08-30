@@ -76,7 +76,7 @@ describe("merchant action contract", () => {
     });
     const broker = new ExecutionBroker(new Records(), adapter);
     const input = {
-      caseId: "mission_12345678",
+      missionId: "mission_12345678",
       actionOrdinal: 1,
       policy,
       proposal,

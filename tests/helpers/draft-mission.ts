@@ -12,7 +12,7 @@ export function makeDraftMission(overrides: Partial<DraftMission> = {}): DraftMi
     }
   ];
   return {
-    caseId: "mission_12345678",
+    missionId: "mission_12345678",
     ownerId: "person_12345678",
     artifactId: "artifact_12345678",
     dedupeKey: testHash,
@@ -28,7 +28,7 @@ export function makeDraftMission(overrides: Partial<DraftMission> = {}): DraftMi
     },
     plan: {
       planId: "plan_12345678",
-      caseId: "mission_12345678",
+      missionId: "mission_12345678",
       ownerId: "person_12345678",
       version: 1,
       planHash: testHash,

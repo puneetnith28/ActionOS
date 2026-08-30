@@ -2,24 +2,24 @@ import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 import { caseExportText } from "./mission-export";
 
-export interface CaseExportStore {
+export interface MissionExportStore {
   get(missionId: string): Promise<FollowThroughMission | undefined>;
   listEvidence(missionId: string): Promise<readonly EvidenceRecord[]>;
 }
 
-export async function handleCaseExport(
+export async function handleMissionExport(
   request: Request,
   missionId: string,
   dependencies: {
     authenticate: (request: Request) => Promise<{ uid: string }>;
-    store: CaseExportStore;
+    store: MissionExportStore;
     now: () => string;
   }
 ): Promise<Response> {
   const headers = {
     "Cache-Control": "private, no-store",
     "Content-Type": "text/plain; charset=utf-8",
-    "Content-Disposition": "attachment; filename=actionos-case-summary.txt"
+    "Content-Disposition": "attachment; filename=actionos-mission-summary.txt"
   };
   try {
     const owner = await dependencies.authenticate(request);

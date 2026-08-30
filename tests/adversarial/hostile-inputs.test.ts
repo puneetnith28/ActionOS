@@ -5,7 +5,7 @@ import { ExecutionBroker } from "../../packages/runtime/src/capability-broker";
 import { MissionRunner, type FollowThroughMission } from "../../packages/runtime/src/mission-runner";
 import { IntakeService, type DraftMission } from "../../packages/runtime/src/intake-service";
 import { assertLogicalActionBudget, redactedPublicError } from "../../apps/web/lib/security-limits";
-import { makeDraftMission } from "../helpers/draft-case";
+import { makeDraftMission } from "../helpers/draft-mission";
 
 describe("hostile input and budget boundaries", () => {
   it("treats prompt injection as data and denies its requested authority", () => {
@@ -85,7 +85,7 @@ describe("hostile input and budget boundaries", () => {
   it("moves an over-budget action to attention without calling the adapter", async () => {
     const draft = makeDraftMission();
     let item: FollowThroughMission = {
-      caseId: draft.caseId,
+      missionId: draft.missionId,
       ownerId: draft.ownerId,
       state: "READY",
       version: 1,
@@ -103,7 +103,7 @@ describe("hostile input and budget boundaries", () => {
     const runner = new MissionRunner(
       {
         get: () => Promise.resolve(item),
-        compareAndSet: (_caseId, _version, next) => {
+        compareAndSet: (_missionId, _version, next) => {
           item = next;
           return Promise.resolve();
         }
@@ -119,7 +119,7 @@ describe("hostile input and budget boundaries", () => {
       { scheduleMission: vi.fn() }
     );
     await expect(
-      runner.run({ caseId: item.caseId, expectedVersion: 1, now: "2026-08-16T00:00:00.000Z" })
+      runner.run({ missionId: item.missionId, expectedVersion: 1, now: "2026-08-16T00:00:00.000Z" })
     ).resolves.toMatchObject({ status: "NEEDS_ATTENTION" });
     expect(execute).not.toHaveBeenCalled();
     expect(item.state).toBe("NEEDS_ATTENTION");

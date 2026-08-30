@@ -1,5 +1,5 @@
 import type { ConsumerCaseDetail } from "../lib/mission-projection";
-import { CaseDecisionStory } from "./case-decision-story";
+import { MissionDecisionStory } from "./mission-decision-story";
 import { ResultVerdict } from "./result-verdict";
 
 const previewDetail: ConsumerCaseDetail = {
@@ -36,10 +36,10 @@ const previewDetail: ConsumerCaseDetail = {
   technicalTraceEligible: false
 };
 
-export function CaseResultPreview() {
+export function MissionResultPreview() {
   return <div className="result-grid consumer-mission-detail">
     <ResultVerdict detail={previewDetail} />
-    <CaseDecisionStory detail={previewDetail} />
+    <MissionDecisionStory detail={previewDetail} />
     <p className="dev-preview-note">Development-only visual preview · synthetic data</p>
   </div>;
 }

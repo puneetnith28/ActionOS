@@ -31,7 +31,7 @@ describe("managed email interruption safety", () => {
     ));
     const broker = new ExecutionBroker(store, { execute });
     const input = {
-      caseId: "mission_12345678",
+      missionId: "mission_12345678",
       actionOrdinal: 1,
       policy: {
         ownerId: "owner_12345678", planVersion: 1, planHash: "sha256:plan",

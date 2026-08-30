@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { RuntimeTimelineEvent } from "@actionos/runtime/timeline";
-import { handleCaseResult } from "../lib/result-controller";
+import { handleMissionResult } from "../lib/result-controller";
 
 const item = {
   missionId: "mission_result_12345678",
@@ -39,7 +39,7 @@ const events: RuntimeTimelineEvent[] = [
 
 describe("result controller timeline", () => {
   it("returns persisted actor/time/reason/correlation events for the owner", async () => {
-    const response = await handleCaseResult(
+    const response = await handleMissionResult(
       new Request("https://actionos.test/result"),
       item.missionId,
       {
@@ -57,7 +57,7 @@ describe("result controller timeline", () => {
   });
 
   it("does not expose the ledger across owners", async () => {
-    const response = await handleCaseResult(
+    const response = await handleMissionResult(
       new Request("https://actionos.test/result"),
       item.missionId,
       {

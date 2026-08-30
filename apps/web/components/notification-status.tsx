@@ -29,7 +29,7 @@ export function NotificationStatus({
     <p>{presentation.inAppOnly ? tr("Verification results are preserved locally.", "Los resultados de verificación se preservan aquí.", "Os resultados de verificação são preservados aqui.") : tr("Outbound notification transport failures do not impact autonomous execution state.", "Fallos en el transporte de notificaciones no impactan el estado de ejecución autónoma.", "Falhas no transporte de notificações não impactam o estado de execução autônoma.")}</p>
     {presentation.canRetry ? <button type="button" className="secondary" disabled={busy} onClick={() => {
       setBusy(true); setError(undefined);
-      void anonymousIdToken().then((token) => fetch(`/api/cases/${missionId}/notifications/retry`, {
+      void anonymousIdToken().then((token) => fetch(`/api/missions/${missionId}/notifications/retry`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ notificationId: notification.notificationId })

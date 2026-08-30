@@ -33,7 +33,7 @@ export function AnalysisProgress({ missionId, preview }: { readonly missionId: s
     const poll = async () => {
       try {
         const token = await anonymousIdToken();
-        const response = await fetch(`/api/cases/${missionId}/analysis`, {
+        const response = await fetch(`/api/missions/${missionId}/analysis`, {
           headers: { Authorization: `Bearer ${token}` },
           cache: "no-store"
         });
@@ -43,7 +43,7 @@ export function AnalysisProgress({ missionId, preview }: { readonly missionId: s
         setAnalysis(body);
         setError(undefined);
         if (body.status === "READY") {
-          router.replace(localize(`/cases/${missionId}/review`));
+          router.replace(localize(`/missions/${missionId}/review`));
           return;
         }
         if (body.status !== "FAILED") timeout = setTimeout(() => void poll(), 1_200);
@@ -65,7 +65,7 @@ export function AnalysisProgress({ missionId, preview }: { readonly missionId: s
     setError(undefined);
     try {
       const token = await anonymousIdToken();
-      const response = await fetch(`/api/cases/${missionId}/analysis`, {
+      const response = await fetch(`/api/missions/${missionId}/analysis`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
       });
