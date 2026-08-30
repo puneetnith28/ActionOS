@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { CaseControlService } from "../../packages/runtime/src/case-control";
-import { handleCaseControl } from "../../apps/web/lib/control-controller";
+import { MissionControlService } from "../../packages/runtime/src/mission-control";
+import { handleMissionControl } from "../../apps/web/lib/control-controller";
 import {
   issueArtifactGrant,
   verifyArtifactGrant
@@ -10,7 +10,7 @@ describe("case control isolation", () => {
   it("rejects cross-owner control before any mutation", async () => {
     const transition = vi.fn();
     const deletion = vi.fn();
-    const service = new CaseControlService({
+    const service = new MissionControlService({
       get: vi.fn(() =>
         Promise.resolve({
           caseId: "case_victim_1234",
@@ -26,7 +26,7 @@ describe("case control isolation", () => {
       transition,
       requestDeletion: deletion
     });
-    const response = await handleCaseControl(
+    const response = await handleMissionControl(
       new Request("https://dueback.test/api/cases/case_victim_1234/control", {
         method: "POST",
         body: JSON.stringify({ action: "DELETE", expectedVersion: 2, idempotencyKey: "isolation-command-1234" })

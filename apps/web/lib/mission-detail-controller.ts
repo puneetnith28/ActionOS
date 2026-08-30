@@ -9,7 +9,7 @@ export async function handleCaseDetail(request: Request, missionId: string, depe
   try {
     const owner = await dependencies.authenticate(request);
     const item = await dependencies.store.get(missionId);
-    if (!item || item.ownerId !== owner.uid) return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404, headers });
+    if (!item || item.ownerId !== owner.uid) return Response.json({ error: "MISSION_NOT_FOUND" }, { status: 404, headers });
     const [evidence, interventions, events, notifications, channelEvents] = await Promise.all([
       dependencies.store.listEvidence(missionId), dependencies.store.listInterventions?.(missionId) ?? [], dependencies.store.listEvents?.(missionId) ?? [],
       dependencies.store.listNotifications?.(missionId) ?? [], dependencies.store.listChannelEvents?.(missionId) ?? []

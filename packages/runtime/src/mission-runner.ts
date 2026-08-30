@@ -2,10 +2,10 @@ import type { ExecutionPlan } from "@actionos/contracts";
 import type { ExecutionBoundary, MissionState, VerificationStatus, ProposedCapabilityExecution } from "@actionos/domain";
 import { CapabilityOutcomeUnknownError, type ExecutionBroker, type BrokerResult } from "./capability-broker";
 import type { InterventionService } from "./interventions";
-import type { CaseNotificationService } from "./notifications";
+import type { MissionNotificationService } from "./notifications";
 import { wakeIntent, type WakeIntent } from "./wake-outbox";
 
-export interface FollowThroughCase {
+export interface FollowThroughMission {
   readonly missionId: string;
   readonly ownerId: string;
   readonly state: MissionState;
@@ -29,17 +29,17 @@ export interface FollowThroughCase {
 }
 
 export interface FollowThroughStore {
-  get(missionId: string): Promise<FollowThroughCase | undefined>;
+  get(missionId: string): Promise<FollowThroughMission | undefined>;
   compareAndSet(
     missionId: string,
     expectedVersion: number,
-    next: FollowThroughCase,
+    next: FollowThroughMission,
     wake?: WakeIntent
   ): Promise<void>;
 }
 
 export interface RetryScheduler {
-  scheduleCase(input: {
+  scheduleMission(input: {
     missionId: string;
     expectedVersion: number;
     wakeAt: string;
@@ -56,7 +56,7 @@ export type RunResult =
   | { readonly status: "FAILED"; readonly reason: "ACTION_DENIED" }
   | { readonly status: "NEEDS_ATTENTION"; readonly reason: "RECOVERY_EXHAUSTED" | "ACTION_BUDGET_EXHAUSTED" };
 
-function actionProposal(item: FollowThroughCase): ProposedCapabilityExecution {
+function actionProposal(item: FollowThroughMission): ProposedCapabilityExecution {
   const requirement = item.plan.evidenceRequirements[0];
   if (!requirement) throw new Error("EVIDENCE_REQUIREMENT_MISSING");
   const sharedFields: Record<string, string> = { transactionRef: requirement.transactionRef };
@@ -81,7 +81,7 @@ function actionProposal(item: FollowThroughCase): ProposedCapabilityExecution {
   };
 }
 
-export class CaseRunner {
+export class MissionRunner {
   constructor(
     private readonly store: FollowThroughStore,
     private readonly broker: ExecutionBroker,
@@ -89,7 +89,7 @@ export class CaseRunner {
     private readonly retryDelaySeconds = 30,
     private readonly maxAttempts = 5,
     private readonly interventions?: InterventionService,
-    private readonly terminalNotifications?: CaseNotificationService
+    private readonly terminalNotifications?: MissionNotificationService
   ) {}
 
   async run(input: {
@@ -99,7 +99,7 @@ export class CaseRunner {
     correlationId?: string;
   }): Promise<RunResult> {
     const item = await this.store.get(input.missionId);
-    if (!item) throw new Error("CASE_NOT_FOUND");
+    if (!item) throw new Error("MISSION_NOT_FOUND");
     if (
       item.version !== input.expectedVersion ||
       !["READY", "WAITING_RETRY", "WAITING_EXTERNAL"].includes(item.state)
@@ -108,7 +108,7 @@ export class CaseRunner {
         ["READY", "WAITING_RETRY", "WAITING_EXTERNAL"].includes(item.state) &&
         item.nextWakeAt
       ) {
-        await this.scheduler.scheduleCase({
+        await this.scheduler.scheduleMission({
           missionId: item.missionId,
           expectedVersion: item.version,
           wakeAt: item.nextWakeAt,
@@ -124,7 +124,7 @@ export class CaseRunner {
     if (item.actionOrdinal > maxLogicalSends) {
       const caseWithoutWake = { ...item };
       delete caseWithoutWake.nextWakeAt;
-      const exhausted: FollowThroughCase = {
+      const exhausted: FollowThroughMission = {
         ...caseWithoutWake,
         state: "NEEDS_ATTENTION",
         version: item.version + 1,
@@ -178,7 +178,7 @@ export class CaseRunner {
       const nextWakeAt = new Date(
         Date.parse(input.now) + followUpIntervalSeconds * 1000
       ).toISOString();
-      const waitingExternal: FollowThroughCase = {
+      const waitingExternal: FollowThroughMission = {
         missionId: item.missionId,
         ownerId: item.ownerId,
         state: "WAITING_EXTERNAL",
@@ -208,7 +208,7 @@ export class CaseRunner {
       });
       await this.store.compareAndSet(item.missionId, item.version, waitingExternal, wake);
       try {
-        await this.scheduler.scheduleCase(wake);
+        await this.scheduler.scheduleMission(wake);
       } catch (error) {
         throw new Error("WAKE_DISPATCH_FAILED", { cause: error });
       }
@@ -216,7 +216,7 @@ export class CaseRunner {
     } catch (error) {
       if (error instanceof Error && error.message === "WAKE_DISPATCH_FAILED") throw error;
       if (error instanceof Error && error.message.startsWith("ACTION_DENIED:")) {
-        const failed: FollowThroughCase = {
+        const failed: FollowThroughMission = {
           ...item,
           state: "FAILED",
           version: item.version + 1,
@@ -238,7 +238,7 @@ export class CaseRunner {
       }
       const attemptCount = (item.attemptCount ?? 0) + 1;
       if (attemptCount >= this.maxAttempts) {
-        const exhausted: FollowThroughCase = {
+        const exhausted: FollowThroughMission = {
           ...item,
           state: "NEEDS_ATTENTION",
           version: item.version + 1,
@@ -287,7 +287,7 @@ export class CaseRunner {
           : {})
       });
       await this.store.compareAndSet(item.missionId, item.version, next, wake);
-      await this.scheduler.scheduleCase(wake);
+      await this.scheduler.scheduleMission(wake);
       return { status: "WAITING_RETRY", wakeAt: retryAt };
     }
   }

@@ -22,7 +22,7 @@ export function CaseExport({ missionId }: { readonly missionId: string }) {
   };
   return <section className="card case-export">
     <h2>Keep a safe summary</h2>
-    <p>Copy or download a static redacted record. It contains no link or case-control authority.</p>
+    <p>Copy or download a static redacted record. It contains no link or mission-control authority.</p>
     <div className="button-row">
       <button type="button" className="secondary" disabled={busy} onClick={() => {
         run((text) => navigator.clipboard.writeText(text), "Summary copied.");

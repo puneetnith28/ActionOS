@@ -14,10 +14,10 @@ import {
   type Reservation
 } from "../../packages/runtime/src/capability-broker";
 import {
-  CaseRunner,
-  type FollowThroughCase,
+  MissionRunner,
+  type FollowThroughMission,
   type FollowThroughStore
-} from "../../packages/runtime/src/case-runner";
+} from "../../packages/runtime/src/mission-runner";
 import {
   EvidenceService,
   type EvidenceCaseStore,
@@ -41,18 +41,18 @@ class WalkingStore
   readonly evidence: EvidenceRecord[] = [];
   readonly notifications = new Map<string, NotificationRecord>();
   readonly callbacks = new Map<string, "IN_FLIGHT" | "COMPLETED">();
-  constructor(public item: FollowThroughCase) {}
-  get(): Promise<FollowThroughCase> {
+  constructor(public item: FollowThroughMission) {}
+  get(): Promise<FollowThroughMission> {
     return Promise.resolve(this.item);
   }
-  compareAndSet(_caseId: string, expectedVersion: number, next: FollowThroughCase): Promise<void> {
+  compareAndSet(_caseId: string, expectedVersion: number, next: FollowThroughMission): Promise<void> {
     if (this.item.version !== expectedVersion) throw new Error("VERSION_CONFLICT");
     this.item = next;
     return Promise.resolve();
   }
   record(input: {
     expectedVersion: number;
-    nextState: FollowThroughCase["state"];
+    nextState: FollowThroughMission["state"];
     evidence: EvidenceRecord;
   }): Promise<{ duplicate: boolean }> {
     if (
@@ -172,13 +172,13 @@ describe("refund walking skeleton", () => {
       callbackDelayMs: 5
     });
     const merchantUrl = await listen(merchantServer);
-    const runner = new CaseRunner(
+    const runner = new MissionRunner(
       store,
       new ExecutionBroker(
         store,
         new MerchantSandboxAdapter({ baseUrl: merchantUrl, scenario: "signed-completion" })
       ),
-      { scheduleCase: () => Promise.resolve({}) }
+      { scheduleMission: () => Promise.resolve({}) }
     );
     try {
       await expect(

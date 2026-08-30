@@ -48,7 +48,7 @@ export interface EvidenceCaseStore {
 }
 
 export interface EvidenceScheduler {
-  scheduleCase(input: {
+  scheduleMission(input: {
     missionId: string;
     expectedVersion: number;
     wakeAt: string;
@@ -76,7 +76,7 @@ export class VerificationService {
     intervention?: InterventionRecord;
   }> {
     const item = await this.cases.get(candidate.missionId);
-    if (!item) throw new Error("CASE_NOT_FOUND");
+    if (!item) throw new Error("MISSION_NOT_FOUND");
     if (!["RUNNING", "WAITING_EXTERNAL"].includes(item.state)) {
       throw new Error("EVIDENCE_NOT_ACCEPTED_IN_STATE");
     }
@@ -107,7 +107,7 @@ export class VerificationService {
       ...(wake ? { wake } : {}),
       verification: { candidate, verification, recordedAt: now, correlationId }
     });
-    if (wake && !recorded.duplicate) await this.scheduler?.scheduleCase(wake);
+    if (wake && !recorded.duplicate) await this.scheduler?.scheduleMission(wake);
     if (!accepted) {
       if (!conflict) {
         return { status: "INSUFFICIENT", verification };

@@ -1,11 +1,11 @@
-import type { FollowThroughCase } from "./case-runner";
+import type { FollowThroughMission } from "./mission-runner";
 import { stableHash } from "@actionos/domain";
 import { wakeIntent, type WakeIntent } from "./wake-outbox";
 
-export type CaseControlAction = "STOP" | "REVOKE" | "EXPIRE" | "REOPEN" | "RESUME" | "REVISE" | "DELETE";
+export type MissionControlAction = "STOP" | "REVOKE" | "EXPIRE" | "REOPEN" | "RESUME" | "REVISE" | "DELETE";
 
 export interface ControlScheduler {
-  scheduleCase(input: {
+  scheduleMission(input: {
     missionId: string;
     expectedVersion: number;
     wakeAt: string;
@@ -20,24 +20,24 @@ export interface DeletionReceipt {
   readonly tombstoneId: string;
 }
 
-export interface CaseControlStore {
+export interface MissionControlStore {
   getCommandResult?(input: {
     idempotencyKey: string;
     missionId: string;
     ownerId: string;
-    action: CaseControlAction;
-  }): Promise<FollowThroughCase | DeletionReceipt | undefined>;
-  get(missionId: string): Promise<FollowThroughCase | undefined>;
+    action: MissionControlAction;
+  }): Promise<FollowThroughMission | DeletionReceipt | undefined>;
+  get(missionId: string): Promise<FollowThroughMission | undefined>;
   transition(input: {
     missionId: string;
     ownerId: string;
     expectedVersion: number;
-    action: Exclude<CaseControlAction, "DELETE" | "REVISE">;
+    action: Exclude<MissionControlAction, "DELETE" | "REVISE">;
     reason: string;
     now: string;
     idempotencyKey: string;
     wake?: WakeIntent;
-  }): Promise<FollowThroughCase>;
+  }): Promise<FollowThroughMission>;
   requestDeletion(input: {
     missionId: string;
     ownerId: string;
@@ -52,12 +52,12 @@ export interface CaseControlStore {
     reason: string;
     now: string;
     idempotencyKey: string;
-  }): Promise<FollowThroughCase>;
+  }): Promise<FollowThroughMission>;
 }
 
-export class CaseControlService {
+export class MissionControlService {
   constructor(
-    private readonly store: CaseControlStore,
+    private readonly store: MissionControlStore,
     private readonly scheduler?: ControlScheduler
   ) {}
 
@@ -65,13 +65,13 @@ export class CaseControlService {
     missionId: string;
     ownerId: string;
     expectedVersion: number;
-    action: CaseControlAction;
+    action: MissionControlAction;
     reason?: string;
     now: string;
     idempotencyKey?: string;
-  }): Promise<FollowThroughCase | DeletionReceipt> {
+  }): Promise<FollowThroughMission | DeletionReceipt> {
     const idempotencyKey = input.idempotencyKey ?? stableHash({
-      namespace: "dueback/case-control/v1",
+      namespace: "dueback/mission-control/v1",
       missionId: input.missionId,
       ownerId: input.ownerId,
       expectedVersion: input.expectedVersion,
@@ -84,7 +84,7 @@ export class CaseControlService {
     if (prior) {
       if (input.action === "RESUME" && "state" in prior) {
         if (!this.scheduler) throw new Error("CONTROL_SCHEDULER_REQUIRED");
-        await this.scheduler.scheduleCase({
+        await this.scheduler.scheduleMission({
           missionId: prior.missionId,
           expectedVersion: prior.version,
           wakeAt: prior.nextWakeAt ?? prior.controlledAt ?? input.now,
@@ -94,7 +94,7 @@ export class CaseControlService {
       return prior;
     }
     const item = await this.store.get(input.missionId);
-    if (!item) throw new Error("CASE_NOT_FOUND");
+    if (!item) throw new Error("MISSION_NOT_FOUND");
     if (item.ownerId !== input.ownerId) throw new Error("CASE_OWNERSHIP_REQUIRED");
     if (item.version !== input.expectedVersion) throw new Error("VERSION_CONFLICT");
     if (input.action === "DELETE") {
@@ -146,7 +146,7 @@ export class CaseControlService {
     });
     if (input.action === "RESUME") {
       if (!this.scheduler) throw new Error("CONTROL_SCHEDULER_REQUIRED");
-      await this.scheduler.scheduleCase({
+      await this.scheduler.scheduleMission({
         missionId: next.missionId,
         expectedVersion: next.version,
         wakeAt: input.now,

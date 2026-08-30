@@ -1,4 +1,4 @@
-import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 
 export interface ConversationEntry {
@@ -29,7 +29,7 @@ function explicitFacts(record: EvidenceRecord): string {
 }
 
 export function missionConversation(
-  item: FollowThroughCase,
+  item: FollowThroughMission,
   verification: readonly EvidenceRecord[],
   channelEvents: readonly { acceptedAt: string; transportStatus: string }[]
 ): ConversationEntry[] {

@@ -37,7 +37,7 @@ const previewDetail: ConsumerCaseDetail = {
 };
 
 export function CaseResultPreview() {
-  return <div className="result-grid consumer-case-detail">
+  return <div className="result-grid consumer-mission-detail">
     <ResultVerdict detail={previewDetail} />
     <CaseDecisionStory detail={previewDetail} />
     <p className="dev-preview-note">Development-only visual preview · synthetic data</p>

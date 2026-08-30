@@ -1,4 +1,4 @@
-import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { NotificationDeliveryService, NotificationRecord } from "@actionos/runtime/notifications";
 
 export interface NotificationRetryStore {
@@ -19,7 +19,7 @@ export async function handleNotificationRetry(
   try {
     const owner = await dependencies.authenticate(request);
     const item = await dependencies.store.get(missionId);
-    if (!item || item.ownerId !== owner.uid) return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404, headers });
+    if (!item || item.ownerId !== owner.uid) return Response.json({ error: "MISSION_NOT_FOUND" }, { status: 404, headers });
     const body = await request.json() as { notificationId?: string };
     const notifications = await dependencies.store.listNotifications(missionId);
     const record = body.notificationId

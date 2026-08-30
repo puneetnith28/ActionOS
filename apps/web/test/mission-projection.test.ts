@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { managedEmailProjectionFixture, sandboxProjectionFixture, weakAcknowledgementFixture } from "@actionos/test-fixtures/mission-projections";
 import { projectConsumerMission } from "../lib/mission-projection";
-import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 
-const managed = managedEmailProjectionFixture as unknown as FollowThroughCase;
-const sandbox = sandboxProjectionFixture as unknown as FollowThroughCase;
+const managed = managedEmailProjectionFixture as unknown as FollowThroughMission;
+const sandbox = sandboxProjectionFixture as unknown as FollowThroughMission;
 const acknowledgement = weakAcknowledgementFixture as unknown as EvidenceRecord;
 
 describe("consumer mission projection", () => {

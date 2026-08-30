@@ -18,7 +18,7 @@ export class TaskScheduler {
     private readonly config: TaskSchedulerConfig
   ) {}
 
-  async scheduleCase(input: {
+  async scheduleMission(input: {
     readonly missionId: string;
     readonly expectedVersion: number;
     readonly wakeAt: string;

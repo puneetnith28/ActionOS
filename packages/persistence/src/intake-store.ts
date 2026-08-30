@@ -66,7 +66,7 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
     const runReference = this.db.collection("caseRuns").doc(missionId);
     await this.db.runTransaction(async (transaction) => {
       const current = await transaction.get(reference);
-      if (!current.exists) throw new Error("CASE_NOT_FOUND");
+      if (!current.exists) throw new Error("MISSION_NOT_FOUND");
       const currentDraft = current.data() as DraftCase;
       if (currentDraft.plan.version !== expectedPlanVersion) throw new Error("STALE_PLAN_VERSION");
       transaction.set(reference, next);

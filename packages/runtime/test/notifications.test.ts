@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   NotificationDeliveryService,
-  CaseNotificationService,
+  MissionNotificationService,
   notificationRecord,
   type NotificationRecord
 } from "../src/notifications";
@@ -112,7 +112,7 @@ describe("notification delivery", () => {
       },
       updateDelivery: () => Promise.resolve()
     };
-    const service = new CaseNotificationService(store, new NotificationDeliveryService(store, { deliver }));
+    const service = new MissionNotificationService(store, new NotificationDeliveryService(store, { deliver }));
     const input = {
       missionId: "case_12345678", ownerId: "owner_12345678", kind: "CASE_FAILED" as const,
       createdAt: "2026-08-16T12:00:00.000Z", correlationId: "corr_failed_12345678",

@@ -1,4 +1,4 @@
-import type { CaseRunner } from "@actionos/runtime/case-runner";
+import type { MissionRunner } from "@actionos/runtime/mission-runner";
 import {
   requireCloudTaskIdentity,
   type CloudTaskIdentityVerifier
@@ -6,7 +6,7 @@ import {
 
 export async function handleRunCaseTask(
   request: Request,
-  runner: CaseRunner,
+  runner: MissionRunner,
   now: () => string,
   identityVerifier?: CloudTaskIdentityVerifier
 ): Promise<Response> {

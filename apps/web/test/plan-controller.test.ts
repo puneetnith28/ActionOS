@@ -155,11 +155,11 @@ describe("plan API contract", () => {
       },
       activationBlocked: false, blockingFields: [], createdAt: "2026-08-15T00:00:00.000Z"
     };
-    const scheduleCase = () => Promise.resolve({});
+    const scheduleMission = () => Promise.resolve({});
     const service = new PlanService({
       get: () => Promise.resolve(draft),
       replace: (_missionId, _version, next) => { draft = next; return Promise.resolve(); }
-    }, { scheduleCase });
+    }, { scheduleMission });
     const response = await handlePlanRequest(new Request(
       "https://actionos.test/api/cases/mission_12345678/plan",
       { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({

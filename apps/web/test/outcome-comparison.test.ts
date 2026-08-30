@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 import { outcomeComparison } from "../lib/outcome-comparison";
 
-const item = { plan: { evidenceRequirements: [{ minimumStatus: "OUTCOME_CONFIRMED", transactionRef: "R-59", amountMinor: 5900, currency: "USD" }] } } as FollowThroughCase;
+const item = { plan: { evidenceRequirements: [{ minimumStatus: "OUTCOME_CONFIRMED", transactionRef: "R-59", amountMinor: 5900, currency: "USD" }] } } as FollowThroughMission;
 
 describe("promised versus observed", () => {
   it("keeps facts absent when the company did not state them", () => {

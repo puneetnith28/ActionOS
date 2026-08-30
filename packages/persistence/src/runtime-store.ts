@@ -1,7 +1,7 @@
 import { FieldValue, type Firestore } from "firebase-admin/firestore";
 import type { ExecutionReceipt, ExecutionRecordStore, Reservation } from "@actionos/runtime/capability-broker";
 import type { ExternalSendBudget } from "@actionos/runtime/capability-broker";
-import type { FollowThroughCase, FollowThroughStore } from "@actionos/runtime/case-runner";
+import type { FollowThroughMission, FollowThroughStore } from "@actionos/runtime/mission-runner";
 import type { EvidenceCaseStore, EvidenceRecord } from "@actionos/runtime/verification-service";
 import type { NotificationRecord, NotificationStore } from "@actionos/runtime/notifications";
 import type { InterventionRecord, InterventionStore } from "@actionos/runtime/interventions";
@@ -75,18 +75,18 @@ export class FirestoreRuntimeStore
     });
   }
 
-  async get(missionId: string): Promise<FollowThroughCase | undefined> {
+  async get(missionId: string): Promise<FollowThroughMission | undefined> {
     const document = await this.db.collection("caseRuns").doc(missionId).get();
-    return document.exists ? (document.data() as FollowThroughCase) : undefined;
+    return document.exists ? (document.data() as FollowThroughMission) : undefined;
   }
 
-  async listByOwner(ownerId: string, limit: number): Promise<readonly FollowThroughCase[]> {
+  async listByOwner(ownerId: string, limit: number): Promise<readonly FollowThroughMission[]> {
     const snapshot = await this.db
       .collection("caseRuns")
       .where("ownerId", "==", ownerId)
       .limit(Math.min(Math.max(limit, 1), 50))
       .get();
-    return snapshot.docs.map((document) => document.data() as FollowThroughCase);
+    return snapshot.docs.map((document) => document.data() as FollowThroughMission);
   }
 
   async listEvidence(missionId: string): Promise<readonly EvidenceRecord[]> {
@@ -138,13 +138,13 @@ export class FirestoreRuntimeStore
   async compareAndSet(
     missionId: string,
     expectedVersion: number,
-    next: FollowThroughCase,
+    next: FollowThroughMission,
     wake?: WakeIntent
   ): Promise<void> {
     const reference = this.db.collection("caseRuns").doc(missionId);
     await this.db.runTransaction(async (transaction) => {
       const current = await transaction.get(reference);
-      if (!current.exists) throw new Error("CASE_NOT_FOUND");
+      if (!current.exists) throw new Error("MISSION_NOT_FOUND");
       if (current.get("version") !== expectedVersion) throw new Error("VERSION_CONFLICT");
       const occurredAt = next.updatedAt ?? next.lastAttemptAt ?? new Date().toISOString();
       transaction.set(reference, { ...next, updatedAt: occurredAt });
@@ -371,7 +371,7 @@ export class FirestoreRuntimeStore
   async record(input: {
     missionId: string;
     expectedVersion: number;
-    nextState: FollowThroughCase["state"];
+    nextState: FollowThroughMission["state"];
     nextWakeAt?: string;
     verification: EvidenceRecord;
     wake?: WakeIntent;
@@ -383,7 +383,7 @@ export class FirestoreRuntimeStore
         transaction.get(caseRef),
         transaction.get(evidenceRef)
       ]);
-      if (!item.exists) throw new Error("CASE_NOT_FOUND");
+      if (!item.exists) throw new Error("MISSION_NOT_FOUND");
       if (prior.exists) return { duplicate: true };
       if (item.get("version") !== input.expectedVersion) throw new Error("VERSION_CONFLICT");
       transaction.create(evidenceRef, {

@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import type { ExecutionOutcomeContract } from "@actionos/contracts";
 import { InboundService } from "../src/inbound-service";
-import type { FollowThroughCase } from "../src/case-runner";
+import type { FollowThroughMission } from "../src/mission-runner";
 import type { VerificationService } from "../src/verification-service";
 import type { InterventionService } from "../src/interventions";
 import { makeDraft } from "./support";
 
 const draft = makeDraft();
-const item: FollowThroughCase = {
+const item: FollowThroughMission = {
   missionId: draft.missionId,
   ownerId: draft.ownerId,
   state: "WAITING_EXTERNAL",
@@ -78,7 +78,7 @@ describe("inbound service", () => {
   });
 
   it("passes only explicitly extracted replacement subject and tracking facts", async () => {
-    const replacement: FollowThroughCase = {
+    const replacement: FollowThroughMission = {
       ...item,
       plan: {
         ...item.plan,

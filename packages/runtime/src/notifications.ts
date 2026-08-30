@@ -98,7 +98,7 @@ export class NotificationDeliveryService {
   }
 }
 
-export class CaseNotificationService {
+export class MissionNotificationService {
   constructor(
     private readonly store: NotificationStore,
     private readonly delivery?: NotificationDeliveryService

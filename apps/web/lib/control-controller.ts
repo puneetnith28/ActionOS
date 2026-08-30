@@ -1,11 +1,11 @@
-import type { CaseControlService } from "@actionos/runtime/case-control";
+import type { MissionControlService } from "@actionos/runtime/mission-control";
 
-export async function handleCaseControl(
+export async function handleMissionControl(
   request: Request,
   missionId: string,
   dependencies: {
     authenticate: (request: Request) => Promise<{ uid: string }>;
-    service: CaseControlService;
+    service: MissionControlService;
     now: () => string;
   }
 ): Promise<Response> {

@@ -1,4 +1,4 @@
-import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import { technicalRunProjection, type TechnicalRunSource } from "@actionos/runtime/technical-run";
 
 export interface TechnicalRunStore {
@@ -18,7 +18,7 @@ export async function handleTechnicalRun(
   try {
     const owner = await dependencies.authenticate(request);
     const item = await dependencies.store.get(missionId);
-    if (!item || item.ownerId !== owner.uid) return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404, headers });
+    if (!item || item.ownerId !== owner.uid) return Response.json({ error: "MISSION_NOT_FOUND" }, { status: 404, headers });
     if (item.plan.executionMode !== "ACCELERATED_DEMO")
       return Response.json({ error: "TECHNICAL_RUN_NOT_ELIGIBLE" }, { status: 403, headers });
     const source = await dependencies.store.technicalRunSource(missionId);

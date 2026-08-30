@@ -76,7 +76,7 @@ describe("VerificationService", () => {
       wakeAt: string;
       correlationId?: string;
     }> = [];
-    const scheduleCase = (input: typeof scheduled[number]): Promise<unknown> => {
+    const scheduleMission = (input: typeof scheduled[number]): Promise<unknown> => {
       scheduled.push(input);
       return Promise.resolve({});
     };
@@ -85,7 +85,7 @@ describe("VerificationService", () => {
       notifications,
       undefined,
       undefined,
-      { scheduleCase }
+      { scheduleMission }
     ).verifyOutcome(
       candidate("ACTION_ATTEMPTED"),
       "2026-08-15T12:00:05.000Z"

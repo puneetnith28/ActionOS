@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     projectId,
     location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
     queue: process.env.CLOUD_TASKS_QUEUE ?? "actionos-cases",
-    workerUrl: `${baseUrl}/api/internal/tasks/run-case`,
+    workerUrl: `${baseUrl}/api/internal/tasks/run-mission`,
     inboundWorkerUrl: `${baseUrl}/api/internal/tasks/process-inbound`,
     serviceAccountEmail,
     ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE

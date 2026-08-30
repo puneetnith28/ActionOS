@@ -1,4 +1,4 @@
-import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 import { outcomeComparison } from "./outcome-comparison";
 
@@ -7,7 +7,7 @@ function redactReference(value: string): string {
   return `••••${value.slice(-4)}`;
 }
 
-export function caseExportText(item: FollowThroughCase, verification: readonly EvidenceRecord[], generatedAt: string): string {
+export function caseExportText(item: FollowThroughMission, verification: readonly EvidenceRecord[], generatedAt: string): string {
   const latest = evidence.at(-1);
   const rows = outcomeComparison(item, evidence).map((row) => ({
     ...row,

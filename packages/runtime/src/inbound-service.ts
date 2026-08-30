@@ -1,6 +1,6 @@
 import type { ExecutionOutcomeContract } from "@actionos/contracts";
 import { stableHash } from "@actionos/domain";
-import type { FollowThroughStore } from "./case-runner";
+import type { FollowThroughStore } from "./mission-runner";
 import type { VerificationService } from "./verification-service";
 import type { InterventionService } from "./interventions";
 
@@ -75,7 +75,7 @@ export class InboundService {
       }
     }
     const item = await this.cases.get(missionId);
-    if (!item) return { status: "REJECTED", reasonCodes: ["CASE_NOT_FOUND"] };
+    if (!item) return { status: "REJECTED", reasonCodes: ["MISSION_NOT_FOUND"] };
     if (!["RUNNING", "WAITING_EXTERNAL"].includes(item.state)) {
       return { status: "REJECTED", reasonCodes: ["CASE_NOT_ACCEPTING_INBOUND"] };
     }

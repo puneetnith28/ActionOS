@@ -1,21 +1,21 @@
 import { describe, expect, it } from "vitest";
-import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import { caseSummary, handleCases, type CaseSummary } from "../lib/missions-controller";
 
-function item(state: FollowThroughCase["state"], ownerId = "owner_12345678") {
+function item(state: FollowThroughMission["state"], ownerId = "owner_12345678") {
   return {
     missionId: `mission_${state.toLowerCase()}_12345678`, ownerId, state, dueAt: "2026-08-17T12:00:00.000Z",
     plan: { counterpartyName: "Northstar Store", allowedRecipient: "support@example.com", channelType: "MANAGED_EMAIL",
       evidenceRequirements: [{ subject: "USD 59 refund", transactionRef: "R-59" }] }
-  } as unknown as FollowThroughCase;
+  } as unknown as FollowThroughMission;
 }
 
-function datedItem(state: FollowThroughCase["state"], date: string, suffix: string) {
+function datedItem(state: FollowThroughMission["state"], date: string, suffix: string) {
   return {
     ...item(state),
     missionId: `mission_${suffix}_12345678`,
     dueAt: date
-  } as FollowThroughCase;
+  } as FollowThroughMission;
 }
 
 describe("owner mission inbox", () => {

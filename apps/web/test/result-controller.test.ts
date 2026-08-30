@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { RuntimeTimelineEvent } from "@actionos/runtime/timeline";
 import { handleCaseResult } from "../lib/result-controller";
 
@@ -8,7 +8,7 @@ const item = {
   ownerId: "person_owner_12345678",
   state: "DONE",
   version: 4
-} as unknown as FollowThroughCase;
+} as unknown as FollowThroughMission;
 
 const events: RuntimeTimelineEvent[] = [
   {
@@ -69,7 +69,7 @@ describe("result controller timeline", () => {
       }
     );
     expect(response.status).toBe(404);
-    await expect(response.json()).resolves.toEqual({ error: "CASE_NOT_FOUND" });
+    await expect(response.json()).resolves.toEqual({ error: "MISSION_NOT_FOUND" });
     expect(response.headers.get("cache-control")).toBe("private, no-store");
   });
 });

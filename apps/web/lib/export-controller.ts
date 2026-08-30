@@ -1,4 +1,4 @@
-import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 import { caseExportText } from "./case-export";
 
@@ -24,7 +24,7 @@ export async function handleCaseExport(
   try {
     const owner = await dependencies.authenticate(request);
     const item = await dependencies.store.get(missionId);
-    if (!item || item.ownerId !== owner.uid) return new Response("CASE_NOT_FOUND", { status: 404, headers });
+    if (!item || item.ownerId !== owner.uid) return new Response("MISSION_NOT_FOUND", { status: 404, headers });
     const evidence = await dependencies.store.listEvidence(missionId);
     return new Response(caseExportText(item, evidence, dependencies.now()), { headers });
   } catch (error) {

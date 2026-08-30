@@ -12,7 +12,7 @@ export async function handleAnalysisStatus(
   try {
     const owner = await dependencies.authenticate(request);
     const job = await dependencies.store.getOwnedCase(missionId, owner.uid);
-    if (!job) return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404, headers: privateHeaders });
+    if (!job) return Response.json({ error: "MISSION_NOT_FOUND" }, { status: 404, headers: privateHeaders });
     return Response.json({
       missionId: job.missionId,
       status: job.status,
@@ -56,7 +56,7 @@ export async function handleAnalysisRetry(
     const authenticationError = ["AUTHENTICATION_REQUIRED", "INVALID_ID_TOKEN"].includes(code);
     const notFound = code === "ANALYSIS_JOB_NOT_FOUND";
     return Response.json(
-      { error: authenticationError ? code : notFound ? "CASE_NOT_FOUND" : "ANALYSIS_RETRY_FAILED" },
+      { error: authenticationError ? code : notFound ? "MISSION_NOT_FOUND" : "ANALYSIS_RETRY_FAILED" },
       { status: authenticationError ? 401 : notFound ? 404 : 500, headers: privateHeaders }
     );
   }

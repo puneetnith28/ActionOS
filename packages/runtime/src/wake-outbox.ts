@@ -47,7 +47,7 @@ export interface WakeOutboxStore {
 }
 
 export interface WakeTaskScheduler {
-  scheduleCase(input: {
+  scheduleMission(input: {
     missionId: string;
     expectedVersion: number;
     wakeAt: string;
@@ -62,7 +62,7 @@ export class DurableWakeScheduler implements WakeTaskScheduler {
     private readonly now: () => string
   ) {}
 
-  async scheduleCase(input: {
+  async scheduleMission(input: {
     missionId: string;
     expectedVersion: number;
     wakeAt: string;
@@ -70,7 +70,7 @@ export class DurableWakeScheduler implements WakeTaskScheduler {
   }): Promise<{ taskName: string; duplicate: boolean }> {
     const intent = wakeIntent({ ...input, createdAt: this.now() });
     try {
-      const result = await this.tasks.scheduleCase(input);
+      const result = await this.tasks.scheduleMission(input);
       await this.outbox.markDispatched(intent.intentId, result.taskName, this.now());
       return result;
     } catch (error) {
@@ -89,7 +89,7 @@ export class DurableWakeScheduler implements WakeTaskScheduler {
     let failed = 0;
     for (const intent of pending) {
       try {
-        await this.scheduleCase({
+        await this.scheduleMission({
           missionId: intent.missionId,
           expectedVersion: intent.expectedVersion,
           wakeAt: intent.wakeAt,

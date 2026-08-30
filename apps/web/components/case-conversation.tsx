@@ -1,4 +1,4 @@
-import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 import { caseConversation } from "../lib/case-conversation";
 
@@ -7,7 +7,7 @@ export function CaseConversation({
   evidence,
   channelEvents
 }: {
-  readonly item: FollowThroughCase;
+  readonly item: FollowThroughMission;
   readonly verification: readonly EvidenceRecord[];
   readonly channelEvents: readonly { acceptedAt: string; transportStatus: string }[];
 }) {

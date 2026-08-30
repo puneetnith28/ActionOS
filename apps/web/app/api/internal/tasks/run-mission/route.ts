@@ -9,9 +9,9 @@ import {
 } from "@actionos/runtime/capability-registry";
 import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
 import { ExecutionBroker } from "@actionos/runtime/capability-broker";
-import { CaseRunner } from "@actionos/runtime/case-runner";
+import { MissionRunner } from "@actionos/runtime/mission-runner";
 import { InterventionService } from "@actionos/runtime/interventions";
-import { CaseNotificationService } from "@actionos/runtime/notifications";
+import { MissionNotificationService } from "@actionos/runtime/notifications";
 import { TaskScheduler } from "@actionos/runtime/task-scheduler";
 import { firestore } from "../../../../../lib/firebase-admin";
 import { handleRunCaseTask } from "../../../../../lib/task-controller";
@@ -108,14 +108,14 @@ export async function POST(request: Request) {
         : {})
     }
   ]);
-  const runner = new CaseRunner(
+  const runner = new MissionRunner(
     store,
     new ExecutionBroker(store, new RoutingCapabilityAdapter(registry), store),
     scheduler,
     30,
     5,
     new InterventionService(store, store, notificationDelivery(store)),
-    new CaseNotificationService(store, notificationDelivery(store))
+    new MissionNotificationService(store, notificationDelivery(store))
   );
   return handleRunCaseTask(request, runner, () => new Date().toISOString());
 }

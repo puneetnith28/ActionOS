@@ -1,4 +1,4 @@
-import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { AnalysisJob } from "@actionos/contracts";
 
 export type CaseBucket = "NEEDS_YOU" | "WORKING" | "DONE";
@@ -17,7 +17,7 @@ export interface CaseSummary {
 }
 
 export interface OwnerCaseStore {
-  listByOwner(ownerId: string, limit: number): Promise<readonly FollowThroughCase[]>;
+  listByOwner(ownerId: string, limit: number): Promise<readonly FollowThroughMission[]>;
 }
 
 function analysisSummary(job: AnalysisJob): CaseSummary {
@@ -68,13 +68,13 @@ function decodeCursor(value: string, requestedBucket: CaseBucket | null): CaseCu
   }
 }
 
-function bucket(state: FollowThroughCase["state"]): CaseBucket {
+function bucket(state: FollowThroughMission["state"]): CaseBucket {
   if (["NEEDS_ATTENTION", "FAILED"].includes(state)) return "NEEDS_YOU";
   if (["DONE", "CANCELLED", "EXPIRED"].includes(state)) return "DONE";
   return "WORKING";
 }
 
-const status: Record<FollowThroughCase["state"], string> = {
+const status: Record<FollowThroughMission["state"], string> = {
   DRAFT: "Draft",
   AWAITING_APPROVAL: "Ready for your review",
   READY: "Scheduled",
@@ -88,7 +88,7 @@ const status: Record<FollowThroughCase["state"], string> = {
   EXPIRED: "Approval expired"
 };
 
-function nextStep(item: FollowThroughCase): string {
+function nextStep(item: FollowThroughMission): string {
   if (item.state === "NEEDS_ATTENTION") return "Review one decision";
   if (item.state === "DONE") return "Review the proof and limitation";
   if (item.state === "FAILED") return "Review why ActionOS stopped";
@@ -97,11 +97,11 @@ function nextStep(item: FollowThroughCase): string {
   return "ActionOS will keep this open until there is proof";
 }
 
-function companyName(item: FollowThroughCase): string {
+function companyName(item: FollowThroughMission): string {
   return item.plan.counterpartyName?.trim() || "Company";
 }
 
-export function caseSummary(item: FollowThroughCase): CaseSummary {
+export function caseSummary(item: FollowThroughMission): CaseSummary {
   const requirement = item.plan.evidenceRequirements[0];
   return {
     missionId: item.missionId,

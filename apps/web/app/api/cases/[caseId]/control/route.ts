@@ -1,9 +1,9 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
-import { FirestoreCaseControlStore } from "@actionos/persistence/retention";
-import { CaseControlService } from "@actionos/runtime/case-control";
+import { FirestoreMissionControlStore } from "@actionos/persistence/retention";
+import { MissionControlService } from "@actionos/runtime/mission-control";
 import { TaskScheduler } from "@actionos/runtime/task-scheduler";
 import { authenticatedOwner, assertSameOrigin } from "../../../../../lib/authz";
-import { handleCaseControl } from "../../../../../lib/control-controller";
+import { handleMissionControl } from "../../../../../lib/control-controller";
 import { firestore } from "../../../../../lib/firebase-admin";
 import { durableCaseScheduler } from "../../../../../lib/durable-case-scheduler";
 
@@ -27,13 +27,13 @@ function controlService() {
             : {})
         }))
       : undefined;
-  return new CaseControlService(new FirestoreCaseControlStore(firestore), scheduler);
+  return new MissionControlService(new FirestoreMissionControlStore(firestore), scheduler);
 }
 
 export async function POST(request: Request, context: Context) {
   assertSameOrigin(request);
   const { missionId } = await context.params;
-  return handleCaseControl(request, missionId, {
+  return handleMissionControl(request, missionId, {
     authenticate: authenticatedOwner,
     service: controlService(),
     now: () => new Date().toISOString()

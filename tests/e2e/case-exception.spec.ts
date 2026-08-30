@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
-import type { CaseControlStore, DeletionReceipt } from "../../packages/runtime/src/case-control";
-import { CaseControlService } from "../../packages/runtime/src/case-control";
-import type { FollowThroughCase } from "../../packages/runtime/src/case-runner";
-import { handleCaseControl } from "../../apps/web/lib/control-controller";
+import type { MissionControlStore, DeletionReceipt } from "../../packages/runtime/src/mission-control";
+import { MissionControlService } from "../../packages/runtime/src/mission-control";
+import type { FollowThroughMission } from "../../packages/runtime/src/mission-runner";
+import { handleMissionControl } from "../../apps/web/lib/control-controller";
 import { makeDraftCase } from "../helpers/draft-case";
 
-class ExceptionStore implements CaseControlStore {
+class ExceptionStore implements MissionControlStore {
   readonly evidenceIds = ["evidence_original_completion"];
-  constructor(public item: FollowThroughCase) {}
-  get(caseId: string): Promise<FollowThroughCase | undefined> {
+  constructor(public item: FollowThroughMission) {}
+  get(caseId: string): Promise<FollowThroughMission | undefined> {
     return Promise.resolve(caseId === this.item.caseId ? this.item : undefined);
   }
   transition(input: {
@@ -16,7 +16,7 @@ class ExceptionStore implements CaseControlStore {
     action: "STOP" | "REVOKE" | "EXPIRE" | "REOPEN" | "RESUME";
     reason: string;
     now: string;
-  }): Promise<FollowThroughCase> {
+  }): Promise<FollowThroughMission> {
     const state =
       input.action === "REOPEN"
         ? "NEEDS_ATTENTION"
@@ -67,15 +67,15 @@ describe("exception and reopen journey", () => {
       completedLevel: "MERCHANT_CONFIRMED",
       correlationId: "corr_exception_1234567890"
     });
-    const scheduleCase = vi.fn(() => Promise.resolve({}));
-    const service = new CaseControlService(store, { scheduleCase });
+    const scheduleMission = vi.fn(() => Promise.resolve({}));
+    const service = new MissionControlService(store, { scheduleMission });
     const dependencies = {
       authenticate: vi.fn(() => Promise.resolve({ uid: draft.ownerId })),
       service,
       now: () => "2026-08-15T12:05:00.000Z"
     };
 
-    const reopened = await handleCaseControl(
+    const reopened = await handleMissionControl(
       request(draft.caseId, "REOPEN", 4, "The funds did not arrive"),
       draft.caseId,
       dependencies
@@ -84,16 +84,16 @@ describe("exception and reopen journey", () => {
     expect(store.item.state).toBe("NEEDS_ATTENTION");
     expect(store.evidenceIds).toEqual(["evidence_original_completion"]);
 
-    const resumed = await handleCaseControl(
+    const resumed = await handleMissionControl(
       request(draft.caseId, "RESUME", 5, "Try the approved follow-up again"),
       draft.caseId,
       dependencies
     );
     expect(resumed.status).toBe(200);
     expect(store.item.state).toBe("READY");
-    expect(scheduleCase).toHaveBeenCalledOnce();
+    expect(scheduleMission).toHaveBeenCalledOnce();
 
-    const stopped = await handleCaseControl(
+    const stopped = await handleMissionControl(
       request(draft.caseId, "STOP", 6),
       draft.caseId,
       dependencies
@@ -109,9 +109,9 @@ describe("exception and reopen journey", () => {
       plan: draft.plan, approval: { ownerId: draft.ownerId, planVersion: draft.plan.version, planHash: draft.plan.planHash, expiresAt: draft.plan.expiresAt },
       actionOrdinal: 1, dueAt: "2026-08-15T12:00:00.000Z", correlationId: "corr_delete_1234567890"
     });
-    const response = await handleCaseControl(request(draft.caseId, "DELETE", 2), draft.caseId, {
+    const response = await handleMissionControl(request(draft.caseId, "DELETE", 2), draft.caseId, {
       authenticate: vi.fn(() => Promise.resolve({ uid: draft.ownerId })),
-      service: new CaseControlService(store, { scheduleCase: vi.fn(() => Promise.resolve({})) }),
+      service: new MissionControlService(store, { scheduleMission: vi.fn(() => Promise.resolve({})) }),
       now: () => "2026-08-15T12:05:00.000Z"
     });
     expect(response.status).toBe(200);

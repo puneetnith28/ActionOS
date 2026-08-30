@@ -254,8 +254,8 @@ describe("PlanService", () => {
   });
 
   it("binds approval and schedules the first durable wake-up", async () => {
-    const scheduleCase = vi.fn(() => Promise.resolve({}));
-    const service = new PlanService(new MemoryPlanStore(), { scheduleCase });
+    const scheduleMission = vi.fn(() => Promise.resolve({}));
+    const service = new PlanService(new MemoryPlanStore(), { scheduleMission });
     const approved = await service.approve({
       missionId: "case_12345678",
       ownerId: "person_12345678",
@@ -269,7 +269,7 @@ describe("PlanService", () => {
       planVersion: 1,
       planHash: hash
     });
-    expect(scheduleCase).toHaveBeenCalledWith(expect.objectContaining({
+    expect(scheduleMission).toHaveBeenCalledWith(expect.objectContaining({
       missionId: "case_12345678",
       expectedVersion: 1,
       wakeAt: "2026-08-20T00:00:00.000Z"

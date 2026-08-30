@@ -48,11 +48,11 @@ describe("durable wake outbox", () => {
       createdAt: "2026-08-18T14:00:00.000Z"
     });
     outbox.intents.set(intent.intentId, intent);
-    const scheduleCase = vi.fn()
+    const scheduleMission = vi.fn()
       .mockRejectedValueOnce(new Error("QUEUE_UNAVAILABLE"))
       .mockResolvedValueOnce({ taskName: "task-recovered", duplicate: false });
     let now = "2026-08-18T14:00:01.000Z";
-    const dispatcher = new DurableWakeScheduler({ scheduleCase }, outbox, () => now);
+    const dispatcher = new DurableWakeScheduler({ scheduleMission }, outbox, () => now);
 
     await expect(dispatcher.verifyOutcome()).resolves.toEqual({ dispatched: 0, failed: 1 });
     expect(outbox.intents.get(intent.intentId)).toMatchObject({

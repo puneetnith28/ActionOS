@@ -1,16 +1,16 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  CaseControlService,
-  type CaseControlStore,
+  MissionControlService,
+  type MissionControlStore,
   type DeletionReceipt
-} from "../../packages/runtime/src/case-control";
-import type { FollowThroughCase } from "../../packages/runtime/src/case-runner";
+} from "../../packages/runtime/src/mission-control";
+import type { FollowThroughMission } from "../../packages/runtime/src/mission-runner";
 import { EvidenceService, type EvidenceRecord } from "../../packages/runtime/src/evidence-service";
 import type { NotificationRecord } from "../../packages/runtime/src/notifications";
 import { makeDraftCase } from "../helpers/draft-case";
 import type { WakeIntent } from "../../packages/runtime/src/wake-outbox";
 
-function activeCase(state: FollowThroughCase["state"] = "WAITING_EXTERNAL"): FollowThroughCase {
+function activeCase(state: FollowThroughMission["state"] = "WAITING_EXTERNAL"): FollowThroughMission {
   const draft = makeDraftCase();
   return {
     caseId: draft.caseId,
@@ -30,16 +30,16 @@ function activeCase(state: FollowThroughCase["state"] = "WAITING_EXTERNAL"): Fol
   };
 }
 
-class ControlMemory implements CaseControlStore {
+class ControlMemory implements MissionControlStore {
   evidence: EvidenceRecord[] = [];
   deleted = false;
-  commands = new Map<string, { caseId: string; ownerId: string; action: string; result: FollowThroughCase | DeletionReceipt }>();
+  commands = new Map<string, { caseId: string; ownerId: string; action: string; result: FollowThroughMission | DeletionReceipt }>();
   wakes: WakeIntent[] = [];
-  constructor(public item: FollowThroughCase) {}
-  get(caseId: string): Promise<FollowThroughCase | undefined> {
+  constructor(public item: FollowThroughMission) {}
+  get(caseId: string): Promise<FollowThroughMission | undefined> {
     return Promise.resolve(!this.deleted && caseId === this.item.caseId ? this.item : undefined);
   }
-  getCommandResult(input: { idempotencyKey: string; caseId: string; ownerId: string; action: string }): Promise<FollowThroughCase | DeletionReceipt | undefined> {
+  getCommandResult(input: { idempotencyKey: string; caseId: string; ownerId: string; action: string }): Promise<FollowThroughMission | DeletionReceipt | undefined> {
     const prior = this.commands.get(input.idempotencyKey);
     if (prior && (prior.caseId !== input.caseId || prior.ownerId !== input.ownerId || prior.action !== input.action))
       throw new Error("IDEMPOTENCY_KEY_REUSED");
@@ -54,9 +54,9 @@ class ControlMemory implements CaseControlStore {
     now: string;
     idempotencyKey: string;
     wake?: WakeIntent;
-  }): Promise<FollowThroughCase> {
+  }): Promise<FollowThroughMission> {
     const prior = this.commands.get(input.idempotencyKey);
-    if (prior) return Promise.resolve(prior.result as FollowThroughCase);
+    if (prior) return Promise.resolve(prior.result as FollowThroughMission);
     if (this.item.version !== input.expectedVersion) throw new Error("VERSION_CONFLICT");
     const state =
       input.action === "REOPEN"
@@ -91,9 +91,9 @@ class ControlMemory implements CaseControlStore {
     this.commands.set(input.idempotencyKey, { caseId: input.caseId, ownerId: input.ownerId, action: "DELETE", result });
     return Promise.resolve(result);
   }
-  beginReapproval(input: { caseId: string; ownerId: string; expectedVersion: number; reason: string; now: string; idempotencyKey: string }): Promise<FollowThroughCase> {
+  beginReapproval(input: { caseId: string; ownerId: string; expectedVersion: number; reason: string; now: string; idempotencyKey: string }): Promise<FollowThroughMission> {
     const prior = this.commands.get(input.idempotencyKey);
-    if (prior) return Promise.resolve(prior.result as FollowThroughCase);
+    if (prior) return Promise.resolve(prior.result as FollowThroughMission);
     if (this.item.version !== input.expectedVersion) throw new Error("VERSION_CONFLICT");
     this.item = {
       ...this.item,
@@ -116,7 +116,7 @@ describe("case controls", () => {
     ["EXPIRE", "EXPIRED"]
   ] as const)("applies %s and leaves the case terminal for workers", async (action, state) => {
     const store = new ControlMemory(activeCase());
-    const result = await new CaseControlService(store).command({
+    const result = await new MissionControlService(store).command({
       caseId: store.item.caseId,
       ownerId: store.item.ownerId,
       expectedVersion: 3,
@@ -144,7 +144,7 @@ describe("case controls", () => {
       recordedAt: "2026-08-15T12:00:00.000Z",
       correlationId: "corr_control_123456789012"
     });
-    const result = await new CaseControlService(store).command({
+    const result = await new MissionControlService(store).command({
       caseId: store.item.caseId,
       ownerId: store.item.ownerId,
       expectedVersion: 3,
@@ -158,7 +158,7 @@ describe("case controls", () => {
 
   it("makes a requested deletion immediately inaccessible", async () => {
     const store = new ControlMemory(activeCase());
-    await new CaseControlService(store).command({
+    await new MissionControlService(store).command({
       caseId: store.item.caseId,
       ownerId: store.item.ownerId,
       expectedVersion: 3,
@@ -170,8 +170,8 @@ describe("case controls", () => {
 
   it("resolves an exception by scheduling only the already-approved action", async () => {
     const store = new ControlMemory(activeCase("NEEDS_ATTENTION"));
-    const scheduleCase = vi.fn(() => Promise.resolve({}));
-    const result = await new CaseControlService(store, { scheduleCase }).command({
+    const scheduleMission = vi.fn(() => Promise.resolve({}));
+    const result = await new MissionControlService(store, { scheduleMission }).command({
       caseId: store.item.caseId,
       ownerId: store.item.ownerId,
       expectedVersion: 3,
@@ -180,7 +180,7 @@ describe("case controls", () => {
       now: "2026-08-15T12:00:00.000Z"
     });
     expect(result).toMatchObject({ state: "READY", version: 4 });
-    expect(scheduleCase).toHaveBeenCalledWith(
+    expect(scheduleMission).toHaveBeenCalledWith(
       expect.objectContaining({ caseId: store.item.caseId, expectedVersion: 4 })
     );
     expect(store.wakes).toEqual([expect.objectContaining({
@@ -192,10 +192,10 @@ describe("case controls", () => {
 
   it("re-dispatches an idempotent RESUME after the first enqueue fails", async () => {
     const store = new ControlMemory(activeCase("NEEDS_ATTENTION"));
-    const scheduleCase = vi.fn()
+    const scheduleMission = vi.fn()
       .mockRejectedValueOnce(new Error("QUEUE_UNAVAILABLE"))
       .mockResolvedValueOnce({ taskName: "resume-recovered", duplicate: false });
-    const service = new CaseControlService(store, { scheduleCase });
+    const service = new MissionControlService(store, { scheduleMission });
     const command = {
       caseId: store.item.caseId,
       ownerId: store.item.ownerId,
@@ -211,7 +211,7 @@ describe("case controls", () => {
     expect(store.wakes).toHaveLength(1);
 
     await expect(service.command(command)).resolves.toMatchObject({ state: "READY", version: 4 });
-    expect(scheduleCase).toHaveBeenCalledTimes(2);
+    expect(scheduleMission).toHaveBeenCalledTimes(2);
   });
 
   it("moves conflicting evidence to attention and asks only for the mismatched field", async () => {
@@ -260,7 +260,7 @@ describe("case controls", () => {
 
   it("revokes the active authority before opening a new plan revision", async () => {
     const store = new ControlMemory(activeCase("NEEDS_ATTENTION"));
-    const result = await new CaseControlService(store).command({
+    const result = await new MissionControlService(store).command({
       caseId: store.item.caseId,
       ownerId: store.item.ownerId,
       expectedVersion: 3,
@@ -282,7 +282,7 @@ describe("case controls", () => {
     ["REVISE", "NEEDS_ATTENTION"]
   ] as const)("returns one transition for concurrent %s replay", async (action, initialState) => {
     const store = new ControlMemory(activeCase(initialState));
-    const service = new CaseControlService(store, { scheduleCase: () => Promise.resolve({}) });
+    const service = new MissionControlService(store, { scheduleMission: () => Promise.resolve({}) });
     const command = {
       caseId: store.item.caseId, ownerId: store.item.ownerId, expectedVersion: 3,
       action, now: "2026-08-15T12:00:00.000Z", reason: action === "REOPEN" ? "Not resolved" : undefined,

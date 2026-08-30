@@ -1,4 +1,4 @@
-import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 import type { InterventionRecord } from "@actionos/runtime/interventions";
 import type { NotificationRecord } from "@actionos/runtime/notifications";
@@ -10,7 +10,7 @@ import { outcomeComparison } from "./outcome-comparison";
 export interface ConsumerCaseDetail {
   missionId: string;
   version: number;
-  state: FollowThroughCase["state"];
+  state: FollowThroughMission["state"];
   statusLabel: string;
   nextAction: string;
   goal: string;
@@ -29,7 +29,7 @@ export interface ConsumerCaseDetail {
   technicalTraceEligible: boolean;
 }
 
-const states: Record<FollowThroughCase["state"], [string, string]> = {
+const states: Record<FollowThroughMission["state"], [string, string]> = {
   DRAFT: ["Draft", "Review the extracted outcome"], AWAITING_APPROVAL: ["Approval required", "Approve the exact follow-up"],
   READY: ["Scheduled", "ActionOS will send the approved follow-up"], RUNNING: ["Sending", "The approved channel is processing the follow-up"],
   WAITING_EXTERNAL: ["Waiting for proof", "ActionOS will check the next company response"], WAITING_RETRY: ["Retrying safely", "A bounded retry is scheduled"],
@@ -43,7 +43,7 @@ function recipientHint(value: string): string {
 }
 
 export function projectConsumerMission(input: {
-  item: FollowThroughCase;
+  item: FollowThroughMission;
   verification: readonly EvidenceRecord[];
   interventions?: readonly InterventionRecord[];
   events?: readonly RuntimeTimelineEvent[];

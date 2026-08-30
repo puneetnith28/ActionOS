@@ -6,17 +6,17 @@ import {
   type Reservation
 } from "../../packages/runtime/src/capability-broker";
 import {
-  CaseRunner,
-  type FollowThroughCase,
+  MissionRunner,
+  type FollowThroughMission,
   type FollowThroughStore
-} from "../../packages/runtime/src/case-runner";
+} from "../../packages/runtime/src/mission-runner";
 import { makeDraftCase } from "../helpers/draft-case";
 import {
   InterventionService,
   type InterventionRecord
 } from "../../packages/runtime/src/interventions";
 import type { NotificationRecord } from "../../packages/runtime/src/notifications";
-import { CaseNotificationService } from "../../packages/runtime/src/notifications";
+import { MissionNotificationService } from "../../packages/runtime/src/notifications";
 import type { WakeIntent } from "../../packages/runtime/src/wake-outbox";
 
 class Records implements ExecutionRecordStore {
@@ -41,14 +41,14 @@ class Records implements ExecutionRecordStore {
 class Cases implements FollowThroughStore {
   failNextWrite = false;
   readonly wakes: WakeIntent[] = [];
-  constructor(public value: FollowThroughCase) {}
-  get(): Promise<FollowThroughCase> {
+  constructor(public value: FollowThroughMission) {}
+  get(): Promise<FollowThroughMission> {
     return Promise.resolve(this.value);
   }
   compareAndSet(
     _caseId: string,
     expectedVersion: number,
-    next: FollowThroughCase,
+    next: FollowThroughMission,
     wake?: WakeIntent
   ): Promise<void> {
     if (this.value.version !== expectedVersion) throw new Error("VERSION_CONFLICT");
@@ -62,7 +62,7 @@ class Cases implements FollowThroughStore {
   }
 }
 
-function readyCase(): FollowThroughCase {
+function readyCase(): FollowThroughMission {
   const draft = makeDraftCase();
   return {
     caseId: draft.caseId,
@@ -96,11 +96,11 @@ describe("durable follow-through", () => {
     const execute = vi.fn(() =>
       Promise.resolve({ receiptId: `receipt_${execute.mock.calls.length}`, acceptedAt: "2026-08-15T12:00:00.000Z" })
     );
-    const scheduleCase = vi.fn(() => Promise.resolve({}));
-    const runner = new CaseRunner(
+    const scheduleMission = vi.fn(() => Promise.resolve({}));
+    const runner = new MissionRunner(
       cases,
       new ExecutionBroker(new Records(), { execute }),
-      { scheduleCase }
+      { scheduleMission }
     );
 
     await expect(runner.run({
@@ -114,7 +114,7 @@ describe("durable follow-through", () => {
       actionOrdinal: 2,
       nextWakeAt: "2026-08-15T12:01:00.000Z"
     });
-    expect(scheduleCase).toHaveBeenLastCalledWith(expect.objectContaining({
+    expect(scheduleMission).toHaveBeenLastCalledWith(expect.objectContaining({
       caseId: cases.value.caseId,
       expectedVersion: 2,
       wakeAt: "2026-08-15T12:01:00.000Z"
@@ -138,11 +138,11 @@ describe("durable follow-through", () => {
       .fn()
       .mockRejectedValueOnce(new Error("INJECTED_503"))
       .mockResolvedValueOnce({ receiptId: "receipt_1", acceptedAt: "2026-08-15T12:00:31.000Z" });
-    const scheduleCase = vi.fn(() => Promise.resolve({}));
-    const runner = new CaseRunner(
+    const scheduleMission = vi.fn(() => Promise.resolve({}));
+    const runner = new MissionRunner(
       cases,
       new ExecutionBroker(new Records(), { execute }),
-      { scheduleCase },
+      { scheduleMission },
       30
     );
     await expect(
@@ -153,7 +153,7 @@ describe("durable follow-through", () => {
       })
     ).resolves.toMatchObject({ status: "WAITING_RETRY" });
     expect(cases.value.state).toBe("WAITING_RETRY");
-    expect(scheduleCase).toHaveBeenCalledOnce();
+    expect(scheduleMission).toHaveBeenCalledOnce();
     await expect(
       runner.run({
         caseId: cases.value.caseId,
@@ -178,11 +178,11 @@ describe("durable follow-through", () => {
       Promise.resolve({ receiptId: "receipt_1", acceptedAt: "2026-08-15T12:00:00.000Z" })
     );
     const records = new Records();
-    const scheduleCase = vi.fn(() => Promise.resolve({}));
-    const firstProcess = new CaseRunner(
+    const scheduleMission = vi.fn(() => Promise.resolve({}));
+    const firstProcess = new MissionRunner(
       cases,
       new ExecutionBroker(records, { execute }),
-      { scheduleCase },
+      { scheduleMission },
       1
     );
     await expect(
@@ -193,10 +193,10 @@ describe("durable follow-through", () => {
       })
     ).resolves.toMatchObject({ status: "WAITING_RETRY" });
 
-    const restarted = new CaseRunner(
+    const restarted = new MissionRunner(
       cases,
       new ExecutionBroker(records, { execute }),
-      { scheduleCase },
+      { scheduleMission },
       1
     );
     const result = await restarted.run({
@@ -216,8 +216,8 @@ describe("durable follow-through", () => {
 
   it("ignores duplicate tasks after state advanced", async () => {
     const cases = new Cases({ ...readyCase(), state: "WAITING_EXTERNAL", version: 2 });
-    const runner = new CaseRunner(cases, new ExecutionBroker(new Records(), { execute: vi.fn() }), {
-      scheduleCase: vi.fn()
+    const runner = new MissionRunner(cases, new ExecutionBroker(new Records(), { execute: vi.fn() }), {
+      scheduleMission: vi.fn()
     });
     await expect(
       runner.run({
@@ -263,8 +263,8 @@ describe("durable follow-through", () => {
     });
     await vi.waitFor(() => expect(blockingAdapter.execute).toHaveBeenCalledOnce());
     void first;
-    const scheduleCase = vi.fn();
-    const runner = new CaseRunner(cases, broker, { scheduleCase });
+    const scheduleMission = vi.fn();
+    const runner = new MissionRunner(cases, broker, { scheduleMission });
 
     await expect(runner.run({
       caseId: initial.caseId,
@@ -272,7 +272,7 @@ describe("durable follow-through", () => {
       now: "2026-08-15T12:00:00.100Z"
     })).resolves.toEqual({ status: "ACTION_IN_FLIGHT" });
     expect(cases.value).toEqual(initial);
-    expect(scheduleCase).not.toHaveBeenCalled();
+    expect(scheduleMission).not.toHaveBeenCalled();
     releaseAction?.({ receiptId: "receipt_owner", acceptedAt: "2026-08-15T12:00:00.200Z" });
     await first;
   });
@@ -283,13 +283,13 @@ describe("durable follow-through", () => {
       receiptId: "receipt_wake_1",
       acceptedAt: "2026-08-15T12:00:00.000Z"
     });
-    const scheduleCase = vi.fn()
+    const scheduleMission = vi.fn()
       .mockRejectedValueOnce(new Error("INJECTED_QUEUE_UNAVAILABLE"))
       .mockResolvedValue({ taskName: "recovered-task", duplicate: false });
-    const runner = new CaseRunner(
+    const runner = new MissionRunner(
       cases,
       new ExecutionBroker(new Records(), { execute }),
-      { scheduleCase }
+      { scheduleMission }
     );
 
     await expect(runner.run({
@@ -312,8 +312,8 @@ describe("durable follow-through", () => {
       now: "2026-08-15T12:00:01.000Z"
     })).resolves.toEqual({ status: "STALE_TASK" });
 
-    expect(scheduleCase).toHaveBeenCalledTimes(2);
-    expect(scheduleCase).toHaveBeenLastCalledWith(expect.objectContaining({
+    expect(scheduleMission).toHaveBeenCalledTimes(2);
+    expect(scheduleMission).toHaveBeenLastCalledWith(expect.objectContaining({
       caseId: cases.value.caseId,
       expectedVersion: 2
     }));
@@ -352,10 +352,10 @@ describe("durable follow-through", () => {
       }
     );
     const execute = vi.fn();
-    const runner = new CaseRunner(
+    const runner = new MissionRunner(
       cases,
       new ExecutionBroker(new Records(), { execute }),
-      { scheduleCase: vi.fn() },
+      { scheduleMission: vi.fn() },
       30,
       5,
       interventions
@@ -410,10 +410,10 @@ describe("durable follow-through", () => {
         }
       }
     );
-    const runner = new CaseRunner(
+    const runner = new MissionRunner(
       cases,
       new ExecutionBroker(new Records(), { execute: vi.fn(() => Promise.reject(new Error("503"))) }),
-      { scheduleCase: vi.fn() },
+      { scheduleMission: vi.fn() },
       30,
       1,
       interventionService
@@ -439,7 +439,7 @@ describe("durable follow-through", () => {
       approval: { ...base.approval, revokedAt: "2026-08-15T11:59:00.000Z" }
     });
     const notifications = new Map<string, NotificationRecord>();
-    const notify = new CaseNotificationService({
+    const notify = new MissionNotificationService({
       createIfAbsent: async (record) => {
         const prior = notifications.get(record.dedupeKey);
         if (prior) return { record: prior, duplicate: true };
@@ -447,11 +447,11 @@ describe("durable follow-through", () => {
         return { record, duplicate: false };
       }
     });
-    const scheduleCase = vi.fn(() => Promise.resolve({}));
-    const runner = new CaseRunner(
+    const scheduleMission = vi.fn(() => Promise.resolve({}));
+    const runner = new MissionRunner(
       cases,
       new ExecutionBroker(new Records(), { execute: vi.fn() }),
-      { scheduleCase },
+      { scheduleMission },
       30,
       5,
       undefined,
@@ -464,7 +464,7 @@ describe("durable follow-through", () => {
       correlationId: "corr_denied_12345678"
     })).resolves.toEqual({ status: "FAILED", reason: "ACTION_DENIED" });
     expect(cases.value).toMatchObject({ state: "FAILED", updatedAt: "2026-08-15T12:00:00.000Z" });
-    expect(scheduleCase).not.toHaveBeenCalled();
+    expect(scheduleMission).not.toHaveBeenCalled();
     expect(notifications.size).toBe(1);
     expect([...notifications.values()][0]?.kind).toBe("CASE_FAILED");
   });

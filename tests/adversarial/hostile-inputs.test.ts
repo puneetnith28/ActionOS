@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { acceptUpload } from "../../packages/capabilities/src/upload";
 import { validateCapabilityExecution } from "../../packages/domain/src/capability-validator";
 import { ExecutionBroker } from "../../packages/runtime/src/capability-broker";
-import { CaseRunner, type FollowThroughCase } from "../../packages/runtime/src/case-runner";
+import { MissionRunner, type FollowThroughMission } from "../../packages/runtime/src/mission-runner";
 import { IntakeService, type DraftCase } from "../../packages/runtime/src/intake-service";
 import { assertLogicalActionBudget, redactedPublicError } from "../../apps/web/lib/security-limits";
 import { makeDraftCase } from "../helpers/draft-case";
@@ -84,7 +84,7 @@ describe("hostile input and budget boundaries", () => {
 
   it("moves an over-budget action to attention without calling the adapter", async () => {
     const draft = makeDraftCase();
-    let item: FollowThroughCase = {
+    let item: FollowThroughMission = {
       caseId: draft.caseId,
       ownerId: draft.ownerId,
       state: "READY",
@@ -100,7 +100,7 @@ describe("hostile input and budget boundaries", () => {
       dueAt: "2026-08-15T00:00:00.000Z"
     };
     const execute = vi.fn();
-    const runner = new CaseRunner(
+    const runner = new MissionRunner(
       {
         get: () => Promise.resolve(item),
         compareAndSet: (_caseId, _version, next) => {
@@ -116,7 +116,7 @@ describe("hostile input and budget boundaries", () => {
         },
         { execute }
       ),
-      { scheduleCase: vi.fn() }
+      { scheduleMission: vi.fn() }
     );
     await expect(
       runner.run({ caseId: item.caseId, expectedVersion: 1, now: "2026-08-16T00:00:00.000Z" })

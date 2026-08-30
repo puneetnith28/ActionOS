@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { InterventionRecord } from "@actionos/runtime/interventions";
 import { anonymousIdToken } from "../lib/firebase-client";
 import { useLocale } from "../lib/use-locale";
 
 interface ExceptionPayload {
-  case: FollowThroughCase;
+  case: FollowThroughMission;
   interventions: InterventionRecord[];
   error?: string;
 }

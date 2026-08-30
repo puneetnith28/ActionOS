@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { NotificationRecord } from "@actionos/runtime/notifications";
 import { handleNotificationRetry } from "../lib/notification-controller";
 
 const record = { notificationId: "notification_12345678", missionId: "mission_12345678", ownerId: "owner_12345678", deliveryStatus: "FAILED", attemptCount: 1 } as NotificationRecord;
-const item = { missionId: record.missionId, ownerId: record.ownerId, plan: { notificationRecipient: "owner@example.test" } } as FollowThroughCase;
+const item = { missionId: record.missionId, ownerId: record.ownerId, plan: { notificationRecipient: "owner@example.test" } } as FollowThroughMission;
 
 describe("notification retry controller", () => {
   it("retries one owned eligible notification with the plan destination", async () => {

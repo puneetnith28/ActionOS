@@ -18,7 +18,7 @@ export interface PlanStore {
 }
 
 export interface ActivationScheduler {
-  scheduleCase(input: {
+  scheduleMission(input: {
     missionId: string;
     expectedVersion: number;
     wakeAt: string;
@@ -185,12 +185,12 @@ export class PlanService {
 
   private async schedule(draft: DraftCase, now: string): Promise<void> {
     if (!this.scheduler) return;
-    await this.scheduler.scheduleCase(this.activationWake(draft, now));
+    await this.scheduler.scheduleMission(this.activationWake(draft, now));
   }
 
   async inspect(missionId: string, ownerId: string): Promise<DraftCase> {
     const draft = await this.store.get(missionId);
-    if (!draft) throw new Error("CASE_NOT_FOUND");
+    if (!draft) throw new Error("MISSION_NOT_FOUND");
     if (draft.ownerId !== ownerId) throw new Error("CASE_OWNERSHIP_REQUIRED");
     return draft;
   }

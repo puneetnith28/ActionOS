@@ -1,12 +1,12 @@
 import { FieldValue, type Firestore } from "firebase-admin/firestore";
 import { stableHash } from "@actionos/domain";
-import type { CaseControlStore, DeletionReceipt } from "@actionos/runtime/case-control";
-import type { FollowThroughCase } from "@actionos/runtime/case-runner";
+import type { MissionControlStore, DeletionReceipt } from "@actionos/runtime/mission-control";
+import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import { firestoreDeleteAt } from "./expiry";
 import type { WakeIntent } from "@actionos/runtime/wake-outbox";
 import { persistWakeIntent } from "./wake-outbox-store";
 
-export class FirestoreCaseControlStore implements CaseControlStore {
+export class FirestoreMissionControlStore implements MissionControlStore {
   constructor(private readonly db: Firestore) {}
 
   private commandReference(idempotencyKey: string) {
@@ -17,18 +17,18 @@ export class FirestoreCaseControlStore implements CaseControlStore {
     idempotencyKey: string;
     missionId: string;
     ownerId: string;
-    action: import("@actionos/runtime/case-control").CaseControlAction;
-  }): Promise<FollowThroughCase | DeletionReceipt | undefined> {
+    action: import("@actionos/runtime/mission-control").MissionControlAction;
+  }): Promise<FollowThroughMission | DeletionReceipt | undefined> {
     const document = await this.commandReference(input.idempotencyKey).get();
     if (!document.exists) return undefined;
     if (document.get("missionId") !== input.missionId || document.get("ownerId") !== input.ownerId || document.get("action") !== input.action)
       throw new Error("IDEMPOTENCY_KEY_REUSED");
-    return document.get("result") as FollowThroughCase | DeletionReceipt;
+    return document.get("result") as FollowThroughMission | DeletionReceipt;
   }
 
-  async get(missionId: string): Promise<FollowThroughCase | undefined> {
+  async get(missionId: string): Promise<FollowThroughMission | undefined> {
     const document = await this.db.collection("caseRuns").doc(missionId).get();
-    return document.exists ? (document.data() as FollowThroughCase) : undefined;
+    return document.exists ? (document.data() as FollowThroughMission) : undefined;
   }
 
   async transition(input: {
@@ -40,7 +40,7 @@ export class FirestoreCaseControlStore implements CaseControlStore {
     now: string;
     idempotencyKey: string;
     wake?: WakeIntent;
-  }): Promise<FollowThroughCase> {
+  }): Promise<FollowThroughMission> {
     const reference = this.db.collection("caseRuns").doc(input.missionId);
     const commandRef = this.commandReference(input.idempotencyKey);
     return this.db.runTransaction(async (transaction) => {
@@ -48,10 +48,10 @@ export class FirestoreCaseControlStore implements CaseControlStore {
       if (prior.exists) {
         if (prior.get("missionId") !== input.missionId || prior.get("ownerId") !== input.ownerId || prior.get("action") !== input.action)
           throw new Error("IDEMPOTENCY_KEY_REUSED");
-        return prior.get("result") as FollowThroughCase;
+        return prior.get("result") as FollowThroughMission;
       }
-      if (!snapshot.exists) throw new Error("CASE_NOT_FOUND");
-      const current = snapshot.data() as FollowThroughCase;
+      if (!snapshot.exists) throw new Error("MISSION_NOT_FOUND");
+      const current = snapshot.data() as FollowThroughMission;
       if (current.ownerId !== input.ownerId) throw new Error("CASE_OWNERSHIP_REQUIRED");
       if (current.version !== input.expectedVersion) throw new Error("VERSION_CONFLICT");
       const state =
@@ -62,7 +62,7 @@ export class FirestoreCaseControlStore implements CaseControlStore {
             : input.action === "EXPIRE"
               ? ("EXPIRED" as const)
               : ("CANCELLED" as const);
-      const next: FollowThroughCase = {
+      const next: FollowThroughMission = {
         ...current,
         state,
         version: current.version + 1,
@@ -107,7 +107,7 @@ export class FirestoreCaseControlStore implements CaseControlStore {
     reason: string;
     now: string;
     idempotencyKey: string;
-  }): Promise<FollowThroughCase> {
+  }): Promise<FollowThroughMission> {
     const runRef = this.db.collection("caseRuns").doc(input.missionId);
     const draftRef = this.db.collection("caseDrafts").doc(input.missionId);
     const commandRef = this.commandReference(input.idempotencyKey);
@@ -118,14 +118,14 @@ export class FirestoreCaseControlStore implements CaseControlStore {
       if (prior.exists) {
         if (prior.get("missionId") !== input.missionId || prior.get("ownerId") !== input.ownerId || prior.get("action") !== "REVISE")
           throw new Error("IDEMPOTENCY_KEY_REUSED");
-        return prior.get("result") as FollowThroughCase;
+        return prior.get("result") as FollowThroughMission;
       }
-      if (!runSnapshot.exists || !draftSnapshot.exists) throw new Error("CASE_NOT_FOUND");
-      const current = runSnapshot.data() as FollowThroughCase;
+      if (!runSnapshot.exists || !draftSnapshot.exists) throw new Error("MISSION_NOT_FOUND");
+      const current = runSnapshot.data() as FollowThroughMission;
       if (current.ownerId !== input.ownerId || draftSnapshot.get("ownerId") !== input.ownerId)
         throw new Error("CASE_OWNERSHIP_REQUIRED");
       if (current.version !== input.expectedVersion) throw new Error("VERSION_CONFLICT");
-      const next: FollowThroughCase = {
+      const next: FollowThroughMission = {
         ...current,
         state: "CANCELLED",
         version: current.version + 1,
@@ -185,8 +185,8 @@ export class FirestoreCaseControlStore implements CaseControlStore {
     await this.db.runTransaction(async (transaction) => {
       const [run, prior] = await Promise.all([transaction.get(runRef), transaction.get(commandRef)]);
       if (prior.exists) return;
-      if (!run.exists) throw new Error("CASE_NOT_FOUND");
-      const current = run.data() as FollowThroughCase;
+      if (!run.exists) throw new Error("MISSION_NOT_FOUND");
+      const current = run.data() as FollowThroughMission;
       if (current.ownerId !== input.ownerId) throw new Error("CASE_OWNERSHIP_REQUIRED");
       if (current.version !== input.expectedVersion) throw new Error("VERSION_CONFLICT");
       transaction.create(tombstoneRef, {

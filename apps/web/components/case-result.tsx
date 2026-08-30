@@ -44,7 +44,7 @@ export function CaseResult({ missionId }: { readonly missionId: string }) {
     <div className="case-loading-steps" aria-hidden="true"><span /><span /><span /></div>
   </section>;
   const notification = detail.notifications.at(-1);
-  return <div className="result-grid consumer-case-detail">
+  return <div className="result-grid consumer-mission-detail">
     {error ? <section className="card error refresh-warning" role="alert"><p>{tr("ActionOS could not refresh. Your last saved state remains below.", "ActionOS no pudo actualizar. El último estado guardado continúa abajo.", "O ActionOS não conseguiu atualizar. O último estado salvo continua abaixo.")}</p><button type="button" onClick={() => { setRefreshKey((value) => value + 1); }}>{tr("Try again", "Intentar nuevamente", "Tentar novamente")}</button></section> : null}
     {lastRefreshed ? <p className="last-updated">{tr("Last refreshed", "Última actualización", "Última atualização")} {new Intl.DateTimeFormat(locale, { timeStyle: "medium" }).format(new Date(lastRefreshed))}</p> : null}
     <ResultVerdict detail={detail} />

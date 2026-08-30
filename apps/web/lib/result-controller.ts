@@ -1,4 +1,4 @@
-import type { FollowThroughMission } from "@actionos/runtime/case-runner";
+import type { FollowThroughMission } from "@actionos/runtime/mission-runner";
 import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 import type { InterventionRecord } from "@actionos/runtime/interventions";
 import type { RuntimeTimelineEvent } from "@actionos/runtime/timeline";
@@ -30,9 +30,9 @@ export async function handleCaseResult(
   try {
     const owner = await dependencies.authenticate(request);
     const item = await dependencies.store.get(missionId);
-    if (!item) return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404, headers: privateHeaders });
+    if (!item) return Response.json({ error: "MISSION_NOT_FOUND" }, { status: 404, headers: privateHeaders });
     if (item.ownerId !== owner.uid)
-      return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404, headers: privateHeaders });
+      return Response.json({ error: "MISSION_NOT_FOUND" }, { status: 404, headers: privateHeaders });
     const [evidence, interventions, events, notifications, channelEvents] = await Promise.all([
       dependencies.store.listEvidence(missionId),
       dependencies.store.listInterventions?.(missionId) ?? Promise.resolve([]),

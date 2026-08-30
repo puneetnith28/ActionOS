@@ -10,7 +10,7 @@ describe("Cloud Tasks worker controller", () => {
   it("requires a Cloud Tasks identity marker", async () => {
     const run = vi.fn();
     const response = await handleRunCaseTask(
-      new Request("https://actionos.test/api/internal/tasks/run-case", {
+      new Request("https://actionos.test/api/internal/tasks/run-mission", {
         method: "POST",
         body: "{}"
       }),
@@ -30,7 +30,7 @@ describe("Cloud Tasks worker controller", () => {
       })
     );
     const response = await handleRunCaseTask(
-      new Request("https://actionos.test/api/internal/tasks/run-case", {
+      new Request("https://actionos.test/api/internal/tasks/run-mission", {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -52,7 +52,7 @@ describe("Cloud Tasks worker controller", () => {
 
   it("asks Cloud Tasks to retry instead of consuming an early delivery", async () => {
     const response = await handleRunCaseTask(
-      new Request("https://actionos.test/api/internal/tasks/run-case", {
+      new Request("https://actionos.test/api/internal/tasks/run-mission", {
         method: "POST",
         headers: { "content-type": "application/json", "x-cloudtasks-taskname": "task" },
         body: JSON.stringify({ missionId: "mission_12345678", expectedVersion: 2 })

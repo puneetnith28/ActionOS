@@ -12,12 +12,12 @@ describe("TaskScheduler", () => {
       projectId: "demo",
       location: "us-central1",
       queue: "cases",
-      workerUrl: "https://dueback.test/api/internal/tasks/run-case",
+      workerUrl: "https://dueback.test/api/internal/tasks/run-mission",
       serviceAccountEmail: "tasks@demo.iam.gserviceaccount.com"
     });
 
     await expect(
-      scheduler.scheduleCase({
+      scheduler.scheduleMission({
         missionId: "case_1",
         expectedVersion: 2,
         wakeAt: "2026-08-15T12:00:00.000Z"
@@ -34,7 +34,7 @@ describe("TaskScheduler", () => {
       projectId: "demo",
       location: "us-central1",
       queue: "cases",
-      workerUrl: "https://dueback.test/api/internal/tasks/run-case",
+      workerUrl: "https://dueback.test/api/internal/tasks/run-mission",
       inboundWorkerUrl: "https://dueback.test/api/internal/tasks/process-inbound",
       serviceAccountEmail: "tasks@demo.iam.gserviceaccount.com"
     });
@@ -60,10 +60,10 @@ describe("TaskScheduler", () => {
       projectId: "demo",
       location: "us-central1",
       queue: "cases",
-      workerUrl: "https://dueback.test/api/internal/tasks/run-case",
+      workerUrl: "https://dueback.test/api/internal/tasks/run-mission",
       serviceAccountEmail: "tasks@demo.iam.gserviceaccount.com"
     });
-    await scheduler.scheduleCase({
+    await scheduler.scheduleMission({
       missionId: "case_fractional",
       expectedVersion: 2,
       wakeAt: "2026-08-15T12:00:00.823Z"
@@ -93,11 +93,11 @@ describe("TaskScheduler", () => {
       projectId: "demo",
       location: "us-central1",
       queue: "cases",
-      workerUrl: "https://dueback.test/api/internal/tasks/run-case",
+      workerUrl: "https://dueback.test/api/internal/tasks/run-mission",
       serviceAccountEmail: "tasks@demo.iam.gserviceaccount.com",
       oidcAudience: "https://dueback.test"
     });
-    await scheduler.scheduleCase({
+    await scheduler.scheduleMission({
       missionId: "case_oidc",
       expectedVersion: 1,
       wakeAt: "2026-08-15T12:00:00.000Z"
