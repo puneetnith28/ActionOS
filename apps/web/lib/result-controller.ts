@@ -1,5 +1,5 @@
 import type { FollowThroughMission } from "@actionos/runtime/case-runner";
-import type { EvidenceRecord } from "@actionos/runtime/evidence-service";
+import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 import type { InterventionRecord } from "@actionos/runtime/interventions";
 import type { RuntimeTimelineEvent } from "@actionos/runtime/timeline";
 import type { NotificationRecord } from "@actionos/runtime/notifications";

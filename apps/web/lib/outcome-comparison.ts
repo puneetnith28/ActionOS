@@ -1,5 +1,5 @@
 import type { FollowThroughMission } from "@actionos/runtime/case-runner";
-import type { EvidenceRecord } from "@actionos/runtime/evidence-service";
+import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 
 export interface OutcomeComparisonRow {
   label: string;
@@ -22,7 +22,7 @@ function money(amountMinor: number | undefined, currency: string | undefined): s
 
 export function outcomeComparison(
   item: FollowThroughCase,
-  evidence: readonly EvidenceRecord[]
+  verification: readonly EvidenceRecord[]
 ): OutcomeComparisonRow[] {
   const requirement = item.plan.evidenceRequirements[0];
   if (!requirement) return [];

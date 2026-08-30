@@ -1,5 +1,5 @@
 import type { FollowThroughMission } from "@actionos/runtime/case-runner";
-import type { EvidenceRecord } from "@actionos/runtime/evidence-service";
+import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 import { caseConversation } from "../lib/case-conversation";
 
 export function CaseConversation({
@@ -8,7 +8,7 @@ export function CaseConversation({
   channelEvents
 }: {
   readonly item: FollowThroughCase;
-  readonly evidence: readonly EvidenceRecord[];
+  readonly verification: readonly EvidenceRecord[];
   readonly channelEvents: readonly { acceptedAt: string; transportStatus: string }[];
 }) {
   const entries = caseConversation(item, evidence, channelEvents);

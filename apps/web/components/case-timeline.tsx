@@ -57,7 +57,7 @@ export function CaseTimeline({
                 <code>reason: {event.reasonCodes.join(", ")}</code>
                 {event.receiptId ? <code>receipt: {event.receiptId}</code> : null}
                 {event.idempotencyKey ? <code>action: {event.idempotencyKey}</code> : null}
-                {event.outcomeId ? <code>evidence: {event.outcomeId}</code> : null}
+                {event.outcomeId ? <code>verification: {event.outcomeId}</code> : null}
                 <code>correlation: {event.correlationId}</code>
               </details>
             </div>

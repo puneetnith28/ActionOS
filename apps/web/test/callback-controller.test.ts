@@ -61,7 +61,7 @@ describe("merchant callback controller", () => {
       secret,
       now: () => now,
       callbacks,
-      evidence: { reconcile } as never
+      verification: { reconcile } as never
     });
     expect(response.status).toBe(200);
     expect(reconcile).toHaveBeenCalledWith(expect.objectContaining({ signatureValid: true }), now);
@@ -74,7 +74,7 @@ describe("merchant callback controller", () => {
       secret,
       now: () => now,
       callbacks: new Callbacks(),
-      evidence: { reconcile } as never
+      verification: { reconcile } as never
     });
     expect(response.status).toBe(401);
     expect(reconcile).not.toHaveBeenCalled();
@@ -88,7 +88,7 @@ describe("merchant callback controller", () => {
       secret,
       now: () => now,
       callbacks,
-      evidence: { reconcile } as never
+      verification: { reconcile } as never
     });
     expect(response.status).toBe(202);
     await expect(response.json()).resolves.toMatchObject({ duplicate: true });
@@ -101,8 +101,8 @@ describe("merchant callback controller", () => {
       secret,
       now: () => now,
       callbacks,
-      evidence: {
-        reconcile: vi.fn().mockRejectedValue(new Error("VERSION_CONFLICT"))
+      verification: {
+        verifyOutcome: vi.fn().mockRejectedValue(new Error("VERSION_CONFLICT"))
       } as never
     });
     expect(response.status).toBe(409);

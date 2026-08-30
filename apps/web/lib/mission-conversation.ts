@@ -1,5 +1,5 @@
 import type { FollowThroughMission } from "@actionos/runtime/case-runner";
-import type { EvidenceRecord } from "@actionos/runtime/evidence-service";
+import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 
 export interface ConversationEntry {
   id: string;
@@ -30,7 +30,7 @@ function explicitFacts(record: EvidenceRecord): string {
 
 export function missionConversation(
   item: FollowThroughCase,
-  evidence: readonly EvidenceRecord[],
+  verification: readonly EvidenceRecord[],
   channelEvents: readonly { acceptedAt: string; transportStatus: string }[]
 ): ConversationEntry[] {
   const outbound = channelEvents.map((event, index) => ({

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { managedEmailProjectionFixture, weakAcknowledgementFixture } from "@actionos/test-fixtures/mission-projections";
 import { handleCaseDetail } from "../lib/mission-detail-controller";
 import type { FollowThroughMission } from "@actionos/runtime/case-runner";
-import type { EvidenceRecord } from "@actionos/runtime/evidence-service";
+import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 
 const item = managedEmailProjectionFixture as unknown as FollowThroughCase;
 const evidence = weakAcknowledgementFixture as unknown as EvidenceRecord;

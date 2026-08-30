@@ -1,7 +1,7 @@
 import { executionOutcomeSchema } from "@actionos/contracts";
 import { stableHash } from "@actionos/domain";
 import { verifyCallbackSignature } from "@actionos/channel-adapters/callback-signature";
-import type { EvidenceService } from "@actionos/runtime/evidence-service";
+import type { VerificationService } from "@actionos/runtime/verification-service";
 
 export interface CallbackRecordStore {
   reserveCallback(key: string, receivedAt: string): Promise<"RESERVED" | "IN_FLIGHT" | "COMPLETED">;
@@ -15,7 +15,7 @@ export async function handleMerchantCallback(
     secret: string;
     now: () => string;
     callbacks: CallbackRecordStore;
-    evidence: EvidenceService;
+    verification: VerificationService;
   }
 ): Promise<Response> {
   const body = await request.text();
@@ -38,8 +38,8 @@ export async function handleMerchantCallback(
   try {
     const candidate = executionOutcomeSchema.parse({ ...JSON.parse(body), signatureValid: true });
     const result = correlationId
-      ? await dependencies.evidence.reconcile(candidate, now, correlationId)
-      : await dependencies.evidence.reconcile(candidate, now);
+      ? await dependencies.evidence.verifyOutcome(candidate, now, correlationId)
+      : await dependencies.evidence.verifyOutcome(candidate, now);
     await dependencies.callbacks.completeCallback(key);
     return Response.json(result, { status: result.status === "VERIFIED" ? 200 : 202 });
   } catch (error) {

@@ -1,7 +1,7 @@
 import type { ExecutionOutcomeContract } from "@actionos/contracts";
 import { stableHash } from "@actionos/domain";
 import type { FollowThroughStore } from "./case-runner";
-import type { EvidenceService } from "./evidence-service";
+import type { VerificationService } from "./verification-service";
 import type { InterventionService } from "./interventions";
 
 export interface InboundCorrelationStore extends FollowThroughStore {
@@ -48,7 +48,7 @@ export class InboundService {
   constructor(
     private readonly cases: InboundCorrelationStore,
     private readonly interpreter: InboundInterpreter,
-    private readonly evidence: EvidenceService,
+    private readonly verification: VerificationService,
     private readonly interventions: InterventionService
   ) {}
 
@@ -138,7 +138,7 @@ export class InboundService {
       issuer: requirement.trustedIssuer,
       signatureValid: true
     };
-    const reconciled = await this.evidence.reconcile(candidate, now, correlationId);
+    const reconciled = await this.verification.verifyOutcome(candidate, now, correlationId);
     return { status: reconciled.status };
   }
 }

@@ -1,5 +1,5 @@
 import type { FollowThroughMission } from "@actionos/runtime/case-runner";
-import type { EvidenceRecord } from "@actionos/runtime/evidence-service";
+import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 import { caseExportText } from "./case-export";
 
 export interface CaseExportStore {

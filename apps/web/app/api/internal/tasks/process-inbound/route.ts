@@ -2,7 +2,7 @@ import { ResendInboundEmailAdapter } from "@actionos/channel-adapters/inbound-em
 import { transportStatusForProviderEvent } from "@actionos/channel-adapters/email-webhook";
 import { extractInboundFlow } from "@actionos/genkit-flows/extract-inbound";
 import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
-import { EvidenceService } from "@actionos/runtime/evidence-service";
+import { VerificationService } from "@actionos/runtime/verification-service";
 import { InboundService } from "@actionos/runtime/inbound-service";
 import { InterventionService } from "@actionos/runtime/interventions";
 import { firestore } from "../../../../../lib/firebase-admin";
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     const service = new InboundService(
       store,
       { interpret: (input) => extractInboundFlow(input) },
-      new EvidenceService(
+      new VerificationService(
         store,
         store,
         store,

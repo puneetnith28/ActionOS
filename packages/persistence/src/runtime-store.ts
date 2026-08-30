@@ -2,7 +2,7 @@ import { FieldValue, type Firestore } from "firebase-admin/firestore";
 import type { ActionReceipt, ActionRecordStore, Reservation } from "@actionos/runtime/action-broker";
 import type { ExternalSendBudget } from "@actionos/runtime/action-broker";
 import type { FollowThroughCase, FollowThroughStore } from "@actionos/runtime/case-runner";
-import type { EvidenceCaseStore, EvidenceRecord } from "@actionos/runtime/evidence-service";
+import type { EvidenceCaseStore, EvidenceRecord } from "@actionos/runtime/verification-service";
 import type { NotificationRecord, NotificationStore } from "@actionos/runtime/notifications";
 import type { InterventionRecord, InterventionStore } from "@actionos/runtime/interventions";
 import type {
@@ -373,7 +373,7 @@ export class FirestoreRuntimeStore
     expectedVersion: number;
     nextState: FollowThroughCase["state"];
     nextWakeAt?: string;
-    evidence: EvidenceRecord;
+    verification: EvidenceRecord;
     wake?: WakeIntent;
   }): Promise<{ duplicate: boolean }> {
     const caseRef = this.db.collection("caseRuns").doc(input.missionId);

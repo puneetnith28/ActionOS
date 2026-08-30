@@ -42,7 +42,7 @@ export interface EvidenceCaseStore {
     expectedVersion: number;
     nextState: MissionState;
     nextWakeAt?: string;
-    evidence: EvidenceRecord;
+    verification: EvidenceRecord;
     wake?: WakeIntent;
   }): Promise<{ duplicate: boolean }>;
 }
@@ -56,7 +56,7 @@ export interface EvidenceScheduler {
   }): Promise<unknown>;
 }
 
-export class EvidenceService {
+export class VerificationService {
   constructor(
     private readonly cases: EvidenceCaseStore,
     private readonly notifications: NotificationStore,
@@ -65,7 +65,7 @@ export class EvidenceService {
     private readonly scheduler?: EvidenceScheduler
   ) {}
 
-  async reconcile(
+  async verifyOutcome(
     candidate: ExecutionOutcomeContract,
     now: string,
     requestedCorrelationId?: string
@@ -105,7 +105,7 @@ export class EvidenceService {
       nextState: accepted ? "DONE" : conflict ? "NEEDS_ATTENTION" : "WAITING_EXTERNAL",
       ...(nextWakeAt ? { nextWakeAt } : {}),
       ...(wake ? { wake } : {}),
-      evidence: { candidate, verification, recordedAt: now, correlationId }
+      verification: { candidate, verification, recordedAt: now, correlationId }
     });
     if (wake && !recorded.duplicate) await this.scheduler?.scheduleCase(wake);
     if (!accepted) {

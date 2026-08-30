@@ -1,5 +1,5 @@
 import { technicalStepSchema, type TechnicalStep } from "@actionos/contracts";
-import type { EvidenceRecord } from "./evidence-service";
+import type { EvidenceRecord } from "./verification-service";
 import type { NotificationRecord } from "./notifications";
 import type { RuntimeTimelineEvent } from "./timeline";
 
@@ -13,7 +13,7 @@ export interface TechnicalRunSource {
   };
   hasTypedDraft: boolean;
   events: readonly RuntimeTimelineEvent[];
-  evidence: readonly EvidenceRecord[];
+  verification: readonly EvidenceRecord[];
   notifications: readonly NotificationRecord[];
   channelEvents: readonly { transportStatus: string; acceptedAt: string; observedAt?: string }[];
 }

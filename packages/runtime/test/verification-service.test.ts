@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { ExecutionOutcomeContract } from "@actionos/contracts";
 import {
-  EvidenceService,
+  VerificationService,
   type EvidenceCase,
   type EvidenceCaseStore,
   type EvidenceRecord
-} from "../src/evidence-service";
+} from "../src/verification-service";
 import type { NotificationRecord, NotificationStore } from "../src/notifications";
 import { makeDraft } from "./support";
 
@@ -20,7 +20,7 @@ class Cases implements EvidenceCaseStore {
     expectedVersion: number;
     nextState: EvidenceCase["state"];
     nextWakeAt?: string;
-    evidence: EvidenceRecord;
+    verification: EvidenceRecord;
   }): Promise<{ duplicate: boolean }> {
     this.records.push(input.evidence);
     this.item = {
@@ -59,7 +59,7 @@ function candidate(status: ExecutionOutcomeContract["status"]): ExecutionOutcome
   };
 }
 
-describe("EvidenceService", () => {
+describe("VerificationService", () => {
   it("keeps acknowledgement open and creates no completion notification", async () => {
     const draft = makeDraft();
     const cases = new Cases({
@@ -80,13 +80,13 @@ describe("EvidenceService", () => {
       scheduled.push(input);
       return Promise.resolve({});
     };
-    const result = await new EvidenceService(
+    const result = await new VerificationService(
       cases,
       notifications,
       undefined,
       undefined,
       { scheduleCase }
-    ).reconcile(
+    ).verifyOutcome(
       candidate("ACTION_ATTEMPTED"),
       "2026-08-15T12:00:05.000Z"
     );
@@ -113,8 +113,8 @@ describe("EvidenceService", () => {
       plan: draft.plan
     });
     const notifications = new Notifications();
-    const service = new EvidenceService(cases, notifications);
-    const result = await service.reconcile(
+    const service = new VerificationService(cases, notifications);
+    const result = await service.verifyOutcome(
       candidate("OUTCOME_CONFIRMED"),
       "2026-08-15T12:00:05.000Z"
     );

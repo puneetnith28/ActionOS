@@ -1,5 +1,5 @@
 import type { FollowThroughMission } from "@actionos/runtime/case-runner";
-import type { EvidenceRecord } from "@actionos/runtime/evidence-service";
+import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 import { outcomeComparison } from "../lib/outcome-comparison";
 
 export function OutcomeComparison({
@@ -7,7 +7,7 @@ export function OutcomeComparison({
   evidence
 }: {
   readonly item: FollowThroughCase;
-  readonly evidence: readonly EvidenceRecord[];
+  readonly verification: readonly EvidenceRecord[];
 }) {
   const rows = outcomeComparison(item, evidence);
   if (rows.length === 0) return null;

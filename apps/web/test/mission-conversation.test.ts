@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { FollowThroughMission } from "@actionos/runtime/case-runner";
-import type { EvidenceRecord } from "@actionos/runtime/evidence-service";
+import type { EvidenceRecord } from "@actionos/runtime/verification-service";
 import { missionConversation } from "../lib/mission-conversation";
 
 const item = { plan: { goal: "USD 59 refund", messageBody: "Please confirm refund R-59." } } as FollowThroughCase;
 
 describe("consumer conversation projection", () => {
   it("explains acknowledgement without inventing missing outcome facts", () => {
-    const evidence: EvidenceRecord[] = [{
+    const verification: EvidenceRecord[] = [{
       candidate: {
         outcomeId: "evidence_ack_1234", missionId: "mission_ack_12345678",
         status: "ACTION_ATTEMPTED", transactionRef: "R-59",

@@ -1,5 +1,5 @@
 import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
-import { EvidenceService } from "@actionos/runtime/evidence-service";
+import { VerificationService } from "@actionos/runtime/verification-service";
 import { handleMerchantCallback } from "../../../../lib/callback-controller";
 import { firestore } from "../../../../lib/firebase-admin";
 import { notificationDelivery } from "../../../../lib/notification-delivery";
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     secret,
     now: () => new Date().toISOString(),
     callbacks: store,
-    evidence: new EvidenceService(
+    verification: new VerificationService(
       store,
       store,
       store,

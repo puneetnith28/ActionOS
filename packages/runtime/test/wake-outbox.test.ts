@@ -54,7 +54,7 @@ describe("durable wake outbox", () => {
     let now = "2026-08-18T14:00:01.000Z";
     const dispatcher = new DurableWakeScheduler({ scheduleCase }, outbox, () => now);
 
-    await expect(dispatcher.reconcile()).resolves.toEqual({ dispatched: 0, failed: 1 });
+    await expect(dispatcher.verifyOutcome()).resolves.toEqual({ dispatched: 0, failed: 1 });
     expect(outbox.intents.get(intent.intentId)).toMatchObject({
       status: "PENDING",
       attemptCount: 1,
@@ -62,7 +62,7 @@ describe("durable wake outbox", () => {
     });
 
     now = "2026-08-18T14:01:00.000Z";
-    await expect(dispatcher.reconcile()).resolves.toEqual({ dispatched: 1, failed: 0 });
+    await expect(dispatcher.verifyOutcome()).resolves.toEqual({ dispatched: 1, failed: 0 });
     expect(outbox.intents.get(intent.intentId)).toMatchObject({
       status: "DISPATCHED",
       attemptCount: 2,

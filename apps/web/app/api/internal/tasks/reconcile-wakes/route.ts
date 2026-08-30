@@ -28,6 +28,6 @@ export async function POST(request: Request) {
       : {})
   });
   const result = await new DurableWakeScheduler(tasks, outbox, () => new Date().toISOString())
-    .reconcile(25);
+    .verifyOutcome(25);
   return Response.json(result, { status: result.failed > 0 ? 503 : 200 });
 }

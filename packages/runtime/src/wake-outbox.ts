@@ -83,7 +83,7 @@ export class DurableWakeScheduler implements WakeTaskScheduler {
     }
   }
 
-  async reconcile(limit = 25): Promise<{ dispatched: number; failed: number }> {
+  async verifyOutcome(limit = 25): Promise<{ dispatched: number; failed: number }> {
     const pending = await this.outbox.listPending(limit);
     let dispatched = 0;
     let failed = 0;
