@@ -98,7 +98,7 @@ describe("PlanService", () => {
     const initial = caseDraft();
     const service = new PlanService(new MemoryPlanStore({
       ...initial,
-      plan: { ...initial.plan, promiseType: "GENERAL" }
+      plan: { ...initial.plan, goalType: "GENERAL" }
     }));
     const revised = await service.revise("case_12345678", "person_12345678", 1, {
       promisor: "Northstar Argentina",

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { outcomeContractSchema, promiseDraftSchema, resolutionPlanSchema } from "@actionos/contracts";
-import type { ChannelType, OutcomeContract, PromiseDraft, ExecutionPlan } from "@actionos/contracts";
+import { outcomeContractSchema, missionGoalSchema, resolutionPlanSchema } from "@actionos/contracts";
+import type { ChannelType, OutcomeContract, MissionGoal, ExecutionPlan } from "@actionos/contracts";
 import { caseDedupeKey, stableHash } from "@actionos/domain";
 
 export interface IntakeArtifact {
@@ -19,7 +19,7 @@ export interface IntakeArtifact {
 }
 
 export interface PromiseExtractor {
-  extract(artifact: IntakeArtifact): Promise<PromiseDraft>;
+  extract(artifact: IntakeArtifact): Promise<MissionGoal>;
 }
 
 export interface DraftCase {
@@ -28,7 +28,7 @@ export interface DraftCase {
   readonly artifactId: string;
   readonly dedupeKey: string;
   readonly state: "AWAITING_APPROVAL" | "READY" | "CANCELLED";
-  readonly promiseDraft: PromiseDraft;
+  readonly promiseDraft: MissionGoal;
   readonly outcomeContract?: OutcomeContract;
   readonly plan: ExecutionPlan;
   readonly activationBlocked: boolean;
@@ -39,7 +39,7 @@ export interface DraftCase {
 
 export function commercialOutcomeContract(
   contractId: string,
-  draft: PromiseDraft
+  draft: MissionGoal
 ): OutcomeContract {
   return outcomeContractSchema.parse({
     contractId,
@@ -78,7 +78,7 @@ export interface NewCaseBudget {
 }
 
 export function blockingCriticalFields(
-  draft: PromiseDraft,
+  draft: MissionGoal,
   followUpAt?: string,
   allowedRecipient?: string
 ): string[] {
@@ -87,7 +87,7 @@ export function blockingCriticalFields(
     ["result", draft.result],
     ["transactionRef", draft.transactionRef]
   ];
-  if (draft.promiseType === "REFUND" || draft.promiseType === "BILL_CREDIT" || draft.amountMinor || draft.currency) {
+  if (draft.goalType === "REFUND" || draft.goalType === "BILL_CREDIT" || draft.amountMinor || draft.currency) {
     fields.push(["amountMinor", draft.amountMinor], ["currency", draft.currency]);
   }
   const blocked = fields
@@ -99,7 +99,7 @@ export function blockingCriticalFields(
   return blocked;
 }
 
-export function followUpMessage(draft: PromiseDraft): { subject: string; body: string } {
+export function followUpMessage(draft: MissionGoal): { subject: string; body: string } {
   const amountLine = draft.amountMinor && draft.currency
     ? `Amount: ${draft.currency.value} ${(draft.amountMinor.value / 100).toFixed(2)}`
     : undefined;
@@ -121,7 +121,7 @@ export function followUpMessage(draft: PromiseDraft): { subject: string; body: s
 function buildPlan(input: {
   readonly missionId: string;
   readonly ownerId: string;
-  readonly draft: PromiseDraft;
+  readonly draft: MissionGoal;
   readonly recipient: string;
   readonly now: string;
   readonly channel: {
@@ -134,8 +134,8 @@ function buildPlan(input: {
   // BILL_CREDIT needs a bill period that the current intake contract cannot yet
   // extract. Keep the promise usable as a general follow-up instead of creating
   // a plan that can never satisfy its evidence schema.
-  const extractedPromiseType = draft.promiseType === "BILL_CREDIT" ? "GENERAL" : draft.promiseType;
-  const promiseType = extractedPromiseType ??
+  const extractedPromiseType = draft.goalType === "BILL_CREDIT" ? "GENERAL" : draft.goalType;
+  const goalType = extractedPromiseType ??
     (draft.amountMinor || draft.currency ? "REFUND" : "GENERAL");
   const message = followUpMessage(draft);
   const unsigned = {
@@ -147,7 +147,7 @@ function buildPlan(input: {
     counterpartyName: /^[^@\s]+@[^@\s]+$/.test(draft.promisor.value)
       ? "Company"
       : draft.promisor.value,
-    promiseType,
+    goalType,
     executionMode: input.channel.channelType === "CONTROLLED_SANDBOX"
       ? "ACCELERATED_DEMO" as const
       : "CONTROLLED_REAL_PILOT" as const,
@@ -170,7 +170,7 @@ function buildPlan(input: {
       "transactionRef",
       ...(draft.amountMinor ? ["amountMinor"] : []),
       ...(draft.currency ? ["currency"] : []),
-      ...(promiseType === "REPLACEMENT" ? ["subject"] : [])
+      ...(goalType === "REPLACEMENT" ? ["subject"] : [])
     ],
     ...(input.channel.channelType === "CONTROLLED_SANDBOX"
       ? { followUpAt: new Date(Date.parse(input.now) + 2_000).toISOString() }
@@ -182,7 +182,7 @@ function buildPlan(input: {
         minimumStatus: "OUTCOME_CONFIRMED" as const,
         ...(draft.amountMinor ? { amountMinor: draft.amountMinor.value } : {}),
         ...(draft.currency ? { currency: draft.currency.value } : {}),
-        ...(promiseType === "REPLACEMENT"
+        ...(goalType === "REPLACEMENT"
           ? {
               subject: draft.result.value,
               requiredOutcomeFields: ["subject", "trackingNumber"] as const
@@ -234,7 +234,7 @@ export class IntakeService {
 
     await this.budget?.consume(artifact.ownerId, now);
 
-    const promiseDraft = promiseDraftSchema.parse(await this.extractor.extract(artifact));
+    const promiseDraft = missionGoalSchema.parse(await this.extractor.extract(artifact));
     const missionId = artifact.missionId ?? `case_${randomUUID()}`;
     const plan = buildPlan({
       missionId,

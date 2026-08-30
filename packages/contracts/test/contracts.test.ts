@@ -7,14 +7,14 @@ import {
   inboundEnvelopeSchema,
   messageThreadSchema,
   outcomeContractSchema,
-  promiseDraftSchema,
+  missionGoalSchema,
   resolutionPlanSchema
 } from "../src/index";
 
 describe("boundary contracts", () => {
   it("rejects a free-form model draft without provenance", () => {
     expect(() =>
-      promiseDraftSchema.parse({
+      missionGoalSchema.parse({
         promisor: "Merchant",
         result: "refund"
       })

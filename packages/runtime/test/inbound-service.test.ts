@@ -82,7 +82,7 @@ describe("inbound service", () => {
       ...item,
       plan: {
         ...item.plan,
-        promiseType: "REPLACEMENT",
+        goalType: "REPLACEMENT",
         sharedFields: ["transactionRef", "subject"],
         evidenceRequirements: [{
           minimumStatus: "OUTCOME_CONFIRMED",

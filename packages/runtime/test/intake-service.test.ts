@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { PromiseDraft } from "@actionos/contracts";
+import type { MissionGoal } from "@actionos/contracts";
 import { IntakeService } from "../src/intake-service";
 import type { DraftCase, IntakeStore, PromiseExtractor } from "../src/intake-service";
 
 const hash = `sha256:${"a".repeat(64)}`;
 
-function promiseDraft(uncertainty: "NONE" | "CONTRADICTORY" = "NONE"): PromiseDraft {
+function promiseDraft(uncertainty: "NONE" | "CONTRADICTORY" = "NONE"): MissionGoal {
   const provenance = [
     {
       artifactId: "artifact_12345678",
@@ -102,8 +102,8 @@ describe("IntakeService", () => {
 
   it("creates a usable general follow-up when the promise has no money", async () => {
     const draft = promiseDraft();
-    const general: PromiseDraft = {
-      promiseType: "GENERAL",
+    const general: MissionGoal = {
+      goalType: "GENERAL",
       promisor: draft.promisor,
       result: { ...draft.result, value: "Email the coverage certificate" },
       transactionRef: { ...draft.transactionRef, value: "CASE-441" },
@@ -120,7 +120,7 @@ describe("IntakeService", () => {
       sourceChannel: "paste", sha256: "general-promise", content: "certificate promise"
     }, "2026-08-15T12:00:00.000Z");
     expect(result.draft.activationBlocked).toBe(false);
-    expect(result.draft.plan.promiseType).toBe("GENERAL");
+    expect(result.draft.plan.goalType).toBe("GENERAL");
     expect(result.draft.plan.sharedFields).toEqual(["transactionRef"]);
     expect(result.draft.plan.messageBody).not.toContain("Amount:");
     expect(result.draft.plan.evidenceRequirements[0]).toMatchObject({
@@ -135,8 +135,8 @@ describe("IntakeService", () => {
     { type: "GENERAL" as const, result: "Email the coverage certificate", money: false, expected: "GENERAL" }
   ])("builds a valid plan for the visible $type example", async ({ type, result, money, expected }) => {
     const base = promiseDraft();
-    const extracted: PromiseDraft = {
-      promiseType: type,
+    const extracted: MissionGoal = {
+      goalType: type,
       promisor: base.promisor,
       result: { ...base.result, value: result },
       transactionRef: base.transactionRef,
@@ -156,7 +156,7 @@ describe("IntakeService", () => {
       sha256: `${type}-${result}`,
       content: result
     }, "2026-08-15T12:00:00.000Z");
-    expect(intake.draft.plan.promiseType).toBe(expected);
+    expect(intake.draft.plan.goalType).toBe(expected);
     expect(intake.draft.activationBlocked).toBe(false);
     if (type === "REPLACEMENT") {
       expect(intake.draft.plan.evidenceRequirements[0]).toMatchObject({

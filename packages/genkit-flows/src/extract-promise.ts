@@ -1,6 +1,6 @@
 import { vertexAI } from "@genkit-ai/google-genai";
 import { genkit, z } from "genkit";
-import { promiseDraftSchema, type PromiseDraft } from "@actionos/contracts";
+import { missionGoalSchema, type MissionGoal } from "@actionos/contracts";
 import { stableHash } from "@actionos/domain";
 
 export const extractionInputSchema = z.object({
@@ -35,7 +35,7 @@ const flowField = <T extends z.ZodTypeAny>(value: T) =>
   });
 
 const promiseDraftFlowSchema = z.object({
-  promiseType: z.enum(["REFUND", "BILL_CREDIT", "REPLACEMENT", "GENERAL"]).optional(),
+  goalType: z.enum(["REFUND", "BILL_CREDIT", "REPLACEMENT", "GENERAL"]).optional(),
   promisor: flowField(z.string()),
   result: flowField(z.string()),
   amountMinor: flowField(z.number().int().nonnegative()).optional(),
@@ -59,9 +59,9 @@ export interface PromiseModelGateway {
     readonly system: string;
     readonly prompt: ({ text: string } | { media: { url: string; contentType: string } })[];
   }): Promise<
-    | PromiseDraft
+    | MissionGoal
     | {
-        readonly draft: PromiseDraft;
+        readonly draft: MissionGoal;
         readonly usage: {
           readonly inputTokens?: number;
           readonly outputTokens?: number;
@@ -106,7 +106,7 @@ export function buildExtractionPrompt(input: ExtractionInput) {
       ];
 }
 
-function assertProvenance(draft: PromiseDraft, artifactId: string): PromiseDraft {
+function assertProvenance(draft: MissionGoal, artifactId: string): MissionGoal {
   const critical: { provenance: { artifactId: string }[] }[] = [
     draft.promisor,
     draft.result,
@@ -127,7 +127,7 @@ function assertProvenance(draft: PromiseDraft, artifactId: string): PromiseDraft
 export async function extractPromiseWithGateway(
   gateway: PromiseModelGateway,
   unparsedInput: unknown
-): Promise<PromiseDraft> {
+): Promise<MissionGoal> {
   return (await extractPromiseWithMetricsGateway(gateway, unparsedInput)).draft;
 }
 
@@ -135,7 +135,7 @@ export async function extractPromiseWithMetricsGateway(
   gateway: PromiseModelGateway,
   unparsedInput: unknown
 ): Promise<{
-  draft: PromiseDraft;
+  draft: MissionGoal;
   usage: { inputTokens?: number; outputTokens?: number; totalTokens?: number };
 }> {
   const input = extractionInputSchema.parse(unparsedInput);
@@ -155,7 +155,7 @@ export async function extractPromiseWithMetricsGateway(
   if (!output) throw new Error("MODEL_OUTPUT_MISSING");
   const generation = "draft" in output ? output : { draft: output, usage: {} };
   return {
-    draft: assertProvenance(promiseDraftSchema.parse(generation.draft), input.artifactId),
+    draft: assertProvenance(missionGoalSchema.parse(generation.draft), input.artifactId),
     usage: generation.usage
   };
 }
@@ -201,7 +201,7 @@ const gateway: PromiseModelGateway = {
       dueAt.value = `${dueAt.value}T23:59:59.000Z`;
     }
     return {
-      draft: promiseDraftSchema.parse(normalized),
+      draft: missionGoalSchema.parse(normalized),
       usage: {
         ...(response.usage.inputTokens === undefined
           ? {}

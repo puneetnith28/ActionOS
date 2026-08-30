@@ -19,7 +19,7 @@ export interface NormalizedInboundEmail {
   readonly inReplyTo?: string;
 }
 
-export interface InboundInterpretation {
+export interface ExecutionResult {
   readonly replyType: "ACKNOWLEDGEMENT" | "STATUS" | "PROPOSAL_CHANGE" | "EVIDENCE" | "AUTO_REPLY" | "UNKNOWN";
   readonly evidenceLevel: ExecutionOutcomeContract["level"];
   readonly transactionRef?: string | undefined;
@@ -37,7 +37,7 @@ export interface InboundInterpreter {
     readonly inboundId: string;
     readonly subject: string;
     readonly text: string;
-  }): Promise<InboundInterpretation>;
+  }): Promise<ExecutionResult>;
 }
 
 function address(value: string): string {

@@ -13,7 +13,7 @@ export interface PromiseTypeManifest {
   readonly claimLimitation: string;
 }
 
-export const promiseTypeManifests: Readonly<Record<PromiseType, PromiseTypeManifest>> = {
+export const goalTypeManifests: Readonly<Record<PromiseType, PromiseTypeManifest>> = {
   REFUND: {
     type: "REFUND",
     label: "Refund",

@@ -4,7 +4,7 @@ const basePlan = {
   ownerId: "person_projection_1234",
   version: 1,
   goal: "Receive the promised USD 59 refund",
-  promiseType: "REFUND",
+  goalType: "REFUND",
   allowedActions: ["SEND_FOLLOW_UP"],
   allowedRecipient: "merchant@controlled.example",
   sharedFields: ["transactionRef", "amountMinor", "currency"],

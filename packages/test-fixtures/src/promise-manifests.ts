@@ -1,20 +1,20 @@
 import type { ExecutionOutcomeContract, ExecutionPlan } from "@actionos/contracts";
 import { stableHash } from "@actionos/domain";
-import { promiseTypeManifests } from "@actionos/domain/promise-types";
+import { goalTypeManifests } from "@actionos/domain/promise-types";
 
 function plan(input: Omit<ExecutionPlan, "planHash">): ExecutionPlan {
   return { ...input, planHash: stableHash(input) };
 }
 
 export const billCreditFixture = {
-  manifest: promiseTypeManifests.BILL_CREDIT,
+  manifest: goalTypeManifests.BILL_CREDIT,
   plan: plan({
     planId: "plan_bill_credit_1234",
     missionId: "case_bill_credit_1234",
     ownerId: "person_portability_1",
     version: 1,
     goal: "Apply the promised USD 25 credit to the September 2026 bill",
-    promiseType: "BILL_CREDIT",
+    goalType: "BILL_CREDIT",
     allowedActions: ["SEND_FOLLOW_UP"],
     allowedRecipient: "merchant@controlled.dueback.test",
     sharedFields: ["transactionRef", "amountMinor", "currency", "billPeriod"],
@@ -47,14 +47,14 @@ export const billCreditFixture = {
 };
 
 export const replacementFixture = {
-  manifest: promiseTypeManifests.REPLACEMENT,
+  manifest: goalTypeManifests.REPLACEMENT,
   plan: plan({
     planId: "plan_replacement_1234",
     missionId: "case_replacement_1234",
     ownerId: "person_portability_1",
     version: 1,
     goal: "Ship the promised replacement headphones with tracking",
-    promiseType: "REPLACEMENT",
+    goalType: "REPLACEMENT",
     allowedActions: ["SEND_FOLLOW_UP"],
     allowedRecipient: "merchant@controlled.dueback.test",
     sharedFields: ["transactionRef", "subject"],

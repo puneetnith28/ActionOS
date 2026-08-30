@@ -7,7 +7,7 @@ export const inboundExtractionInputSchema = z.object({
   text: z.string().max(100_000)
 });
 
-export const inboundInterpretationSchema = z.object({
+export const executionResultSchema = z.object({
   replyType: z.enum([
     "ACKNOWLEDGEMENT",
     "STATUS",
@@ -34,10 +34,10 @@ export const inboundInterpretationSchema = z.object({
   uncertainty: z.enum(["NONE", "AMBIGUOUS", "MISSING", "CONTRADICTORY"])
 });
 
-export type InboundInterpretation = z.infer<typeof inboundInterpretationSchema>;
+export type ExecutionResult = z.infer<typeof executionResultSchema>;
 
 export interface InboundModelGateway {
-  generate(input: { system: string; prompt: string }): Promise<InboundInterpretation | null>;
+  generate(input: { system: string; prompt: string }): Promise<ExecutionResult | null>;
 }
 
 export const inboundSystemInstruction = `You classify a reply to an autonomous mission execution.
@@ -52,14 +52,14 @@ Use uncertainty rather than guessing. Any excerpt must be copied exactly from th
 export async function extractInboundWithGateway(
   gateway: InboundModelGateway,
   unparsed: unknown
-): Promise<InboundInterpretation> {
+): Promise<ExecutionResult> {
   const input = inboundExtractionInputSchema.parse(unparsed);
   const output = await gateway.generate({
     system: inboundSystemInstruction,
     prompt: `Inbound ID: ${input.inboundId}\n<untrusted-subject>${input.subject}</untrusted-subject>\n<untrusted-reply>${input.text}</untrusted-reply>`
   });
   if (!output) throw new Error("INBOUND_MODEL_OUTPUT_MISSING");
-  const parsed = inboundInterpretationSchema.parse(output);
+  const parsed = executionResultSchema.parse(output);
   if (parsed.evidenceExcerpt && !input.text.includes(parsed.evidenceExcerpt)) {
     throw new Error("INBOUND_MODEL_EXCERPT_MISMATCH");
   }
@@ -73,7 +73,7 @@ const gateway: InboundModelGateway = {
       model: vertexAI.model("gemini-3.5-flash"),
       system: input.system,
       prompt: input.prompt,
-      output: { schema: inboundInterpretationSchema },
+      output: { schema: executionResultSchema },
       config: { temperature: 0 }
     });
     return response.output ?? null;
@@ -81,6 +81,6 @@ const gateway: InboundModelGateway = {
 };
 
 export const extractInboundFlow = ai.defineFlow(
-  { name: "extractInbound", inputSchema: inboundExtractionInputSchema, outputSchema: inboundInterpretationSchema },
+  { name: "extractInbound", inputSchema: inboundExtractionInputSchema, outputSchema: executionResultSchema },
   async (input) => extractInboundWithGateway(gateway, input)
 );

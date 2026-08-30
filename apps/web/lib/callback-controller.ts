@@ -1,4 +1,4 @@
-import { evidenceCandidateSchema } from "@actionos/contracts";
+import { executionOutcomeSchema } from "@actionos/contracts";
 import { stableHash } from "@actionos/domain";
 import { verifyCallbackSignature } from "@actionos/channel-adapters/callback-signature";
 import type { EvidenceService } from "@actionos/runtime/evidence-service";
@@ -36,7 +36,7 @@ export async function handleMerchantCallback(
   if (reservation !== "RESERVED")
     return Response.json({ duplicate: true, status: reservation }, { status: 202 });
   try {
-    const candidate = evidenceCandidateSchema.parse({ ...JSON.parse(body), signatureValid: true });
+    const candidate = executionOutcomeSchema.parse({ ...JSON.parse(body), signatureValid: true });
     const result = correlationId
       ? await dependencies.evidence.reconcile(candidate, now, correlationId)
       : await dependencies.evidence.reconcile(candidate, now);

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { promiseDraftSchema, resolutionPlanSchema } from "@actionos/contracts";
-import type { PromiseDraft, ExecutionPlan } from "@actionos/contracts";
+import { missionGoalSchema, resolutionPlanSchema } from "@actionos/contracts";
+import type { MissionGoal, ExecutionPlan } from "@actionos/contracts";
 import { stableHash } from "@actionos/domain";
 import { blockingCriticalFields, commercialOutcomeContract, followUpMessage } from "./intake-service";
 import type { DraftCase, PlanApproval } from "./intake-service";
@@ -80,12 +80,12 @@ function correction<T>(
   };
 }
 
-function revisedDraft(current: PromiseDraft, revision: PlanRevision): PromiseDraft {
-  const stable: Partial<PromiseDraft> = { ...current };
+function revisedDraft(current: MissionGoal, revision: PlanRevision): MissionGoal {
+  const stable: Partial<MissionGoal> = { ...current };
   delete stable.amountMinor;
   delete stable.currency;
   delete stable.dueAt;
-  return promiseDraftSchema.parse({
+  return missionGoalSchema.parse({
     ...stable,
     ...(revision.amountMinor === undefined
       ? current.amountMinor ? { amountMinor: current.amountMinor } : {}
@@ -106,7 +106,7 @@ function revisedDraft(current: PromiseDraft, revision: PlanRevision): PromiseDra
 
 function revisedPlan(
   current: ExecutionPlan,
-  draft: PromiseDraft,
+  draft: MissionGoal,
   revision: PlanRevision,
   selectedChannel?: TrustedChannelSelection
 ) {
@@ -123,7 +123,7 @@ function revisedPlan(
     counterpartyName: /^[^@\s]+@[^@\s]+$/.test(draft.promisor.value)
       ? "Company"
       : draft.promisor.value,
-    ...(current.promiseType ? { promiseType: current.promiseType } : {}),
+    ...(current.goalType ? { goalType: current.goalType } : {}),
     ...(current.executionMode ? { executionMode: current.executionMode } : {}),
     ...(current.timingPolicyVersion ? { timingPolicyVersion: current.timingPolicyVersion } : {}),
     allowedActions: current.allowedActions,

@@ -1,6 +1,6 @@
 import { vertexAI } from "@genkit-ai/google-genai";
 import { genkit, z } from "genkit";
-import { evidenceCandidateSchema, type ExecutionOutcomeContract } from "@actionos/contracts";
+import { executionOutcomeSchema, type ExecutionOutcomeContract } from "@actionos/contracts";
 
 export const reconciliationInputSchema = z.object({
   missionId: z.string().min(8),
@@ -55,7 +55,7 @@ export async function reconcileEvidenceWithGateway(
   if (!output) throw new Error("MODEL_OUTPUT_MISSING");
   if (output.missionId !== input.missionId) throw new Error("MODEL_CASE_MISMATCH");
   if (!output.transactionRef) throw new Error("MODEL_REFERENCE_MISSING");
-  const parsed = evidenceCandidateSchema.parse({ ...output, signatureValid: false });
+  const parsed = executionOutcomeSchema.parse({ ...output, signatureValid: false });
   return { ...parsed, transactionRef: output.transactionRef, signatureValid: false as const };
 }
 

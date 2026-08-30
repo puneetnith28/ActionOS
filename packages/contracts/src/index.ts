@@ -123,8 +123,8 @@ export const extractedFieldSchema = <T extends z.ZodType>(value: T) =>
     uncertainty: z.enum(["NONE", "AMBIGUOUS", "MISSING", "CONTRADICTORY"])
   });
 
-export const promiseDraftSchema = z.object({
-  promiseType: z.enum(["REFUND", "BILL_CREDIT", "REPLACEMENT", "GENERAL"]).optional(),
+export const missionGoalSchema = z.object({
+  goalType: z.enum(["REFUND", "BILL_CREDIT", "REPLACEMENT", "GENERAL"]).optional(),
   promisor: extractedFieldSchema(z.string().min(1).max(200)),
   result: extractedFieldSchema(z.string().min(1).max(500)),
   amountMinor: extractedFieldSchema(z.int().nonnegative()).optional(),
@@ -195,7 +195,7 @@ export const resolutionPlanSchema = z
     planHash: sha256Schema,
     goal: z.string().min(1).max(500),
     counterpartyName: safeDisplayTextSchema(200).optional(),
-    promiseType: z.enum(["REFUND", "BILL_CREDIT", "REPLACEMENT", "GENERAL"]).optional(),
+    goalType: z.enum(["REFUND", "BILL_CREDIT", "REPLACEMENT", "GENERAL"]).optional(),
     executionMode: z.enum(["ACCELERATED_DEMO", "CONTROLLED_REAL_PILOT"]).optional(),
     timingPolicyVersion: z.string().min(1).max(80).optional(),
     allowedActions: z
@@ -236,10 +236,10 @@ export const resolutionPlanSchema = z
     expiresAt: isoDateSchema
   })
   .superRefine((plan, context) => {
-    const promiseType = plan.promiseType ?? "REFUND";
+    const goalType = plan.goalType ?? "REFUND";
     for (const [index, requirement] of plan.evidenceRequirements.entries()) {
       if (
-        ["REFUND", "BILL_CREDIT"].includes(promiseType) &&
+        ["REFUND", "BILL_CREDIT"].includes(goalType) &&
         (requirement.amountMinor === undefined || requirement.currency === undefined)
       ) {
         context.addIssue({
@@ -248,7 +248,7 @@ export const resolutionPlanSchema = z
           message: "Money evidence is required"
         });
       }
-      if (promiseType === "BILL_CREDIT" && !requirement.billPeriod) {
+      if (goalType === "BILL_CREDIT" && !requirement.billPeriod) {
         context.addIssue({
           code: "custom",
           path: ["evidenceRequirements", index, "billPeriod"],
@@ -256,7 +256,7 @@ export const resolutionPlanSchema = z
         });
       }
       if (
-        promiseType === "REPLACEMENT" &&
+        goalType === "REPLACEMENT" &&
         (!requirement.subject || !requirement.requiredOutcomeFields?.includes("trackingNumber"))
       ) {
         context.addIssue({
@@ -304,7 +304,7 @@ export const actionEnvelopeSchema = z.object({
   requestedAt: isoDateSchema
 });
 
-export const evidenceCandidateSchema = z.object({
+export const executionOutcomeSchema = z.object({
   outcomeId: opaqueIdSchema,
   missionId: opaqueIdSchema,
   status: verificationStatusSchema,
@@ -416,7 +416,7 @@ export const technicalStepSchema = z.object({
   reasonCodes: z.array(z.string().min(1).max(100)).max(10)
 }).strict();
 
-export type PromiseDraft = z.infer<typeof promiseDraftSchema>;
+export type MissionGoal = z.infer<typeof missionGoalSchema>;
 export type ChannelType = z.infer<typeof channelTypeSchema>;
 export type ChannelCapability = z.infer<typeof channelCapabilitySchema>;
 export type ActionReceiptContract = z.infer<typeof actionReceiptSchema>;
@@ -429,7 +429,7 @@ export type ExecutionPlan = z.infer<typeof resolutionPlanSchema>;
 export type AnalysisJob = z.infer<typeof analysisJobSchema>;
 export type ConversationPlan = z.infer<typeof conversationPlanSchema>;
 export type ActionEnvelope = z.infer<typeof actionEnvelopeSchema>;
-export type ExecutionOutcomeContract = z.infer<typeof evidenceCandidateSchema>;
+export type ExecutionOutcomeContract = z.infer<typeof executionOutcomeSchema>;
 export type IdentityClaim = z.infer<typeof identityClaimSchema>;
 export type CaseSummaryContract = z.infer<typeof caseSummarySchema>;
 export type ConversationEntry = z.infer<typeof conversationEntrySchema>;
