@@ -77,7 +77,7 @@ export class VerificationService {
   }> {
     const item = await this.cases.get(candidate.missionId);
     if (!item) throw new Error("MISSION_NOT_FOUND");
-    if (!["RUNNING", "WAITING_EXTERNAL"].includes(item.state)) {
+    if (!["RUNNING", "WAITING_EXTERNAL", "VERIFYING"].includes(item.state)) {
       throw new Error("EVIDENCE_NOT_ACCEPTED_IN_STATE");
     }
     const requirement = item.plan.evidenceRequirements[0];

@@ -7,7 +7,7 @@ const item = { plan: { goal: "USD 59 refund", messageBody: "Please confirm refun
 
 describe("consumer conversation projection", () => {
   it("explains acknowledgement without inventing missing outcome facts", () => {
-    const verification: EvidenceRecord[] = [{
+    const evidence: EvidenceRecord[] = [{
       candidate: {
         outcomeId: "evidence_ack_1234", missionId: "mission_ack_12345678",
         status: "ACTION_ATTEMPTED", transactionRef: "R-59",

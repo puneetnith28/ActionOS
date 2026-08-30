@@ -30,7 +30,7 @@ function explicitFacts(record: EvidenceRecord): string {
 
 export function missionConversation(
   item: FollowThroughMission,
-  verification: readonly EvidenceRecord[],
+  evidence: readonly EvidenceRecord[],
   channelEvents: readonly { acceptedAt: string; transportStatus: string }[]
 ): ConversationEntry[] {
   const outbound = channelEvents.map((event, index) => ({

@@ -44,7 +44,7 @@ function recipientHint(value: string): string {
 
 export function projectConsumerMission(input: {
   item: FollowThroughMission;
-  verification: readonly EvidenceRecord[];
+  evidence: readonly EvidenceRecord[];
   interventions?: readonly InterventionRecord[];
   events?: readonly RuntimeTimelineEvent[];
   notifications?: readonly NotificationRecord[];

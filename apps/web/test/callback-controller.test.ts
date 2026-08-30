@@ -47,7 +47,7 @@ function callback(body = JSON.stringify(payload), signature = signCallback(body,
 describe("merchant callback controller", () => {
   it("authenticates, reconciles, and marks a callback complete", async () => {
     const callbacks = new Callbacks();
-    const reconcile = vi.fn(() =>
+    const verifyOutcome = vi.fn(() =>
       Promise.resolve({
         status: "VERIFIED" as const,
         verification: {
@@ -61,38 +61,38 @@ describe("merchant callback controller", () => {
       secret,
       now: () => now,
       callbacks,
-      verification: { reconcile } as never
+      verification: { verifyOutcome } as never
     });
     expect(response.status).toBe(200);
-    expect(reconcile).toHaveBeenCalledWith(expect.objectContaining({ signatureValid: true }), now);
+    expect(verifyOutcome).toHaveBeenCalledWith(expect.objectContaining({ signatureValid: true }), now);
     expect(callbacks.status).toBe("COMPLETED");
   });
 
   it("rejects invalid signatures without invoking the verifier", async () => {
-    const reconcile = vi.fn();
+    const verifyOutcome = vi.fn();
     const response = await handleMerchantCallback(callback(JSON.stringify(payload), "v1=bad"), {
       secret,
       now: () => now,
       callbacks: new Callbacks(),
-      verification: { reconcile } as never
+      verification: { verifyOutcome } as never
     });
     expect(response.status).toBe(401);
-    expect(reconcile).not.toHaveBeenCalled();
+    expect(verifyOutcome).not.toHaveBeenCalled();
   });
 
   it("deduplicates a completed callback", async () => {
     const callbacks = new Callbacks();
     callbacks.status = "COMPLETED";
-    const reconcile = vi.fn();
+    const verifyOutcome = vi.fn();
     const response = await handleMerchantCallback(callback(), {
       secret,
       now: () => now,
       callbacks,
-      verification: { reconcile } as never
+      verification: { verifyOutcome } as never
     });
     expect(response.status).toBe(202);
     await expect(response.json()).resolves.toMatchObject({ duplicate: true });
-    expect(reconcile).not.toHaveBeenCalled();
+    expect(verifyOutcome).not.toHaveBeenCalled();
   });
 
   it("returns a retryable conflict while the action owner is publishing state", async () => {

@@ -38,8 +38,8 @@ export async function handleMerchantCallback(
   try {
     const candidate = executionOutcomeSchema.parse({ ...JSON.parse(body), signatureValid: true });
     const result = correlationId
-      ? await dependencies.evidence.verifyOutcome(candidate, now, correlationId)
-      : await dependencies.evidence.verifyOutcome(candidate, now);
+      ? await dependencies.verification.verifyOutcome(candidate, now, correlationId)
+      : await dependencies.verification.verifyOutcome(candidate, now);
     await dependencies.callbacks.completeCallback(key);
     return Response.json(result, { status: result.status === "VERIFIED" ? 200 : 202 });
   } catch (error) {

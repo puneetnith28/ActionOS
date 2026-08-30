@@ -76,7 +76,7 @@ export class InboundService {
     }
     const item = await this.cases.get(missionId);
     if (!item) return { status: "REJECTED", reasonCodes: ["MISSION_NOT_FOUND"] };
-    if (!["RUNNING", "WAITING_EXTERNAL"].includes(item.state)) {
+    if (!["RUNNING", "WAITING_EXTERNAL", "VERIFYING"].includes(item.state)) {
       return { status: "REJECTED", reasonCodes: ["MISSION_NOT_ACCEPTING_INBOUND"] };
     }
     const correlationId = item.correlationId ?? `corr_${stableHash({ missionId }).slice(7, 31)}`;
@@ -96,6 +96,17 @@ export class InboundService {
       });
       return { status: "NEEDS_ATTENTION", reasonCodes: ["UNEXPECTED_SENDER"] };
     }
+    
+    if (item.state !== "VERIFYING") {
+      const verifying = {
+        ...item,
+        state: "VERIFYING" as const,
+        version: item.version + 1,
+        updatedAt: now
+      };
+      await this.cases.compareAndSet(missionId, item.version, verifying);
+    }
+
     const interpretation = await this.interpreter.interpret({
       inboundId: email.providerEmailId,
       subject: email.subject,

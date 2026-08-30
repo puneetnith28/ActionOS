@@ -15,6 +15,7 @@ export type MissionState =
   | "RUNNING"
   | "WAITING_EXTERNAL"
   | "WAITING_RETRY"
+  | "VERIFYING"
   | "NEEDS_ATTENTION"
   | "DONE"
   | "FAILED"

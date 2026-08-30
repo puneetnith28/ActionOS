@@ -22,7 +22,7 @@ function money(amountMinor: number | undefined, currency: string | undefined): s
 
 export function outcomeComparison(
   item: FollowThroughMission,
-  verification: readonly EvidenceRecord[]
+  evidence: readonly EvidenceRecord[]
 ): OutcomeComparisonRow[] {
   const requirement = item.plan.evidenceRequirements[0];
   if (!requirement) return [];

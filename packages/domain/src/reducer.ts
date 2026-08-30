@@ -7,14 +7,16 @@ const transitions: Readonly<Record<MissionState, readonly MissionState[]>> = {
   RUNNING: [
     "WAITING_EXTERNAL",
     "WAITING_RETRY",
+    "VERIFYING",
     "NEEDS_ATTENTION",
     "DONE",
     "FAILED",
     "CANCELLED",
     "EXPIRED"
   ],
-  WAITING_EXTERNAL: ["RUNNING", "WAITING_RETRY", "NEEDS_ATTENTION", "CANCELLED", "EXPIRED"],
+  WAITING_EXTERNAL: ["RUNNING", "WAITING_RETRY", "VERIFYING", "NEEDS_ATTENTION", "CANCELLED", "EXPIRED"],
   WAITING_RETRY: ["READY", "NEEDS_ATTENTION", "CANCELLED", "EXPIRED"],
+  VERIFYING: ["DONE", "NEEDS_ATTENTION", "FAILED", "CANCELLED", "EXPIRED"],
   NEEDS_ATTENTION: ["READY", "CANCELLED", "EXPIRED"],
   DONE: ["NEEDS_ATTENTION"],
   FAILED: ["NEEDS_ATTENTION"],
@@ -68,7 +70,7 @@ export function reduceMission(
       "ILLEGAL_TRANSITION"
     );
   }
-  if (["READY", "RUNNING", "WAITING_EXTERNAL", "WAITING_RETRY", "DONE"].includes(command.target)) {
+  if (["READY", "RUNNING", "WAITING_EXTERNAL", "WAITING_RETRY", "VERIFYING", "DONE"].includes(command.target)) {
     assertBoundary(snapshot, command);
   }
   if (command.target === "DONE" && !command.verification?.accepted) {
