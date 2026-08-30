@@ -35,5 +35,11 @@ ActionOS is a `pnpm` monorepo. It requires an active Google Cloud Platform (GCP)
 - `packages/persistence/`: Firestore repositories and state management.
 - `packages/contracts/`: Shared schemas, data structures, and OpenAPI specifications.
 
+## Setup & Deployment
+
+For detailed instructions on running ActionOS, please refer to our setup documentation:
+- **[Local Setup & Development](Setup.md)**: Instructions for running the Next.js console, Firestore emulator, and configuring your local environment.
+- **[Google Cloud Deployment](Deployment.md)**: Instructions for provisioning infrastructure and deploying ActionOS to Google Cloud Run for a production environment.
+
 ---
 *ActionOS — Autonomy you can trust.*
