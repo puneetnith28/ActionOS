@@ -29,6 +29,7 @@
   "dependencies": {
     "@actionos/contracts": "workspace:*",
     "@actionos/domain": "workspace:*",
+    "@actionos/observability": "workspace:*",
     "@google-cloud/tasks": "7.0.0"
   },
   "devDependencies": {

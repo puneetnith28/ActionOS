@@ -1,5 +1,6 @@
 import { FirestoreAnalysisStore } from "@actionos/persistence/analysis-store";
 import { FirestoreIntakeStore } from "@actionos/persistence/intake-store";
+import { FirestoreTelemetryStore } from "@actionos/persistence/telemetry-store";
 import { extractPromiseWithMetricsFlow } from "@actionos/genkit-flows/extract-promise";
 import { IntakeService } from "@actionos/runtime/intake-service";
 import { artifactBucket, firestore } from "../../../../../lib/firebase-admin";
@@ -17,6 +18,7 @@ export const runtime = "nodejs";
 function intakeService(
   store: FirestoreIntakeStore,
   analysisStore: FirestoreAnalysisStore,
+  telemetryStore: FirestoreTelemetryStore,
   jobId: string
 ): IntakeService {
   const intakeChannel = defaultIntakeChannel();
@@ -41,6 +43,20 @@ function intakeService(
             observedAt: new Date().toISOString(),
             usage: result.usage
           });
+          const telemetryId = `corr_${jobId.slice(-24)}`;
+          await telemetryStore.recordTelemetry({
+            missionId: jobId,
+            correlationId: telemetryId,
+            occurredAt: new Date().toISOString(),
+            kind: "MODEL_CALL",
+            model: {
+              modelId: "gemini-3.5-flash",
+              latencyMs: performance.now() - started,
+              promptTokens: result.usage?.inputTokens,
+              completionTokens: result.usage?.outputTokens,
+              totalTokens: result.usage?.totalTokens
+            }
+          });
           await analysisStore.markValidating(jobId, new Date().toISOString());
           return result.draft;
         } catch (error) {
@@ -48,6 +64,15 @@ function intakeService(
             latencyMs: performance.now() - started,
             status: "FAILED",
             observedAt: new Date().toISOString()
+          });
+          const telemetryId = `corr_${jobId.slice(-24)}`;
+          await telemetryStore.recordTelemetry({
+            missionId: jobId,
+            correlationId: telemetryId,
+            occurredAt: new Date().toISOString(),
+            kind: "MODEL_CALL",
+            model: { modelId: "gemini-3.5-flash", latencyMs: performance.now() - started },
+            error: error instanceof Error ? error.message : "MODEL_CALL_FAILED"
           });
           throw error;
         }
@@ -62,10 +87,11 @@ function intakeService(
 export async function POST(request: Request) {
   const intakeStore = new FirestoreIntakeStore(firestore);
   const analysisStore = new FirestoreAnalysisStore(firestore);
+  const telemetryStore = new FirestoreTelemetryStore(firestore);
   return handleAnalysisWorker(request, {
     store: analysisStore,
     storage: new PrivateArtifactStorage(artifactBucket()),
-    service: (jobId) => intakeService(intakeStore, analysisStore, jobId),
+    service: (jobId) => intakeService(intakeStore, analysisStore, telemetryStore, jobId),
     now: () => new Date().toISOString()
   });
 }

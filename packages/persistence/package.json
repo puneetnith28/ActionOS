@@ -10,7 +10,8 @@
     "./runtime-store": "./src/runtime-store.ts",
     "./retention": "./src/retention.ts",
     "./expiry": "./src/expiry.ts",
-    "./wake-outbox-store": "./src/wake-outbox-store.ts"
+    "./wake-outbox-store": "./src/wake-outbox-store.ts",
+    "./telemetry-store": "./src/telemetry-store.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",
@@ -22,6 +23,7 @@
     "@actionos/contracts": "workspace:*",
     "@actionos/runtime": "workspace:*",
     "@actionos/domain": "workspace:*",
+    "@actionos/observability": "workspace:*",
     "@actionos/capabilities": "workspace:*",
     "firebase-admin": "14.2.0"
   }

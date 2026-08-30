@@ -4,6 +4,7 @@ import { CapabilityOutcomeUnknownError, type ExecutionBroker, type BrokerResult 
 import type { InterventionService } from "./interventions";
 import type { MissionNotificationService } from "./notifications";
 import { wakeIntent, type WakeIntent } from "./wake-outbox";
+import type { TelemetryStore } from "@actionos/observability";
 
 export interface FollowThroughMission {
   readonly missionId: string;
@@ -89,7 +90,8 @@ export class MissionRunner {
     private readonly retryDelaySeconds = 30,
     private readonly maxAttempts = 5,
     private readonly interventions?: InterventionService,
-    private readonly terminalNotifications?: MissionNotificationService
+    private readonly terminalNotifications?: MissionNotificationService,
+    private readonly telemetry?: TelemetryStore
   ) {}
 
   async run(input: {
@@ -171,10 +173,20 @@ export class MissionRunner {
           : {}),
         createdAt: input.now
       });
+      const telemetryId = input.correlationId ?? item.correlationId ?? `corr_${item.missionId.slice(-24)}`;
+      await this.telemetry?.recordTelemetry({
+        missionId: item.missionId,
+        correlationId: telemetryId,
+        occurredAt: input.now,
+        kind: "MISSION_LIFECYCLE",
+        lifecycle: { fromState: item.state, toState: exhausted.state },
+        error: "ACTION_BUDGET_EXHAUSTED"
+      });
       return { status: "NEEDS_ATTENTION", reason: "ACTION_BUDGET_EXHAUSTED" };
     }
 
     try {
+      const execStartTime = Date.now();
       const broker = await this.broker.execute({
         missionId: item.missionId,
         actionOrdinal: item.actionOrdinal,
@@ -194,6 +206,23 @@ export class MissionRunner {
           ? { correlationId: input.correlationId ?? item.correlationId }
           : {})
       });
+      
+      const capabilityTelemetry = {
+        capabilityId: "SEND_FOLLOW_UP",
+        status: broker.status === "DENIED" ? "FAILED" as const : "SUCCEEDED" as const,
+        latencyMs: Date.now() - execStartTime,
+        ...(broker.status === "DENIED" ? { reasonCode: broker.decision.reasonCodes.join(",") } : {})
+      };
+      
+      const correlationId = input.correlationId ?? item.correlationId ?? `corr_${item.missionId.slice(-24)}`;
+      await this.telemetry?.recordTelemetry({
+        missionId: item.missionId,
+        correlationId,
+        occurredAt: input.now,
+        kind: "CAPABILITY_EXEC",
+        capability: capabilityTelemetry
+      });
+
       if (broker.status === "DENIED")
         throw new Error(`ACTION_DENIED:${broker.decision.reasonCodes.join(",")}`);
       // Another delivery already owns this exact logical action. It must be the
@@ -234,6 +263,13 @@ export class MissionRunner {
           : {})
       });
       await this.store.compareAndSet(item.missionId, item.version, waitingExternal, wake);
+      await this.telemetry?.recordTelemetry({
+        missionId: item.missionId,
+        correlationId: correlationId,
+        occurredAt: input.now,
+        kind: "MISSION_LIFECYCLE",
+        lifecycle: { fromState: item.state, toState: waitingExternal.state }
+      });
       try {
         await this.scheduler.scheduleMission(wake);
       } catch (error) {
@@ -253,6 +289,14 @@ export class MissionRunner {
         };
         await this.store.compareAndSet(item.missionId, item.version, failed);
         const correlationId = input.correlationId ?? item.correlationId ?? `corr_${item.missionId.slice(-24)}`;
+        await this.telemetry?.recordTelemetry({
+          missionId: item.missionId,
+          correlationId,
+          occurredAt: input.now,
+          kind: "MISSION_LIFECYCLE",
+          lifecycle: { fromState: item.state, toState: failed.state },
+          error: error.message
+        });
         await this.terminalNotifications?.notify({
           missionId: item.missionId,
           ownerId: item.ownerId,
@@ -277,6 +321,14 @@ export class MissionRunner {
         await this.store.compareAndSet(item.missionId, item.version, exhausted);
         const correlationId =
           input.correlationId ?? item.correlationId ?? `corr_${item.missionId.slice(-24)}`;
+        await this.telemetry?.recordTelemetry({
+          missionId: item.missionId,
+          correlationId,
+          occurredAt: input.now,
+          kind: "MISSION_LIFECYCLE",
+          lifecycle: { fromState: item.state, toState: exhausted.state },
+          error: "RECOVERY_EXHAUSTED"
+        });
         await this.interventions?.raise({
           missionId: item.missionId,
           ownerId: item.ownerId,
@@ -315,6 +367,15 @@ export class MissionRunner {
           : {})
       });
       await this.store.compareAndSet(item.missionId, item.version, next, wake);
+      const correlationIdNext = input.correlationId ?? item.correlationId ?? `corr_${item.missionId.slice(-24)}`;
+      await this.telemetry?.recordTelemetry({
+        missionId: item.missionId,
+        correlationId: correlationIdNext,
+        occurredAt: input.now,
+        kind: "MISSION_LIFECYCLE",
+        lifecycle: { fromState: item.state, toState: next.state },
+        error: next.lastError
+      });
       await this.scheduler.scheduleMission(wake);
       return { status: "WAITING_RETRY", wakeAt: retryAt };
     }

@@ -2,6 +2,7 @@ import { ResendInboundEmailAdapter } from "@actionos/capabilities/inbound-email"
 import { transportStatusForProviderEvent } from "@actionos/capabilities/email-webhook";
 import { extractInboundFlow } from "@actionos/genkit-flows/extract-inbound";
 import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
+import { FirestoreTelemetryStore } from "@actionos/persistence/telemetry-store";
 import { VerificationService } from "@actionos/runtime/verification-service";
 import { InboundService } from "@actionos/runtime/inbound-service";
 import { InterventionService } from "@actionos/runtime/interventions";
@@ -60,7 +61,8 @@ export async function POST(request: Request) {
         store,
         store,
         notificationDelivery(store),
-        missionScheduler()
+        missionScheduler(),
+        new FirestoreTelemetryStore(firestore)
       ),
       interventions
     );

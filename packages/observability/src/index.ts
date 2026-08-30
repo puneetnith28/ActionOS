@@ -58,3 +58,5 @@ export function redactUnknownFields(
   }
   return Object.freeze(safe);
 }
+
+export * from "./telemetry";

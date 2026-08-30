@@ -8,6 +8,7 @@ import {
   RoutingCapabilityAdapter
 } from "@actionos/runtime/capability-registry";
 import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
+import { FirestoreTelemetryStore } from "@actionos/persistence/telemetry-store";
 import { ExecutionBroker } from "@actionos/runtime/capability-broker";
 import { MissionRunner } from "@actionos/runtime/mission-runner";
 import { InterventionService } from "@actionos/runtime/interventions";
@@ -115,7 +116,8 @@ export async function POST(request: Request) {
     30,
     5,
     new InterventionService(store, store, notificationDelivery(store)),
-    new MissionNotificationService(store, notificationDelivery(store))
+    new MissionNotificationService(store, notificationDelivery(store)),
+    new FirestoreTelemetryStore(firestore)
   );
   return handleRunCaseTask(request, runner, () => new Date().toISOString());
 }

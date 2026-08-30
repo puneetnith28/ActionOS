@@ -17,6 +17,7 @@ import {
   type InterventionStore
 } from "./interventions";
 import { wakeIntent, type WakeIntent } from "./wake-outbox";
+import type { TelemetryStore } from "@actionos/observability";
 
 export interface EvidenceMission {
   readonly missionId: string;
@@ -62,7 +63,8 @@ export class VerificationService {
     private readonly notifications: NotificationStore,
     private readonly interventions?: InterventionStore,
     private readonly delivery?: NotificationDeliveryService,
-    private readonly scheduler?: EvidenceScheduler
+    private readonly scheduler?: EvidenceScheduler,
+    private readonly telemetry?: TelemetryStore
   ) {}
 
   async verifyOutcome(
@@ -107,6 +109,17 @@ export class VerificationService {
       ...(wake ? { wake } : {}),
       verification: { candidate, verification, recordedAt: now, correlationId }
     });
+    
+    if (!recorded.duplicate) {
+      await this.telemetry?.recordTelemetry({
+        missionId: item.missionId,
+        correlationId,
+        occurredAt: now,
+        kind: "MISSION_LIFECYCLE",
+        lifecycle: { fromState: item.state, toState: accepted ? "DONE" : conflict ? "NEEDS_ATTENTION" : "WAITING_EXTERNAL" }
+      });
+    }
+
     if (wake && !recorded.duplicate) await this.scheduler?.scheduleMission(wake);
     if (!accepted) {
       if (!conflict) {

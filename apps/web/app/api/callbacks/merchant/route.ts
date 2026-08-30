@@ -1,4 +1,5 @@
 import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
+import { FirestoreTelemetryStore } from "@actionos/persistence/telemetry-store";
 import { VerificationService } from "@actionos/runtime/verification-service";
 import { handleMerchantCallback } from "../../../../lib/callback-controller";
 import { firestore } from "../../../../lib/firebase-admin";
@@ -20,7 +21,8 @@ export async function POST(request: Request) {
       store,
       store,
       notificationDelivery(store),
-      missionScheduler()
+      missionScheduler(),
+      new FirestoreTelemetryStore(firestore)
     )
   });
 }
