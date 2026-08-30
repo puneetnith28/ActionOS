@@ -30,4 +30,5 @@ export interface ExecutionTelemetry {
 export interface TelemetryStore {
   recordTelemetry(telemetry: ExecutionTelemetry): Promise<void>;
   listTelemetry(missionId: string, limit?: number): Promise<readonly ExecutionTelemetry[]>;
+  listAllTelemetry(limit?: number): Promise<readonly ExecutionTelemetry[]>;
 }

@@ -29,4 +29,13 @@ export class FirestoreTelemetryStore implements TelemetryStore {
       .get();
     return snapshot.docs.map((doc) => doc.data() as ExecutionTelemetry);
   }
+
+  async listAllTelemetry(limitCount = 100): Promise<readonly ExecutionTelemetry[]> {
+    const snapshot = await this.db
+      .collectionGroup("telemetry")
+      .orderBy("occurredAt", "desc")
+      .limit(limitCount)
+      .get();
+    return snapshot.docs.map((doc) => doc.data() as ExecutionTelemetry);
+  }
 }

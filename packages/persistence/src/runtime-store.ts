@@ -92,6 +92,16 @@ export class FirestoreRuntimeStore
     return snapshot.docs.map((document) => document.data() as FollowThroughMission);
   }
 
+  async listActiveMissions(limitCount = 50): Promise<readonly FollowThroughMission[]> {
+    const snapshot = await this.db
+      .collection("missionRuns")
+      .where("state", "in", ["RUNNING", "WAITING_EXTERNAL", "VERIFYING", "NEEDS_ATTENTION"])
+      .orderBy("updatedAt", "desc")
+      .limit(limitCount)
+      .get();
+    return snapshot.docs.map((document) => document.data() as FollowThroughMission);
+  }
+
   async listEvidence(missionId: string): Promise<readonly EvidenceRecord[]> {
     const snapshot = await this.db
       .collection("missionRuns")
