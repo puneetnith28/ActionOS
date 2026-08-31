@@ -9,6 +9,7 @@ import InteractiveCard from "../../components/ui/InteractiveCard";
 import { Button } from "../../components/ui/button";
 import { Activity, ArrowRight, BrainCircuit, CheckCircle2, Workflow } from "lucide-react";
 import NeonMesh from "../../components/ui/neon-mesh";
+import { GoogleSignIn } from "../../components/google-sign-in";
 
 function AuthForm() {
   const searchParams = useSearchParams();
@@ -110,6 +111,19 @@ function AuthForm() {
         >
           {isLogin ? "Sign up" : "Log in"}
         </button>
+      </div>
+
+      <div className="mt-8 relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-white/10"></div>
+        </div>
+        <div className="relative flex justify-center text-xs">
+          <span className="bg-black/40 px-2 text-white/40 uppercase tracking-widest backdrop-blur-xl">Or continue with</span>
+        </div>
+      </div>
+
+      <div className="mt-6 flex justify-center">
+        <GoogleSignIn onSignedIn={() => { window.location.href = "/dashboard"; }} />
       </div>
     </div>
   );

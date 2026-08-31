@@ -6,7 +6,6 @@ import {
   getAuth,
   linkWithPopup,
   signInWithPopup,
-  signInAnonymously,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
@@ -31,12 +30,12 @@ export function recoverableAuthError(code: string, linking: boolean): string {
   return "RECOVERABLE_SIGN_IN_FAILED";
 }
 
-async function currentUser(): Promise<User> {
+async function currentUser(): Promise<User | null> {
   const config = await publicConfig();
   const app = getApps().length > 0 ? getApp() : initializeApp(config);
   const auth = getAuth(app);
   await auth.authStateReady();
-  return auth.currentUser ?? (await signInAnonymously(auth)).user;
+  return auth.currentUser;
 }
 
 async function publicConfig(): Promise<FirebasePublicConfig> {
@@ -48,7 +47,8 @@ async function publicConfig(): Promise<FirebasePublicConfig> {
 }
 
 export async function anonymousIdToken(): Promise<string> {
-  return (await currentUser()).getIdToken();
+  const user = await currentUser();
+  return user ? await user.getIdToken() : "";
 }
 
 export async function recoverableIdentity(): Promise<{
@@ -58,6 +58,9 @@ export async function recoverableIdentity(): Promise<{
   emailVerified: boolean;
 }> {
   const user = await currentUser();
+  if (!user) {
+    return { isAnonymous: true, emailVerified: false };
+  }
   return {
     isAnonymous: user.isAnonymous,
     emailVerified: user.emailVerified,
@@ -71,6 +74,7 @@ export async function linkCurrentIdentityWithGoogle(): Promise<{
   email?: string;
 }> {
   const user = await currentUser();
+  if (!user) throw new Error("UNAUTHENTICATED");
   if (!user.isAnonymous) {
     return { token: await user.getIdToken(true), ...(user.email ? { email: user.email } : {}) };
   }
