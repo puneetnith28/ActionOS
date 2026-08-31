@@ -7,7 +7,7 @@ import { emptyInboxPresentation, type InboxIdentity } from "../lib/inbox-present
 import { GoogleSignIn } from "./google-sign-in";
 import { useLocale } from "../lib/use-locale";
 
-export function MissionInbox() {
+export function MissionInbox({ filterBucket, hideSummary }: { filterBucket?: "WORKING" | "NEEDS_YOU" | "DONE"; hideSummary?: boolean } = {}) {
   const { locale, localize } = useLocale();
   const tr = useCallback((en: string, es: string, pt: string) => locale === "es" ? es : locale === "pt" ? pt : en, [locale]);
   const [items, setItems] = useState<MissionSummary[]>();
@@ -21,6 +21,7 @@ export function MissionInbox() {
       const [token, currentIdentity] = await Promise.all([anonymousIdToken(), recoverableIdentity()]);
       const query = new URLSearchParams({ limit: "25" });
       if (cursor) query.set("cursor", cursor);
+      if (filterBucket) query.set("bucket", filterBucket);
       const response = await fetch(`/api/missions?${query}`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
       const result = await response.json() as { items?: MissionSummary[]; nextCursor?: string | null; error?: string };
       if (!response.ok || !result.items) throw new Error(result.error ?? "CASES_FAILED");
@@ -46,7 +47,7 @@ export function MissionInbox() {
   
   return (
     <div className="w-full flex flex-col gap-8">
-      {items && items.length > 0 && (
+      {items && items.length > 0 && !hideSummary && (
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex flex-col gap-1 hover:bg-white/10 transition-colors">
             <strong className="text-3xl text-white font-bold">{items.filter((item) => item.bucket === "WORKING").length}</strong>
