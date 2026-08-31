@@ -1,60 +1,100 @@
-import { AppHeader } from "../components/app-header";
+import Link from "next/link";
 import { getRequestLocale, getRequestMessages } from "../lib/i18n-server";
-import { localizePath } from "../lib/i18n";
 
-export default async function Home() {
-  const [locale, messages] = await Promise.all([getRequestLocale(), getRequestMessages()]);
-  const copy = messages.home;
+export default async function LandingPage() {
+  const [locale] = await Promise.all([getRequestLocale(), getRequestMessages()]);
+
   return (
-    <main className="shell landing-shell">
-      <AppHeader />
-      <section className="landing-hero">
-        <div>
-          <div className="eyebrow landing-eyebrow">{copy.eyebrow}</div>
-          <h1>{copy.title}</h1>
-          <p className="lede">{copy.lede}</p>
-          <div className="landing-actions">
-            <a className="landing-primary" href={localizePath("/intake", locale)}>{copy.handoff} <span>→</span></a>
-            <a className="landing-secondary" href="#how-it-works">{copy.how}</a>
+    <div style={{ backgroundColor: "var(--bg-base)", minHeight: "100vh", color: "var(--fg-base)" }}>
+      {/* Navigation */}
+      <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "24px 48px", borderBottom: "1px solid var(--border-subtle)" }}>
+        <div style={{ fontSize: "20px", fontWeight: 700, letterSpacing: "-0.03em" }}>ActionOS</div>
+        <div style={{ display: "flex", gap: "16px" }}>
+          <Link href="/dashboard" className="btn btn-ghost" style={{ fontSize: "14px" }}>Log in</Link>
+          <Link href="/dashboard" className="btn btn-primary" style={{ fontSize: "14px" }}>Sign up</Link>
+        </div>
+      </nav>
+
+      <main style={{ maxWidth: "1000px", margin: "0 auto", padding: "80px 24px" }}>
+        {/* Hero Section */}
+        <section style={{ textAlign: "center", marginBottom: "96px" }}>
+          <div className="badge badge-accent" style={{ marginBottom: "24px", padding: "6px 12px", fontSize: "12px" }}>
+            Now in Public Beta
           </div>
-          <p className="landing-trust">{copy.trust}</p>
+          <h1 style={{ fontSize: "clamp(48px, 6vw, 72px)", fontWeight: 800, lineHeight: 1.1, marginBottom: "24px", letterSpacing: "-0.04em" }}>
+            The operational console <br/> for autonomous agents.
+          </h1>
+          <p style={{ fontSize: "20px", color: "var(--fg-muted)", maxWidth: "600px", margin: "0 auto 40px", lineHeight: 1.6 }}>
+            ActionOS bridges the gap between AI generation and real-world execution. Deploy agents that can securely plan, operate, and verify tasks autonomously.
+          </p>
+          <div style={{ display: "flex", justifyContent: "center", gap: "16px" }}>
+            <Link href="/dashboard" className="btn btn-primary" style={{ padding: "14px 28px", fontSize: "16px" }}>
+              Get Started Free →
+            </Link>
+            <a href="#features" className="btn btn-secondary" style={{ padding: "14px 28px", fontSize: "16px" }}>
+              Read the Docs
+            </a>
+          </div>
+        </section>
+
+        {/* Product Preview Image (Conceptual) */}
+        <div style={{ border: "1px solid var(--border-strong)", borderRadius: "var(--radius-lg)", padding: "4px", backgroundColor: "var(--bg-surface-elevated)", boxShadow: "var(--shadow-lg)", marginBottom: "96px" }}>
+          <div style={{ backgroundColor: "var(--bg-base)", borderRadius: "var(--radius-md)", border: "1px solid var(--border-subtle)", padding: "48px", textAlign: "center" }}>
+            <div style={{ fontSize: "48px", marginBottom: "24px" }}>⚡</div>
+            <h3 style={{ fontSize: "24px", marginBottom: "16px" }}>ActionOS Command Center</h3>
+            <p style={{ color: "var(--fg-muted)", maxWidth: "400px", margin: "0 auto" }}>
+              A premium, dark-mode interface designed for high-density information and robust execution timelines.
+            </p>
+          </div>
         </div>
-        <div className="product-preview" aria-label={copy.example}>
-          <div className="preview-top"><span>{copy.example}</span><strong>{copy.refund}</strong></div>
-          <div className="preview-company"><span>N</span><div><strong>Northstar Store</strong><p>{copy.order}</p></div></div>
-          <div className="preview-promise"><small>{copy.outcome}</small><strong>{copy.receive}</strong></div>
-          <ol className="preview-timeline">
-            <li data-done="true"><span>✓</span><div><strong>{copy.understood}</strong><p>{copy.extracted}</p></div></li>
-            <li data-done="true"><span>✓</span><div><strong>{copy.approved}</strong><p>{copy.approvedDetail}</p></div></li>
-            <li data-rejected="true"><span>×</span><div><strong>{copy.rejected}</strong><p>{copy.rejectedDetail}</p></div></li>
-            <li data-current="true"><span>✓</span><div><strong>{copy.confirmed}</strong><p>{copy.confirmedDetail}</p></div></li>
-          </ol>
-          <div className="preview-proof">{copy.proof} <span>{copy.complete}</span></div>
-        </div>
-      </section>
 
-      <section className="value-contrast">
-        <p>{copy.contrast}</p><h2>{copy.contrastTitle}</h2>
-      </section>
+        {/* Features Grid */}
+        <section id="features" style={{ marginBottom: "96px" }}>
+          <h2 style={{ fontSize: "32px", fontWeight: 700, marginBottom: "48px", textAlign: "center" }}>
+            Engineered for reliability.
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "32px" }}>
+            <div className="card" style={{ border: "1px solid var(--border-subtle)", background: "transparent" }}>
+              <h3 style={{ fontSize: "18px", marginBottom: "12px", color: "var(--fg-base)" }}>Autonomous Execution</h3>
+              <p style={{ color: "var(--fg-muted)", fontSize: "15px", lineHeight: 1.6 }}>
+                Agents dynamically select the necessary capabilities from a strict registry to solve complex objectives without human intervention.
+              </p>
+            </div>
+            <div className="card" style={{ border: "1px solid var(--border-subtle)", background: "transparent" }}>
+              <h3 style={{ fontSize: "18px", marginBottom: "12px", color: "var(--fg-base)" }}>Deterministic State</h3>
+              <p style={{ color: "var(--fg-muted)", fontSize: "15px", lineHeight: 1.6 }}>
+                Every action is tracked via a strict state machine, ensuring that a mission's state transitions are fully reproducible and auditable.
+              </p>
+            </div>
+            <div className="card" style={{ border: "1px solid var(--border-subtle)", background: "transparent" }}>
+              <h3 style={{ fontSize: "18px", marginBottom: "12px", color: "var(--fg-base)" }}>Safe Interactions</h3>
+              <p style={{ color: "var(--fg-muted)", fontSize: "15px", lineHeight: 1.6 }}>
+                ActionOS runs all external interactions through isolated capabilities, requiring human intervention before executing sensitive actions.
+              </p>
+            </div>
+            <div className="card" style={{ border: "1px solid var(--border-subtle)", background: "transparent" }}>
+              <h3 style={{ fontSize: "18px", marginBottom: "12px", color: "var(--fg-base)" }}>Execution Observability</h3>
+              <p style={{ color: "var(--fg-muted)", fontSize: "15px", lineHeight: 1.6 }}>
+                Inspect detailed timelines of capability invocation, agent reasoning paths, and target verification outcomes right from the dashboard.
+              </p>
+            </div>
+          </div>
+        </section>
 
-      <section className="benefit-grid" aria-label={copy.why}>
-        <article><span>01</span><h3>{copy.giveTitle}</h3><p>{copy.giveText}</p></article>
-        <article><span>02</span><h3>{copy.approveTitle}</h3><p>{copy.approveText}</p></article>
-        <article><span>03</span><h3>{copy.attentionTitle}</h3><p>{copy.attentionText}</p></article>
-      </section>
-
-      <section className="how-section" id="how-it-works">
-        <div><span className="eyebrow">{copy.difference}</span><h2>{copy.notChat}</h2></div>
-        <div className="comparison-card">
-          <div><small>{copy.reminder}</small><strong>{copy.reminderQuote}</strong><p>{copy.reminderText}</p></div>
-          <div data-actionos="true"><small>ACTIONOS</small><strong>{copy.actionosQuote}</strong><p>{copy.actionosText}</p></div>
-        </div>
-      </section>
-
-      <section className="landing-final">
-        <span className="eyebrow">{copy.recipe}</span><h2>{copy.tired}</h2><p>{copy.start}</p>
-        <a className="landing-primary" href={localizePath("/intake", locale)}>{copy.live} <span>→</span></a>
-      </section>
-    </main>
+        {/* CTA */}
+        <section style={{ textAlign: "center", padding: "80px 0", borderTop: "1px solid var(--border-subtle)" }}>
+          <h2 style={{ fontSize: "32px", fontWeight: 700, marginBottom: "24px" }}>Ready to deploy?</h2>
+          <p style={{ fontSize: "18px", color: "var(--fg-muted)", marginBottom: "32px" }}>Join the developers building reliable agentic workflows.</p>
+          <Link href="/dashboard" className="btn btn-primary" style={{ padding: "12px 24px", fontSize: "16px" }}>
+            Sign up for free
+          </Link>
+        </section>
+      </main>
+      
+      {/* Footer */}
+      <footer style={{ padding: "48px", borderTop: "1px solid var(--border-subtle)", textAlign: "center", color: "var(--fg-subtle)", fontSize: "14px" }}>
+        &copy; {new Date().getFullYear()} ActionOS. All rights reserved.
+      </footer>
+    </div>
   );
 }

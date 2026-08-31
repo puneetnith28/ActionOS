@@ -1,6 +1,6 @@
-import { MissionException } from "../../../../components/mission-exception";
-import { AppHeader } from "../../../../components/app-header";
-import { getRequestMessages } from "../../../../lib/i18n-server";
+import { MissionException } from "../../../../../components/mission-exception";
+import { AppHeader } from "../../../../../components/app-header";
+import { getRequestMessages } from "../../../../../lib/i18n-server";
 
 export default async function ExceptionPage({
   params

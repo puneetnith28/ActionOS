@@ -1,6 +1,6 @@
-import { AnalysisProgress } from "../../../../components/analysis-progress";
-import { AppHeader } from "../../../../components/app-header";
-import { getRequestMessages } from "../../../../lib/i18n-server";
+import { AnalysisProgress } from "../../../../../components/analysis-progress";
+import { AppHeader } from "../../../../../components/app-header";
+import { getRequestMessages } from "../../../../../lib/i18n-server";
 
 export default async function AnalyzingPage({
   params

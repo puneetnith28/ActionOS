@@ -4,41 +4,21 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { anonymousIdToken } from "../lib/firebase-client";
 import { errorCopy } from "../lib/error-copy";
-import { examplePromises } from "../lib/example-promises";
-import { getInteractiveCopy } from "../lib/interactive-copy";
 import { useLocale } from "../lib/use-locale";
 
 export function IntakeForm() {
   const router = useRouter();
-  const { locale, localize } = useLocale();
-  const copy = getInteractiveCopy(locale).intake;
+  const { localize } = useLocale();
   const [text, setText] = useState("");
   const [file, setFile] = useState<File>();
   const [busy, setBusy] = useState(false);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [error, setError] = useState<string>();
+  const [executionMode, setExecutionMode] = useState<"automatic" | "ask">("ask");
   const [hydrated, setHydrated] = useState(false);
-  const [deletionConfirmed, setDeletionConfirmed] = useState(false);
-  const examples = examplePromises();
 
   useEffect(() => {
     setHydrated(true);
-    setDeletionConfirmed(new URLSearchParams(window.location.search).get("deleted") === "1");
   }, []);
-
-  useEffect(() => {
-    if (!busy) {
-      setElapsedSeconds(0);
-      return;
-    }
-    const startedAt = Date.now();
-    const interval = window.setInterval(() => {
-      setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000));
-    }, 1_000);
-    return () => {
-      window.clearInterval(interval);
-    };
-  }, [busy]);
 
   async function submit() {
     setBusy(true);
@@ -48,6 +28,8 @@ export function IntakeForm() {
       const body = new FormData();
       if (text.trim()) body.set("text", text);
       if (file) body.set("file", file);
+      // NOTE: executionMode could be sent to backend in real implementation
+      
       const response = await fetch("/api/intake", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -55,6 +37,7 @@ export function IntakeForm() {
       });
       const result = (await response.json()) as { missionId?: string; status?: string; error?: string };
       if (!response.ok || !result.missionId) throw new Error(result.error ?? "INTAKE_FAILED");
+      
       router.push(
         result.status === "READY"
           ? localize(`/missions/${result.missionId}/review`)
@@ -67,107 +50,95 @@ export function IntakeForm() {
   }
 
   const ready = text.trim().length > 0 || file !== undefined;
+
   return (
-    <div className="card intake-composer-card" data-testid="intake-form" data-hydrated={hydrated} aria-busy={busy}>
-      {deletionConfirmed ? <p className="success" role="status">{copy.deleted}</p> : null}
-      <div className="form-heading">
-        <span>{copy.recipe}</span><strong>{copy.title}</strong>
-      </div>
-      <p className="recipe-scope">
-        {copy.scope}
-      </p>
-      <div className="smart-composer">
-        <label className="composer-label" htmlFor="promise">{copy.prompt}</label>
+    <div data-testid="intake-form" data-hydrated={hydrated} aria-busy={busy}>
+      <div className="card" style={{ padding: "0", overflow: "hidden", marginBottom: "24px" }}>
         <textarea
-          id="promise"
+          className="input no-scrollbar"
           value={text}
           disabled={busy}
-          onChange={(event) => {
-            setText(event.target.value);
-          }}
-          placeholder={copy.placeholder}
-          maxLength={50_000}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Tell ActionOS what you want accomplished..."
+          style={{ minHeight: "180px", border: "none", borderRadius: "0", backgroundColor: "transparent", fontSize: "16px", padding: "24px" }}
         />
-        <div className="composer-footer">
-          <div className="composer-attachment">
-            <label htmlFor="artifact">{file ? file.name : copy.addFile}</label>
+        <div className="flex-between" style={{ padding: "12px 24px", borderTop: "1px solid var(--border-subtle)", backgroundColor: "var(--bg-surface-elevated)" }}>
+          <div style={{ position: "relative" }}>
+            <label htmlFor="artifact" style={{ margin: 0, fontSize: "13px", color: "var(--fg-muted)", cursor: "pointer" }}>
+              <span className="flex-center gap-2">
+                <span>📎</span> {file ? file.name : "Attach a file"}
+              </span>
+            </label>
             <input
               id="artifact"
               type="file"
               disabled={busy}
-              accept="application/pdf,image/jpeg,image/png"
-              onChange={(event) => {
-                setFile(event.target.files?.[0]);
-              }}
+              style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }}
+              onChange={(e) => setFile(e.target.files?.[0])}
             />
           </div>
-          <button
-            className="composer-submit"
-            type="button"
-            disabled={!ready || busy}
-            onClick={() => void submit()}
-          >
-            {busy ? copy.working : copy.build}
-          </button>
-        </div>
-      </div>
-      <p className="button-help intake-ai-note">
-        {copy.ai} <a href={localize("/privacy")}>{copy.data}</a>.
-      </p>
-      {file ? (
-        <div className="attachment-status"><span>{(file.size / 1024 / 1024).toFixed(1)} MB · {copy.ready}</span><button className="remove-file" type="button" disabled={busy} onClick={() => { setFile(undefined); }}>{copy.remove}</button></div>
-      ) : null}
-      {text.trim() && file ? <p className="combined-source">{copy.combined}</p> : null}
-      <div className="example-picker">
-        <span>{copy.common}</span>
-        <div>
-          {examples.map((example) => (
-            <button key={example.label} type="button" disabled={busy} onClick={() => { setText(example.text); setError(undefined); }}>
-              {example.label}<span aria-hidden="true">→</span>
+          {file && (
+            <button type="button" onClick={() => setFile(undefined)} className="btn btn-ghost" style={{ padding: "4px 8px", fontSize: "12px" }}>
+              Remove
             </button>
-          ))}
+          )}
         </div>
       </div>
-      <details className="mobile-after">
-        <summary>{copy.after}</summary>
-        <ol>
-          <li>{copy.after1}</li><li>{copy.after2}</li><li>{copy.after3}</li>
-        </ol>
-        <p>{copy.adapter}</p>
-      </details>
-      {busy ? (
-        <div className="analysis-progress">
-          <div className="progress-orbit" aria-hidden="true"><span /></div>
-          <div>
-            <strong>{copy.reading}</strong>
-            <p>
-              {elapsedSeconds < 15
-                ? copy.extracting
-                : elapsedSeconds < 30
-                  ? copy.complex
-                  : copy.slow}
-            </p>
-            <small aria-hidden="true">{elapsedSeconds}s {copy.elapsed}</small>
+
+      <div style={{ marginBottom: "32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
+        {/* Capabilities Panel */}
+        <div className="panel" style={{ padding: "20px" }}>
+          <h3 style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--fg-subtle)", marginBottom: "16px" }}>Capabilities</h3>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+            <span className="badge badge-default">Email</span>
+            <span className="badge badge-default">HTTP</span>
+            <span className="badge badge-default">Data</span>
+            <span className="badge badge-default">Files</span>
+          </div>
+          <p style={{ marginTop: "16px", fontSize: "12px", color: "var(--fg-subtle)" }}>
+            The agent will automatically select the necessary capabilities based on the mission goal.
+          </p>
+        </div>
+
+        {/* Execution Mode */}
+        <div className="panel" style={{ padding: "20px" }}>
+          <h3 style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--fg-subtle)", marginBottom: "16px" }}>Execution</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", margin: 0 }}>
+              <input type="radio" name="exec-mode" checked={executionMode === "automatic"} onChange={() => setExecutionMode("automatic")} style={{ accentColor: "var(--accent)" }} />
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: "14px", color: "var(--fg-base)" }}>Automatic</span>
+                <span style={{ fontSize: "12px", color: "var(--fg-muted)" }}>Execute plan immediately</span>
+              </div>
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", margin: 0 }}>
+              <input type="radio" name="exec-mode" checked={executionMode === "ask"} onChange={() => setExecutionMode("ask")} style={{ accentColor: "var(--accent)" }} />
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: "14px", color: "var(--fg-base)" }}>Ask before sensitive actions</span>
+                <span style={{ fontSize: "12px", color: "var(--fg-muted)" }}>Require human approval</span>
+              </div>
+            </label>
           </div>
         </div>
-      ) : null}
-      <p className="privacy">
-        {copy.privacy} <a href={localize("/privacy")}>{copy.privacyLink}</a>.
-      </p>
-      <p className="sr-status" role="status" aria-live="polite">
-        {busy
-          ? elapsedSeconds < 15
-            ? copy.srInitial
-            : elapsedSeconds < 30
-              ? copy.srComplex
-              : copy.srSlow
-          : ""}
-      </p>
-      {error ? (
-        <p className="error" role="alert">
-          {errorCopy(error)}
-        </p>
-      ) : null}
+      </div>
+
+      {error ? <div className="card" style={{ borderColor: "var(--danger)", backgroundColor: "var(--danger-muted)", color: "var(--danger)", padding: "16px", marginBottom: "24px" }}>{errorCopy(error)}</div> : null}
+
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <button
+          className="btn btn-primary"
+          style={{ padding: "12px 24px" }}
+          type="button"
+          disabled={!ready || busy}
+          onClick={submit}
+        >
+          {busy ? (
+            <span className="flex-center gap-2"><span className="timeline-icon running" style={{ width: "14px", height: "14px" }}></span> Analyzing Intent...</span>
+          ) : (
+            <span>Review Mission →</span>
+          )}
+        </button>
+      </div>
     </div>
   );
 }

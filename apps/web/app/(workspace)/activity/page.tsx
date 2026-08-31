@@ -1,7 +1,6 @@
-import { AppHeader } from "../../components/app-header";
-import { getRequestMessages } from "../../lib/i18n-server";
+import { getRequestMessages } from "../../../lib/i18n-server";
 import { FirestoreRuntimeStore } from "@actionos/persistence/runtime-store";
-import { firestore } from "../../lib/firebase-admin";
+import { firestore } from "../../../lib/firebase-admin";
 
 export const dynamic = "force-dynamic";
 
@@ -12,12 +11,10 @@ export default async function ActivityPage() {
   
   return (
     <main className="shell">
-      <AppHeader />
-      <section className="hero compact">
-        <div className="eyebrow">Execution Timeline</div>
-        <h1>{copy.header.activity}</h1>
-        <p className="lede">Monitor all agent actions, capabilities invoked, and system events.</p>
-      </section>
+      <header style={{ marginBottom: "32px" }}>
+        <h1 style={{ fontSize: "var(--text-2xl)", marginBottom: "8px", fontWeight: 600 }}>{copy.header.activity}</h1>
+        <p style={{ color: "var(--fg-muted)", fontSize: "var(--text-base)" }}>Monitor all agent actions, capabilities invoked, and system events.</p>
+      </header>
       <div className="activity-feed">
         {events.length === 0 ? (
           <p className="empty-state">No execution history found across any missions.</p>

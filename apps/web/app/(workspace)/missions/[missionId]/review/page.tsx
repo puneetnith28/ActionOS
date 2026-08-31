@@ -1,7 +1,7 @@
-import { PlanReview } from "../../../../components/plan-review";
-import { AppHeader } from "../../../../components/app-header";
-import { getRequestMessages } from "../../../../lib/i18n-server";
-import { PlanReviewPreview } from "../../../../components/plan-review-preview";
+import { PlanReview } from "../../../../../components/plan-review";
+import { AppHeader } from "../../../../../components/app-header";
+import { getRequestMessages } from "../../../../../lib/i18n-server";
+import { PlanReviewPreview } from "../../../../../components/plan-review-preview";
 
 export default async function ReviewPage({
   params
