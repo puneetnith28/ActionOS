@@ -1,5 +1,4 @@
 import { PlanReview } from "../../../../../components/plan-review";
-import { AppHeader } from "../../../../../components/app-header";
 import { getRequestMessages } from "../../../../../lib/i18n-server";
 import { PlanReviewPreview } from "../../../../../components/plan-review-preview";
 
@@ -10,17 +9,15 @@ export default async function ReviewPage({
 }) {
   const { missionId } = await params;
   const copy = (await getRequestMessages()).steps;
+  
   return (
-    <main className="shell">
-      <AppHeader />
-      <section className="journey-header">
-        <div>
-          <span>{copy.reviewEye}</span>
-          <h1>{copy.reviewTitle}</h1>
-          <p>{copy.reviewText}</p>
-        </div>
-      </section>
+    <div className="w-full flex flex-col pt-12">
+      <header className="max-w-4xl mx-auto w-full px-4 text-center mb-8">
+        <div className="text-xs font-bold tracking-widest text-primary uppercase mb-4">{copy.reviewEye}</div>
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground mb-2">{copy.reviewTitle}</h1>
+        <p className="text-lg text-muted-foreground">{copy.reviewText}</p>
+      </header>
       {missionId === "demo-review" && process.env.NODE_ENV === "development" ? <PlanReviewPreview /> : <PlanReview missionId={missionId} contactMode={process.env.COMPANY_CONTACT_MODE === "email" ? "email" : "sandbox"} />}
-    </main>
+    </div>
   );
 }

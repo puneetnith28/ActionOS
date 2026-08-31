@@ -1,7 +1,32 @@
 "use client";
 
+import * as React from "react"
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "./ui/sidebar"
+import { 
+  LayoutDashboard, 
+  Target, 
+  Activity, 
+  CheckCircle2, 
+  Zap, 
+  Server, 
+  Network, 
+  ActivitySquare, 
+  Settings, 
+  Search
+} from "lucide-react"
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -11,66 +36,130 @@ export function AppSidebar() {
   };
 
   return (
-    <div className="app-sidebar">
-      <div className="flex-center" style={{ height: "56px", borderBottom: "1px solid var(--border-subtle)", padding: "0 24px", justifyContent: "flex-start" }}>
-        <strong style={{ fontSize: "14px", letterSpacing: "0.05em", color: "var(--fg-base)" }}>ACTIONOS</strong>
-      </div>
-      
-      <div style={{ padding: "16px 8px" }}>
-        <button className="input" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", color: "var(--fg-subtle)", cursor: "text", marginBottom: "24px", height: "32px", fontSize: "12px" }}>
-          <span>Search...</span>
-          <span className="badge" style={{ backgroundColor: "var(--bg-subtle)" }}>⌘K</span>
-        </button>
-
-        <div className="nav-group">
-          <div className="nav-group-title">WORKSPACE</div>
-          <Link href="/dashboard" className={`nav-link ${pathname === "/dashboard" ? "active" : ""}`}>
-            <span style={{ fontSize: "16px", width: "20px", display: "inline-block" }}>▣</span> Overview
-          </Link>
-          <Link href="/missions" className={`nav-link ${isActive("/missions") ? "active" : ""}`}>
-            <span style={{ fontSize: "16px", width: "20px", display: "inline-block" }}>◉</span> Missions
-          </Link>
-          <Link href="/activity" className={`nav-link ${isActive("/activity") ? "active" : ""}`}>
-            <span style={{ fontSize: "16px", width: "20px", display: "inline-block" }}>◌</span> Activity
-          </Link>
-          <Link href="/status/completed" className={`nav-link ${isActive("/status/completed") ? "active" : ""}`}>
-            <span style={{ fontSize: "16px", width: "20px", display: "inline-block" }}>✓</span> Completed
-          </Link>
+    <Sidebar variant="inset">
+      <SidebarHeader>
+        <div className="flex h-12 items-center px-4 border-b border-sidebar-border">
+          <strong className="text-sm tracking-wider text-sidebar-foreground">ACTIONOS</strong>
+        </div>
+      </SidebarHeader>
+      <SidebarContent>
+        <div className="px-4 py-2">
+          <button className="flex w-full items-center justify-between rounded-md border border-sidebar-border bg-background px-3 py-1.5 text-sm text-sidebar-foreground/50 shadow-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+            <span className="flex items-center gap-2">
+              <Search className="h-4 w-4" />
+              Search...
+            </span>
+            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-sidebar-border bg-sidebar-accent px-1.5 font-mono text-[10px] font-medium text-sidebar-accent-foreground opacity-100">
+              <span className="text-xs">⌘</span>K
+            </kbd>
+          </button>
         </div>
 
-        <div className="nav-group">
-          <div className="nav-group-title">SYSTEM</div>
-          <Link href="/capabilities" className={`nav-link ${isActive("/capabilities") ? "active" : ""}`}>
-            <span style={{ fontSize: "16px", width: "20px", display: "inline-block" }}>⚡</span> Capabilities
-          </Link>
-          <Link href="/status/execution" className={`nav-link ${isActive("/status/execution") ? "active" : ""}`}>
-            <span style={{ fontSize: "16px", width: "20px", display: "inline-block" }}>◫</span> Execution
-          </Link>
-          <Link href="/status/integrations" className={`nav-link ${isActive("/status/integrations") ? "active" : ""}`}>
-            <span style={{ fontSize: "16px", width: "20px", display: "inline-block" }}>◈</span> Integrations
-          </Link>
-          <Link href="/status" className={`nav-link ${isActive("/status") && pathname === "/status" ? "active" : ""}`}>
-            <span style={{ fontSize: "16px", width: "20px", display: "inline-block" }}>◉</span> Health
-          </Link>
-        </div>
-      </div>
-      
-      <div style={{ flex: 1 }}></div>
+        <SidebarGroup>
+          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === "/dashboard"}>
+                  <Link href="/dashboard">
+                    <LayoutDashboard />
+                    <span>Overview</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/missions")}>
+                  <Link href="/missions">
+                    <Target />
+                    <span>Missions</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/activity")}>
+                  <Link href="/activity">
+                    <Activity />
+                    <span>Activity</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/status/completed")}>
+                  <Link href="/status/completed">
+                    <CheckCircle2 />
+                    <span>Completed</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
-      <div style={{ padding: "16px", borderTop: "1px solid var(--border-subtle)" }}>
-        <Link href="/settings" className="nav-link" style={{ margin: 0, padding: "8px" }}>
-          <span style={{ fontSize: "16px", width: "20px", display: "inline-block" }}>⚙</span> Settings
-        </Link>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px 8px 4px" }}>
-          <div style={{ width: "28px", height: "28px", borderRadius: "50%", backgroundColor: "var(--accent-muted)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 600 }}>
-            P
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontSize: "12px", color: "var(--fg-base)", fontWeight: 500 }}>Puneet</span>
-            <span style={{ fontSize: "10px", color: "var(--fg-subtle)" }}>Admin</span>
-          </div>
-        </div>
-      </div>
-    </div>
+        <SidebarGroup>
+          <SidebarGroupLabel>System</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/capabilities")}>
+                  <Link href="/capabilities">
+                    <Zap />
+                    <span>Capabilities</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/status/execution")}>
+                  <Link href="/status/execution">
+                    <Server />
+                    <span>Execution</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/status/integrations")}>
+                  <Link href="/status/integrations">
+                    <Network />
+                    <span>Integrations</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/status") && pathname === "/status"}>
+                  <Link href="/status">
+                    <ActivitySquare />
+                    <span>Health</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link href="/settings">
+                <Settings />
+                <span>Settings</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild className="mt-2 h-12">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <span className="text-xs font-bold">P</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">Puneet</span>
+                  <span className="text-xs text-sidebar-foreground/50">Admin</span>
+                </div>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
   );
 }

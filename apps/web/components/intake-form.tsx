@@ -5,6 +5,12 @@ import { useRouter } from "next/navigation";
 import { anonymousIdToken } from "../lib/firebase-client";
 import { errorCopy } from "../lib/error-copy";
 import { useLocale } from "../lib/use-locale";
+import { GlassCard } from "./ui/GlassCard";
+import InteractiveCard from "./ui/InteractiveCard";
+import AnimatedText, { TypewriterText } from "./ui/AnimatedText";
+import { AnimatedCubes } from "./ui/AnimatedCubes";
+import { Button } from "./ui/button";
+import { Paperclip, X, Zap, Loader2 } from "lucide-react";
 
 export function IntakeForm() {
   const router = useRouter();
@@ -28,7 +34,6 @@ export function IntakeForm() {
       const body = new FormData();
       if (text.trim()) body.set("text", text);
       if (file) body.set("file", file);
-      // NOTE: executionMode could be sent to backend in real implementation
       
       const response = await fetch("/api/intake", {
         method: "POST",
@@ -52,93 +57,108 @@ export function IntakeForm() {
   const ready = text.trim().length > 0 || file !== undefined;
 
   return (
-    <div data-testid="intake-form" data-hydrated={hydrated} aria-busy={busy}>
-      <div className="card" style={{ padding: "0", overflow: "hidden", marginBottom: "24px" }}>
-        <textarea
-          className="input no-scrollbar"
-          value={text}
-          disabled={busy}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Tell ActionOS what you want accomplished..."
-          style={{ minHeight: "180px", border: "none", borderRadius: "0", backgroundColor: "transparent", fontSize: "16px", padding: "24px" }}
-        />
-        <div className="flex-between" style={{ padding: "12px 24px", borderTop: "1px solid var(--border-subtle)", backgroundColor: "var(--bg-surface-elevated)" }}>
-          <div style={{ position: "relative" }}>
-            <label htmlFor="artifact" style={{ margin: 0, fontSize: "13px", color: "var(--fg-muted)", cursor: "pointer" }}>
-              <span className="flex-center gap-2">
-                <span>📎</span> {file ? file.name : "Attach a file"}
-              </span>
-            </label>
-            <input
-              id="artifact"
-              type="file"
-              disabled={busy}
-              style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }}
-              onChange={(e) => setFile(e.target.files?.[0])}
-            />
-          </div>
-          {file && (
-            <button type="button" onClick={() => setFile(undefined)} className="btn btn-ghost" style={{ padding: "4px 8px", fontSize: "12px" }}>
-              Remove
-            </button>
-          )}
+    <div data-testid="intake-form" data-hydrated={hydrated} aria-busy={busy} className="max-w-4xl mx-auto py-12">
+      {busy ? (
+        <div className="flex flex-col items-center justify-center min-h-[400px]">
+          <AnimatedCubes />
+          <TypewriterText text="ActionOS is interpreting your intent and crafting a mission plan..." className="text-xl font-medium mt-12 text-center text-primary" speed={0.03} />
         </div>
-      </div>
-
-      <div style={{ marginBottom: "32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
-        {/* Capabilities Panel */}
-        <div className="panel" style={{ padding: "20px" }}>
-          <h3 style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--fg-subtle)", marginBottom: "16px" }}>Capabilities</h3>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-            <span className="badge badge-default">Email</span>
-            <span className="badge badge-default">HTTP</span>
-            <span className="badge badge-default">Data</span>
-            <span className="badge badge-default">Files</span>
-          </div>
-          <p style={{ marginTop: "16px", fontSize: "12px", color: "var(--fg-subtle)" }}>
-            The agent will automatically select the necessary capabilities based on the mission goal.
-          </p>
-        </div>
-
-        {/* Execution Mode */}
-        <div className="panel" style={{ padding: "20px" }}>
-          <h3 style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--fg-subtle)", marginBottom: "16px" }}>Execution</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", margin: 0 }}>
-              <input type="radio" name="exec-mode" checked={executionMode === "automatic"} onChange={() => setExecutionMode("automatic")} style={{ accentColor: "var(--accent)" }} />
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <span style={{ fontSize: "14px", color: "var(--fg-base)" }}>Automatic</span>
-                <span style={{ fontSize: "12px", color: "var(--fg-muted)" }}>Execute plan immediately</span>
+      ) : (
+        <div className="space-y-8">
+          <AnimatedText delay={0.1}>
+            <GlassCard className="overflow-hidden">
+              <textarea
+                className="w-full min-h-[240px] bg-transparent border-none text-foreground text-lg outline-none p-6 resize-none placeholder:text-muted-foreground/60 no-scrollbar"
+                value={text}
+                disabled={busy}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Tell ActionOS what you want accomplished..."
+              />
+              <div className="flex items-center justify-between px-6 py-4 bg-background/50 border-t border-border/50 backdrop-blur-sm">
+                <div className="relative">
+                  <label htmlFor="artifact" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
+                    <Paperclip className="w-4 h-4" /> 
+                    {file ? file.name : "Attach context file"}
+                  </label>
+                  <input
+                    id="artifact"
+                    type="file"
+                    disabled={busy}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    onChange={(e) => setFile(e.target.files?.[0])}
+                  />
+                </div>
+                {file && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setFile(undefined)} className="h-8 gap-2 text-muted-foreground hover:text-destructive">
+                    <X className="w-3 h-3" /> Remove
+                  </Button>
+                )}
               </div>
-            </label>
-            <label style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", margin: 0 }}>
-              <input type="radio" name="exec-mode" checked={executionMode === "ask"} onChange={() => setExecutionMode("ask")} style={{ accentColor: "var(--accent)" }} />
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <span style={{ fontSize: "14px", color: "var(--fg-base)" }}>Ask before sensitive actions</span>
-                <span style={{ fontSize: "12px", color: "var(--fg-muted)" }}>Require human approval</span>
-              </div>
-            </label>
+            </GlassCard>
+          </AnimatedText>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <InteractiveCard delay={0.2} hoverScale={1.02}>
+              <GlassCard className="p-6 h-full flex flex-col">
+                <h3 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase mb-4">Capabilities</h3>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {["Email", "HTTP", "Data", "Files"].map(cap => (
+                    <span key={cap} className="inline-flex items-center rounded-md bg-secondary px-2.5 py-0.5 text-xs font-semibold text-secondary-foreground border border-border">
+                      {cap}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground mt-auto">
+                  The agent will automatically select the necessary capabilities based on the mission goal.
+                </p>
+              </GlassCard>
+            </InteractiveCard>
+
+            <InteractiveCard delay={0.3} hoverScale={1.02}>
+              <GlassCard className="p-6 h-full flex flex-col">
+                <h3 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase mb-4">Execution Strategy</h3>
+                <div className="flex flex-col gap-4">
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <input type="radio" name="exec-mode" className="mt-1" checked={executionMode === "automatic"} onChange={() => setExecutionMode("automatic")} />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Automatic</span>
+                      <span className="text-xs text-muted-foreground">Execute plan immediately</span>
+                    </div>
+                  </label>
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <input type="radio" name="exec-mode" className="mt-1" checked={executionMode === "ask"} onChange={() => setExecutionMode("ask")} />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Ask before sensitive actions</span>
+                      <span className="text-xs text-muted-foreground">Require human approval</span>
+                    </div>
+                  </label>
+                </div>
+              </GlassCard>
+            </InteractiveCard>
           </div>
-        </div>
-      </div>
 
-      {error ? <div className="card" style={{ borderColor: "var(--danger)", backgroundColor: "var(--danger-muted)", color: "var(--danger)", padding: "16px", marginBottom: "24px" }}>{errorCopy(error)}</div> : null}
-
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <button
-          className="btn btn-primary"
-          style={{ padding: "12px 24px" }}
-          type="button"
-          disabled={!ready || busy}
-          onClick={submit}
-        >
-          {busy ? (
-            <span className="flex-center gap-2"><span className="timeline-icon running" style={{ width: "14px", height: "14px" }}></span> Analyzing Intent...</span>
-          ) : (
-            <span>Review Mission →</span>
+          {error && (
+            <AnimatedText delay={0}>
+              <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+                {errorCopy(error)}
+              </div>
+            </AnimatedText>
           )}
-        </button>
-      </div>
+
+          <AnimatedText delay={0.4} className="flex justify-end pt-4">
+            <Button
+              size="lg"
+              className="gap-2 px-8 shadow-lg shadow-primary/20"
+              type="button"
+              disabled={!ready || busy}
+              onClick={submit}
+            >
+              <Zap className="w-4 h-4" />
+              Review Mission Plan <span className="opacity-70">→</span>
+            </Button>
+          </AnimatedText>
+        </div>
+      )}
     </div>
   );
 }
