@@ -1,6 +1,7 @@
 "use client";
 
-import * as React from "react"
+import * as React from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -25,11 +26,24 @@ import {
   Network, 
   ActivitySquare, 
   Settings, 
-  Search
+  Search,
+  LogOut,
+  LogIn
 } from "lucide-react"
+import { recoverableIdentity, signOutUser } from "../lib/firebase-client";
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const [identity, setIdentity] = useState<{ isAnonymous: boolean; email?: string; name?: string }>();
+
+  useEffect(() => {
+    recoverableIdentity().then(setIdentity).catch(console.error);
+  }, []);
+
+  const handleSignOut = async () => {
+    await signOutUser();
+    window.location.reload();
+  };
 
   const isActive = (path: string) => {
     return pathname === path || pathname?.startsWith(path + "/");
@@ -138,25 +152,29 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="/settings">
-                <Settings />
-                <span>Settings</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild className="mt-2 h-12">
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <span className="text-xs font-bold">P</span>
+            {identity && !identity.isAnonymous ? (
+              <div className="flex items-center justify-between mt-2 h-12 px-2 bg-sidebar-accent/50 rounded-lg">
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary flex-shrink-0">
+                    <span className="text-xs font-bold uppercase">{identity.name?.[0] || identity.email?.[0] || 'U'}</span>
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-medium truncate">{identity.name || "User"}</span>
+                    <span className="text-xs text-sidebar-foreground/50 truncate">{identity.email}</span>
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium">Puneet</span>
-                  <span className="text-xs text-sidebar-foreground/50">Admin</span>
-                </div>
+                <button onClick={handleSignOut} className="p-2 text-sidebar-foreground/50 hover:text-sidebar-foreground transition-colors ml-2" title="Sign Out">
+                  <LogOut className="w-4 h-4" />
+                </button>
               </div>
-            </SidebarMenuButton>
+            ) : (
+              <SidebarMenuButton asChild className="mt-2 h-12">
+                <Link href="/login" className="flex items-center justify-center gap-2 text-primary bg-primary/5 hover:bg-primary/10">
+                  <LogIn className="w-4 h-4" />
+                  <span className="font-semibold">Sign In</span>
+                </Link>
+              </SidebarMenuButton>
+            )}
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

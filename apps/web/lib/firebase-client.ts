@@ -10,6 +10,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
+  signOut,
   type User
 } from "firebase/auth";
 
@@ -52,11 +53,13 @@ export async function anonymousIdToken(): Promise<string> {
 export async function recoverableIdentity(): Promise<{
   isAnonymous: boolean;
   email?: string;
+  name?: string;
 }> {
   const user = await currentUser();
   return {
     isAnonymous: user.isAnonymous,
-    ...(user.email ? { email: user.email } : {})
+    ...(user.email ? { email: user.email } : {}),
+    ...(user.displayName ? { name: user.displayName } : {})
   };
 }
 
@@ -129,4 +132,12 @@ export async function signUpWithPassword(email: string, password: string, name: 
     token: await credential.user.getIdToken(true),
     ...(credential.user.email ? { email: credential.user.email } : {})
   };
+}
+
+export async function signOutUser(): Promise<void> {
+  const config = await publicConfig();
+  const app = getApps().length > 0 ? getApp() : initializeApp(config);
+  const auth = getAuth(app);
+  await auth.authStateReady();
+  await signOut(auth);
 }

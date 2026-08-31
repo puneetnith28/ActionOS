@@ -2,6 +2,7 @@ import { AppSidebar } from "../../components/app-sidebar";
 import { CommandPalette } from "../../components/command-palette";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "../../components/ui/sidebar";
 import { GridBackground } from "../../components/ui/GridBackground";
+import { AuthGuard } from "../../components/auth-guard";
 
 export default function WorkspaceLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -22,7 +23,9 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
               </div>
             </header>
             <main className="flex-1 overflow-auto no-scrollbar">
-              {children}
+              <AuthGuard>
+                {children}
+              </AuthGuard>
             </main>
           </GridBackground>
         </SidebarInset>

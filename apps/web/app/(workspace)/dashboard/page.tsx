@@ -7,6 +7,7 @@ import NeonMesh from "../../../components/ui/neon-mesh";
 import { Button } from "../../../components/ui/button";
 import { Activity, Play, CheckCircle2, Server, Database, Bot, Zap, LayoutDashboard } from "lucide-react";
 import { MissionInbox } from "../../../components/mission-inbox";
+import { DashboardGreeting } from "../../../components/dashboard-greeting";
 
 export default async function CommandCenter() {
   const [locale] = await Promise.all([getRequestLocale(), getRequestMessages()]);
@@ -30,9 +31,7 @@ export default async function CommandCenter() {
             <LayoutDashboard className="w-4 h-4" />
             Command Center
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white drop-shadow-lg">
-            Good morning, Puneet.
-          </h1>
+          <DashboardGreeting />
           <p className="text-lg text-white/60 max-w-2xl mx-auto leading-relaxed">
             What should ActionOS take care of today?
           </p>
