@@ -9,7 +9,7 @@ export default async function CompletedPage() {
   const [locale] = await Promise.all([getRequestLocale(), getRequestMessages()]);
 
   return (
-    <div style={{ position: "relative", minHeight: "100%", overflow: "hidden" }}>
+    <div style={{ position: "relative", minHeight: "100%", overflowX: "hidden" }}>
       {/* Background Effects */}
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "100%", zIndex: 0, pointerEvents: "none" }}>
         <NeonMesh title="" subtitle="" description="" className="opacity-40" />

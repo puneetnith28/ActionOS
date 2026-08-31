@@ -6,27 +6,39 @@ import { CheckCircle2, Server, Activity, Clock, TerminalSquare, AlertCircle } fr
 export default async function StatusPage() {
   const [locale] = await Promise.all([getRequestLocale(), getRequestMessages()]);
 
+  // Dynamically verify core system components
+  const gcpConnected = Boolean(process.env.GOOGLE_CLOUD_PROJECT);
+  const tasksConnected = Boolean(process.env.CLOUD_TASKS_QUEUE);
+  const firestoreConnected = Boolean(process.env.FIRESTORE_DATABASE || process.env.GOOGLE_CLOUD_PROJECT);
+  const allOperational = gcpConnected && tasksConnected && firestoreConnected;
+
+  const nodeVersion = process.version;
+  const platform = process.platform;
+  const memoryUsage = Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + " MB";
+
   return (
-    <div className="relative w-full max-w-5xl mx-auto px-4 py-12 lg:py-20">
+    <div className="relative w-full max-w-5xl mx-auto px-4 py-12 lg:py-20 overflowX-hidden">
       <header className="mb-12">
         <h1 className="text-3xl font-semibold tracking-tight mb-2">System Health</h1>
-        <p className="text-lg text-muted-foreground">Real-time operational status</p>
+        <p className="text-lg text-muted-foreground">Real-time infrastructure and runtime status</p>
       </header>
 
       {/* Overall Health */}
       <section className="mb-12">
         <InteractiveCard delay={0.1} hoverScale={1.02}>
-          <GlassCard className="p-8 flex items-center gap-6 border-emerald-500/20 bg-emerald-500/5">
+          <GlassCard className={`p-8 flex items-center gap-6 ${allOperational ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-amber-500/20 bg-amber-500/5'}`}>
             <div className="relative flex h-16 w-16 items-center justify-center">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-20"></span>
-              <div className="relative flex items-center justify-center h-16 w-16 rounded-full bg-emerald-500/20 text-emerald-500">
-                <CheckCircle2 className="w-8 h-8" />
+              {allOperational && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-20"></span>}
+              <div className={`relative flex items-center justify-center h-16 w-16 rounded-full ${allOperational ? 'bg-emerald-500/20 text-emerald-500' : 'bg-amber-500/20 text-amber-500'}`}>
+                {allOperational ? <CheckCircle2 className="w-8 h-8" /> : <AlertCircle className="w-8 h-8" />}
               </div>
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">All Systems Operational</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-1">
+                {allOperational ? "All Systems Operational" : "Degraded Performance"}
+              </h2>
               <p className="text-sm text-muted-foreground flex items-center gap-2">
-                <Clock className="w-4 h-4" /> Last checked just now
+                <Clock className="w-4 h-4" /> Live Server Status
               </p>
             </div>
           </GlassCard>
@@ -43,18 +55,15 @@ export default async function StatusPage() {
           <GlassCard className="p-0 overflow-hidden">
             <div className="divide-y divide-border/50">
               {[
-                { name: "Gemini / Vertex AI", status: "Operational", latency: "142ms", ok: true },
-                { name: "Mission Runtime", status: "Operational", latency: "89ms", ok: true },
-                { name: "Firestore Persistence", status: "Operational", latency: "24ms", ok: true },
-                { name: "Cloud Tasks Queue", status: "Operational", latency: "12ms", ok: true },
-                { name: "Capability Registry", status: "Operational", latency: "—", ok: true },
-              ].map((service, idx) => (
+                { name: "Gemini / Vertex AI Runtime", status: gcpConnected ? "Operational" : "Offline", ok: gcpConnected },
+                { name: "Firestore Persistence", status: firestoreConnected ? "Operational" : "Offline", ok: firestoreConnected },
+                { name: "Cloud Tasks Queue", status: tasksConnected ? "Operational" : "Offline", ok: tasksConnected },
+              ].map((service) => (
                 <div key={service.name} className="flex items-center justify-between p-5 hover:bg-white/[0.02] transition-colors">
                   <span className="text-sm font-medium text-foreground">{service.name}</span>
                   <div className="flex items-center gap-6">
-                    <span className="font-mono text-xs text-muted-foreground">{service.latency}</span>
                     <div className="flex items-center gap-2 w-24">
-                      <span className={`relative inline-flex rounded-full h-2 w-2 ${service.ok ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
+                      <span className={`relative inline-flex rounded-full h-2 w-2 ${service.ok ? 'bg-emerald-500' : 'bg-destructive'}`}></span>
                       <span className="text-xs text-muted-foreground">{service.status}</span>
                     </div>
                   </div>
@@ -65,59 +74,27 @@ export default async function StatusPage() {
         </InteractiveCard>
       </section>
 
-      {/* Execution Metrics */}
+      {/* Server Metrics */}
       <section className="mb-12">
         <div className="flex items-center gap-2 mb-4">
           <Activity className="w-4 h-4 text-primary" />
-          <h2 className="text-xs font-bold tracking-widest text-muted-foreground uppercase m-0">Execution (24h)</h2>
+          <h2 className="text-xs font-bold tracking-widest text-muted-foreground uppercase m-0">Server Environment</h2>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: "Active", value: "4", color: "text-blue-500" },
-            { label: "Completed", value: "37", color: "text-emerald-500" },
-            { label: "Failed", value: "2", color: "text-destructive" },
-            { label: "Avg Duration", value: "18.4s", color: "text-foreground" },
+            { label: "Node.js", value: nodeVersion, color: "text-blue-500" },
+            { label: "Memory Heap", value: memoryUsage, color: "text-emerald-500" },
+            { label: "Platform", value: platform, color: "text-foreground" },
+            { label: "Environment", value: process.env.NODE_ENV || "development", color: "text-purple-500" },
           ].map((metric, idx) => (
             <InteractiveCard key={metric.label} delay={0.3 + idx * 0.1} hoverScale={1.05}>
               <GlassCard className="p-6 flex flex-col justify-between h-full">
                 <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">{metric.label}</div>
-                <div className={`text-3xl font-semibold ${metric.color}`}>{metric.value}</div>
+                <div className={`text-2xl font-semibold ${metric.color} truncate`}>{metric.value}</div>
               </GlassCard>
             </InteractiveCard>
           ))}
         </div>
-      </section>
-
-      {/* Recent Events */}
-      <section>
-        <div className="flex items-center gap-2 mb-4">
-          <TerminalSquare className="w-4 h-4 text-primary" />
-          <h2 className="text-xs font-bold tracking-widest text-muted-foreground uppercase m-0">Recent Events</h2>
-        </div>
-        <InteractiveCard delay={0.5} hoverScale={1}>
-          <GlassCard className="p-0 overflow-hidden">
-            <div className="divide-y divide-border/50">
-              {[
-                { time: "09:42:15", msg: "Mission started (ID: cas_1234)", type: "info" },
-                { time: "09:41:03", msg: "Capability Data Retrieval completed", type: "success" },
-                { time: "09:39:55", msg: "Mission completed (ID: cas_9876)", type: "success" },
-                { time: "09:15:22", msg: "Agent scaled up capacity", type: "info" },
-                { time: "08:30:11", msg: "API rate limit approaching", type: "warning" }
-              ].map((evt, idx) => (
-                <div key={idx} className="flex items-start gap-4 p-5 hover:bg-white/[0.02] transition-colors">
-                  <span className="font-mono text-xs text-muted-foreground shrink-0 mt-0.5">{evt.time}</span>
-                  <span className={`text-sm ${
-                    evt.type === 'warning' ? 'text-amber-500' : 
-                    evt.type === 'success' ? 'text-emerald-500/80' : 
-                    'text-foreground'
-                  }`}>
-                    {evt.msg}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </GlassCard>
-        </InteractiveCard>
       </section>
 
     </div>
