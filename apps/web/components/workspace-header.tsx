@@ -13,8 +13,10 @@ export function WorkspaceHeader() {
     const parts = pathname.split("/").filter(Boolean);
     if (parts.length > 0) {
       const lastPart = parts[parts.length - 1];
-      title = lastPart.replace(/-/g, " ");
-      title = title.charAt(0).toUpperCase() + title.slice(1);
+      if (lastPart) {
+        title = lastPart.replace(/-/g, " ");
+        title = title.charAt(0).toUpperCase() + title.slice(1);
+      }
     }
   } else if (pathname === "/dashboard") {
     title = "Overview";

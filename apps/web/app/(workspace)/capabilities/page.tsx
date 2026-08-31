@@ -55,7 +55,7 @@ export default async function CapabilitiesPage() {
           {caps.map((cap, idx) => {
             const isAvailable = cap.status === "AVAILABLE";
             let Icon = Boxes;
-            let title = cap.channelType;
+            let title: string = cap.channelType;
             let description = "";
 
             if (cap.channelType === "CONTROLLED_SANDBOX") {

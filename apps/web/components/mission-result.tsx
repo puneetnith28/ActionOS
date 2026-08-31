@@ -64,13 +64,13 @@ export function MissionResult({ missionId }: { readonly missionId: string }) {
 
   const timelineEvents: TimelineEvent[] = detail.timeline.map((event, idx) => {
     return {
-      id: event.id,
+      id: event.eventId,
       actor: "ActionOS System",
       role: "Agent",
       timestamp: event.occurredAt || new Date().toISOString(),
-      note: event.reason || `Transitioned to ${event.transition.replaceAll("_", " ")}`,
+      note: event.reasonCodes?.[0] || `Transitioned to ${event.state.replaceAll("_", " ")}`,
       hash: `0x${Array.from({length: 16}, () => Math.floor(Math.random()*16).toString(16)).join('')}...`,
-      ledgerRef: `evt_${event.transition.toLowerCase()}_${idx}`
+      ledgerRef: `evt_${event.state.toLowerCase()}_${idx}`
     };
   });
 
@@ -195,7 +195,7 @@ export function MissionResult({ missionId }: { readonly missionId: string }) {
                 <div>
                   <div className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase mb-2">Goal</div>
                   <div className="text-sm text-foreground leading-relaxed bg-background/50 p-3 rounded-md border border-border/50">
-                    {detail.promise || "No explicit goal provided."}
+                    {detail.goal || "No explicit goal provided."}
                   </div>
                 </div>
                 
