@@ -12,11 +12,12 @@ export function DashboardGreeting() {
         if (identity.name) {
           // Extract first name if possible
           const firstName = identity.name.split(" ")[0];
-          setName(firstName);
+          setName(firstName || "Commander");
         } else if (identity.email) {
           const emailName = identity.email.split("@")[0];
-          // capitalize
-          setName(emailName.charAt(0).toUpperCase() + emailName.slice(1));
+          if (emailName) {
+            setName(emailName.charAt(0).toUpperCase() + emailName.slice(1));
+          }
         }
       })
       .catch(console.error);
@@ -24,7 +25,7 @@ export function DashboardGreeting() {
 
   return (
     <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white drop-shadow-lg">
-      Good morning, {name}.
+      Welcome, {name}.
     </h1>
   );
 }

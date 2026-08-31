@@ -12,14 +12,22 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true;
     
+    let timeoutId = setTimeout(() => {
+      if (mounted && loading) {
+        console.error("Auth Guard Error: recoverableIdentity timed out");
+        router.replace("/login");
+      }
+    }, 5000);
+
     recoverableIdentity()
       .then((identity) => {
         if (!mounted) return;
-        
+        clearTimeout(timeoutId);
+        console.log("AuthGuard identity:", identity);
         if (identity.isAnonymous) {
-          window.location.href = "/login";
+          router.replace("/login");
         } else if (identity.email && !identity.emailVerified) {
-          window.location.href = "/verify-email";
+          router.replace("/verify-email");
         } else {
           setAuthorized(true);
           setLoading(false);
@@ -27,11 +35,13 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       })
       .catch((error) => {
         console.error("Auth Guard Error:", error);
-        if (mounted) window.location.href = "/login";
+        clearTimeout(timeoutId);
+        if (mounted) router.replace("/login");
       });
 
     return () => {
       mounted = false;
+      clearTimeout(timeoutId);
     };
   }, [router]);
 

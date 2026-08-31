@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { signInWithPassword, signUpWithPassword } from "../../lib/firebase-client";
 import { GlassCard } from "../../components/ui/GlassCard";
 import InteractiveCard from "../../components/ui/InteractiveCard";
@@ -12,6 +12,7 @@ import NeonMesh from "../../components/ui/neon-mesh";
 import { GoogleSignIn } from "../../components/google-sign-in";
 
 function AuthForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [isLogin, setIsLogin] = useState(searchParams.get("mode") !== "signup");
   const [name, setName] = useState("");
@@ -30,7 +31,7 @@ function AuthForm() {
       } else {
         await signUpWithPassword(email, password, name);
       }
-      window.location.href = "/dashboard";
+      router.push("/dashboard");
     } catch (err: any) {
       setError(err.message || "Authentication failed. Please try again.");
     } finally {
@@ -123,7 +124,7 @@ function AuthForm() {
       </div>
 
       <div className="mt-6 flex justify-center">
-        <GoogleSignIn onSignedIn={() => { window.location.href = "/dashboard"; }} />
+        <GoogleSignIn onSignedIn={() => { router.push("/dashboard"); }} />
       </div>
     </div>
   );

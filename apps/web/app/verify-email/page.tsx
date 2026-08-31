@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Mail, ArrowRight, Activity, LogOut } from "lucide-react";
 import NeonMesh from "../../components/ui/neon-mesh";
 import InteractiveCard from "../../components/ui/InteractiveCard";
@@ -10,6 +11,7 @@ import { Button } from "../../components/ui/button";
 import { recoverableIdentity, signOutUser, reloadUser } from "../../lib/firebase-client";
 
 export default function VerifyEmailPage() {
+  const router = useRouter();
   const [email, setEmail] = useState<string>("your email");
 
   useEffect(() => {
@@ -20,7 +22,7 @@ export default function VerifyEmailPage() {
 
   const handleSignOut = async () => {
     await signOutUser();
-    window.location.href = "/login";
+    router.push("/login");
   };
 
   const [loading, setLoading] = useState(false);
@@ -30,7 +32,7 @@ export default function VerifyEmailPage() {
     try {
       await reloadUser();
       // After reloading, simply refresh the window to let AuthGuard check again
-      window.location.href = "/dashboard";
+      router.push("/dashboard");
     } catch (e) {
       console.error(e);
       setLoading(false);

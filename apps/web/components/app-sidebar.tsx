@@ -66,18 +66,6 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <div className="px-4 py-2">
-          <button className="flex w-full items-center justify-between rounded-md border border-sidebar-border bg-background px-3 py-1.5 text-sm text-sidebar-foreground/50 shadow-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-            <span className="flex items-center gap-2">
-              <Search className="h-4 w-4" />
-              Search...
-            </span>
-            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-sidebar-border bg-sidebar-accent px-1.5 font-mono text-[10px] font-medium text-sidebar-accent-foreground opacity-100">
-              <span className="text-xs">⌘</span>K
-            </kbd>
-          </button>
-        </div>
-
         <SidebarGroup>
           <SidebarGroupLabel>Workspace</SidebarGroupLabel>
           <SidebarGroupContent>
