@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { signInWithPassword, signUpWithPassword } from "../../../lib/firebase-client";
 import { GlassCard } from "../../components/ui/GlassCard";
 import InteractiveCard from "../../components/ui/InteractiveCard";
 import { Button } from "../../components/ui/button";
@@ -15,10 +16,25 @@ function AuthForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    window.location.href = "/dashboard";
+    setLoading(true);
+    setError(null);
+    try {
+      if (isLogin) {
+        await signInWithPassword(email, password);
+      } else {
+        await signUpWithPassword(email, password, name);
+      }
+      window.location.href = "/dashboard";
+    } catch (err: any) {
+      setError(err.message || "Authentication failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,11 +46,17 @@ function AuthForm() {
       <h1 className="text-3xl md:text-4xl font-bold mb-3 text-white tracking-tight">
         Welcome to ActionOS
       </h1>
-      <p className="text-white/60 mb-8">
+      <p className="text-white/60 mb-6">
         {isLogin 
           ? "Sign in to continue your autonomous agent workflows." 
           : "Create an account to deploy your first agent."}
       </p>
+
+      {error && (
+        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm font-medium">
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {!isLogin && (
@@ -73,9 +95,9 @@ function AuthForm() {
           />
         </div>
 
-        <Button type="submit" className="w-full bg-[#BEF202] text-black hover:bg-[#a5d202] font-bold py-6 rounded-xl mt-4 text-base flex items-center justify-center gap-2 group">
-          {isLogin ? "Sign In" : "Create Account"}
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        <Button disabled={loading} type="submit" className="w-full bg-[#BEF202] text-black hover:bg-[#a5d202] font-bold py-6 rounded-xl mt-4 text-base flex items-center justify-center gap-2 group disabled:opacity-50">
+          {loading ? "Processing..." : (isLogin ? "Sign In" : "Create Account")}
+          {!loading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
         </Button>
       </form>
 

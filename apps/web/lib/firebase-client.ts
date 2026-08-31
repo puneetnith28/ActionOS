@@ -7,6 +7,9 @@ import {
   linkWithPopup,
   signInWithPopup,
   signInAnonymously,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
   type User
 } from "firebase/auth";
 
@@ -95,4 +98,35 @@ export async function signInWithExistingGoogle(): Promise<{
     const code = typeof error === "object" && error && "code" in error ? String(error.code) : "";
     throw new Error(recoverableAuthError(code, false));
   }
+}
+
+export async function signInWithPassword(email: string, password: string): Promise<{
+  token: string;
+  email?: string;
+}> {
+  const config = await publicConfig();
+  const app = getApps().length > 0 ? getApp() : initializeApp(config);
+  const auth = getAuth(app);
+  await auth.authStateReady();
+  const credential = await signInWithEmailAndPassword(auth, email, password);
+  return {
+    token: await credential.user.getIdToken(true),
+    ...(credential.user.email ? { email: credential.user.email } : {})
+  };
+}
+
+export async function signUpWithPassword(email: string, password: string, name: string): Promise<{
+  token: string;
+  email?: string;
+}> {
+  const config = await publicConfig();
+  const app = getApps().length > 0 ? getApp() : initializeApp(config);
+  const auth = getAuth(app);
+  await auth.authStateReady();
+  const credential = await createUserWithEmailAndPassword(auth, email, password);
+  await updateProfile(credential.user, { displayName: name });
+  return {
+    token: await credential.user.getIdToken(true),
+    ...(credential.user.email ? { email: credential.user.email } : {})
+  };
 }
