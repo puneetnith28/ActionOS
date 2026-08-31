@@ -1,7 +1,8 @@
 import { getRequestLocale, getRequestMessages } from "../../../lib/i18n-server";
 import { GlassCard } from "../../../components/ui/GlassCard";
 import InteractiveCard from "../../../components/ui/InteractiveCard";
-import { CheckCircle2, Server, Activity, Clock, TerminalSquare, AlertCircle } from "lucide-react";
+import { CheckCircle2, Server, Activity, Clock, AlertCircle, ActivitySquare } from "lucide-react";
+import NeonMesh from "../../../components/ui/neon-mesh";
 
 export default async function StatusPage() {
   const [locale] = await Promise.all([getRequestLocale(), getRequestMessages()]);
@@ -17,11 +18,25 @@ export default async function StatusPage() {
   const memoryUsage = Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + " MB";
 
   return (
-    <div className="relative w-full max-w-5xl mx-auto px-4 py-12 lg:py-20 overflowX-hidden">
-      <header className="mb-12">
-        <h1 className="text-3xl font-semibold tracking-tight mb-2">System Health</h1>
-        <p className="text-lg text-muted-foreground">Real-time infrastructure and runtime status</p>
-      </header>
+    <div style={{ position: "relative", minHeight: "100%", overflowX: "hidden" }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "100%", zIndex: 0, pointerEvents: "none" }}>
+        <NeonMesh title="" subtitle="" description="" className="opacity-40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/90" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-4 py-12 lg:py-20">
+        <header className="mb-12 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#BEF202]/10 border border-[#BEF202]/20 text-xs font-medium text-[#BEF202] mb-6">
+            <ActivitySquare className="w-4 h-4" />
+            System Health
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white drop-shadow-lg">
+            Operational Status
+          </h1>
+          <p className="text-lg text-white/60 max-w-2xl mx-auto leading-relaxed">
+            Real-time infrastructure and runtime status diagnostics.
+          </p>
+        </header>
 
       {/* Overall Health */}
       <section className="mb-12">
@@ -97,6 +112,7 @@ export default async function StatusPage() {
         </div>
       </section>
 
+      </div>
     </div>
   );
 }
