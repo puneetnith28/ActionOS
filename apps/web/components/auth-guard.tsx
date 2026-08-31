@@ -18,6 +18,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         
         if (identity.isAnonymous) {
           router.replace("/login");
+        } else if (identity.email && !identity.emailVerified) {
+          router.replace("/verify-email");
         } else {
           setAuthorized(true);
           setLoading(false);

@@ -10,6 +10,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
+  sendEmailVerification,
   signOut,
   type User
 } from "firebase/auth";
@@ -54,10 +55,12 @@ export async function recoverableIdentity(): Promise<{
   isAnonymous: boolean;
   email?: string;
   name?: string;
+  emailVerified: boolean;
 }> {
   const user = await currentUser();
   return {
     isAnonymous: user.isAnonymous,
+    emailVerified: user.emailVerified,
     ...(user.email ? { email: user.email } : {}),
     ...(user.displayName ? { name: user.displayName } : {})
   };
@@ -128,6 +131,7 @@ export async function signUpWithPassword(email: string, password: string, name: 
   await auth.authStateReady();
   const credential = await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(credential.user, { displayName: name });
+  await sendEmailVerification(credential.user);
   return {
     token: await credential.user.getIdToken(true),
     ...(credential.user.email ? { email: credential.user.email } : {})
@@ -140,4 +144,11 @@ export async function signOutUser(): Promise<void> {
   const auth = getAuth(app);
   await auth.authStateReady();
   await signOut(auth);
+}
+
+export async function reloadUser(): Promise<void> {
+  const user = await currentUser();
+  if (user) {
+    await user.reload();
+  }
 }
