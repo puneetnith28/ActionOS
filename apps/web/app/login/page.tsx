@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { signInWithPassword, signUpWithPassword } from "../../../lib/firebase-client";
+import { signInWithPassword, signUpWithPassword } from "../../lib/firebase-client";
 import { GlassCard } from "../../components/ui/GlassCard";
 import InteractiveCard from "../../components/ui/InteractiveCard";
 import { Button } from "../../components/ui/button";
