@@ -55,8 +55,8 @@ graph TD
     end
 
     %% Callbacks & Resumption
-    Resend -.->|Webhook (Evidence)| WebAPI
-    MerchantSandbox -.->|Signed Callbacks| WebAPI
+    Resend -.->|"Webhook (Evidence)"| WebAPI
+    MerchantSandbox -.->|"Signed Callbacks"| WebAPI
 ```
 
 ---
