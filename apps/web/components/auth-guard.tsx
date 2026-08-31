@@ -17,9 +17,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         if (!mounted) return;
         
         if (identity.isAnonymous) {
-          router.replace("/login");
+          window.location.href = "/login";
         } else if (identity.email && !identity.emailVerified) {
-          router.replace("/verify-email");
+          window.location.href = "/verify-email";
         } else {
           setAuthorized(true);
           setLoading(false);
@@ -27,7 +27,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       })
       .catch((error) => {
         console.error("Auth Guard Error:", error);
-        if (mounted) router.replace("/login");
+        if (mounted) window.location.href = "/login";
       });
 
     return () => {

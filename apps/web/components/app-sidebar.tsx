@@ -16,6 +16,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "./ui/sidebar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu"
 import { 
   LayoutDashboard, 
   Target, 
@@ -28,7 +36,8 @@ import {
   Settings, 
   Search,
   LogOut,
-  LogIn
+  LogIn,
+  ChevronsUpDown
 } from "lucide-react"
 import { recoverableIdentity, signOutUser } from "../lib/firebase-client";
 
@@ -153,20 +162,43 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             {identity && !identity.isAnonymous ? (
-              <div className="flex items-center justify-between mt-2 h-12 px-2 bg-sidebar-accent/50 rounded-lg">
-                <div className="flex items-center gap-3 overflow-hidden">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary flex-shrink-0">
-                    <span className="text-xs font-bold uppercase">{identity.name?.[0] || identity.email?.[0] || 'U'}</span>
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-sm font-medium truncate">{identity.name || "User"}</span>
-                    <span className="text-xs text-sidebar-foreground/50 truncate">{identity.email}</span>
-                  </div>
-                </div>
-                <button onClick={handleSignOut} className="p-2 text-sidebar-foreground/50 hover:text-sidebar-foreground transition-colors ml-2" title="Sign Out">
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground mt-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary flex-shrink-0">
+                      <span className="text-xs font-bold uppercase">{identity.name?.[0] || identity.email?.[0] || 'U'}</span>
+                    </div>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-semibold">{identity.name || "User"}</span>
+                      <span className="truncate text-xs text-sidebar-foreground/50">{identity.email}</span>
+                    </div>
+                    <ChevronsUpDown className="ml-auto size-4" />
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg bg-black border-white/10"
+                  side="top"
+                  align="end"
+                  sideOffset={4}
+                >
+                  <DropdownMenuLabel className="p-0 font-normal">
+                    <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary flex-shrink-0">
+                        <span className="text-xs font-bold uppercase">{identity.name?.[0] || identity.email?.[0] || 'U'}</span>
+                      </div>
+                      <div className="grid flex-1 text-left text-sm leading-tight">
+                        <span className="truncate font-semibold">{identity.name || "User"}</span>
+                        <span className="truncate text-xs text-white/50">{identity.email}</span>
+                      </div>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-white/10" />
+                  <DropdownMenuItem onClick={handleSignOut} className="text-red-400 focus:text-red-300 focus:bg-red-400/10 cursor-pointer">
+                    <LogOut className="mr-2 size-4" />
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <SidebarMenuButton asChild className="mt-2 h-12">
                 <Link href="/login" className="flex items-center justify-center gap-2 text-primary bg-primary/5 hover:bg-primary/10">
