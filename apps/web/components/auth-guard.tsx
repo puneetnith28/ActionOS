@@ -17,7 +17,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         console.error("Auth Guard Error: recoverableIdentity timed out");
         router.replace("/login");
       }
-    }, 5000);
+    }, 15000);
 
     recoverableIdentity()
       .then((identity) => {

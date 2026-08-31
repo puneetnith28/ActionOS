@@ -6,7 +6,10 @@
 
 ActionOS is an **autonomous AI execution platform** that transforms natural-language goals into concrete, multi-step operations. Instead of merely generating conversational text, ActionOS interacts with live systems, triggers background workflows, evaluates outcomes, and persists state reliably until the assigned mission is accomplished.
 
-It is designed for production environments requiring high resilience, idempotent capabilities, and deterministic state management using Google Cloud's serverless ecosystem.
+It is **architected** for production environments requiring high resilience, idempotent capabilities, and deterministic state management using Google Cloud's serverless ecosystem.
+
+> [!NOTE]
+> **Deployment Status:** The application is currently fully runnable and testable in a local development environment using Firebase Emulators. While the codebase is fully prepared for Google Cloud Run (and documentation is provided), a live production deployment cannot be provisioned until a Google Cloud Billing account is attached to the project.
 
 ---
 
@@ -72,9 +75,9 @@ ActionOS comes with several highly isolated tools (Capabilities) that the Genkit
 
 ## 🚀 Getting Started
 
-To get ActionOS running locally on your machine or to deploy it to Google Cloud, we have separated our configuration and setup guides into dedicated documents:
+To run ActionOS on your machine (the currently supported method) or to review the steps for a future Google Cloud deployment, we have separated our configuration guides:
 
-- **[Local Development & Setup Guide](docs/DEVELOPMENT_GUIDE.md)**: Full instructions on installing dependencies, running the Firebase Emulator, and starting the Next.js console.
+- **[Local Development & Setup Guide](docs/DEVELOPMENT_GUIDE.md)**: Full instructions on installing dependencies, running the Firebase Emulator, and starting the Next.js console locally.
 - **[Environment Variables & Secrets](docs/ENVIRONMENT.md)**: A complete master list of all required `.env` variables, API keys, and service account configs.
 
 ---
